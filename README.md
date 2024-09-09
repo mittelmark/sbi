@@ -1,5 +1,17 @@
 # sbi - package
 
+## Name
+
+sbi - R functions for the course Statistical Bioinformatics
+
+## Synopsis
+
+```
+library(sbi)
+ls(sbi)
+library(help="sbi")
+```
+
 ## Description
 
 Package  with  functions  for the  course  Statistical  Bioinformatics  at the
@@ -10,10 +22,18 @@ every Winter semester.
 ## Installation
 
 The  package  comes as a single  file R script. You can  install  the  package
-either as the latest relases like this:
+either as the latest relases like this from a Unix Terminal:
 
 ```
+wget https://github.com/mittelmark/sbi/releases/download/v0.0.1/sbi_0.0.1.tar.gz
+R CMD INSTALL sbi_0.0.1.tar.gz
+```
 
+Or from within a R console
+
+```
+$ R
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.0.1/sbi_0.0.1.tar.gz",repos=NULL)
 ```
 
 Or you can install the latest development version dirctly from Github like this:
@@ -28,7 +48,7 @@ Or you can install the latest development version dirctly from Github like this:
 Here the commands:
 
 ```bash  
-wget -O sbi-src.R 
+wget -O sbi-src.R https://github.com/mittelmark/sbi/raw/main/sbi-src.R
 Rscript sbi-src.R --process    sbi-src.R         # extract all files
 Rscript sbi-src.R --vignettex  sbi-src.R         # extract examples as vignette
 Rscript sbi-src.R --build      sbi               # build package tar-gz file
