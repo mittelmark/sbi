@@ -1866,13 +1866,12 @@ sbi_shape = sbi$shape
 
 VIGNETTE = "---
 title: %s tutorial
-author: NN
+author: Detlef Groth, University of Potsdam, Germany
 date: %s
 output:
    html_document:
       toc: true
       theme: null
-      css: mini.css
 vignette: >
    %%\\VignetteEngine{knitr::rmarkdown}
    %%\\VignetteIndexEntry{%s tutorial}
