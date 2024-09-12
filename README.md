@@ -1,5 +1,9 @@
 # sbi - package
 
+[https://img.shields.io/github/v/release/mittelmark/sbi.svg?label=current+release](https://github.com/mittelmark/sbi/releases)
+[![license](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://opensource.org/license/MIT)
+[![CI test](https://github.com/mittelmark/sbi/workflows/R/badge.svg)](https://www.gnu.org/licenses/gpl.html)
+
 ## Name
 
 sbi - R functions for the course Statistical Bioinformatics
