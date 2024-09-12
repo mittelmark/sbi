@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.0.1
-#' Date: 2024-08-28
+#' Version: 0.0.2
+#' Date: 2024-09-12
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -21,22 +21,29 @@
 #'    useful functions helpful for in general statistical analysis.
 #' URL:  https://github.com/mittelmark/sbi
 #' BugReports: https://github.com/mittelmark/sbi/issues
+#' Imports: digest
 #' Suggests: knitr, rmarkdown, extrafont
 #' VignetteBuilder: knitr
 #' License: MIT + file LICENSE
 #' Language: en-US
 #' Encoding: UTF-8
 #' NeedsCompilation: no
-#' Collate: sbi.R aggregate2.R corr.R assoc.R textplot.R smartbind.R flow.R corrplot.R
-#'     cohensW.R corplot.R
+#' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
+#'     cache_image.R corr.R smartbind.R flow.R corrplot.R cohensW.R corplot.R
 #'     data.R deg2rad.R file.cat.R file.head.R modus.R pastel.R cramersV.R cv.R df2md.R dict.R
-#'     lmplot.R shape.R epsilonSquared.R etaSquared.R rad2deg.R report_pval.R is.dict.R
+#'     lmplot.R shape.R textplot.R  epsilonSquared.R etaSquared.R rad2deg.R report_pval.R is.dict.R
 
 #' FILE: sbi/LICENSE
 #' YEAR: 2024
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2024-09-12: Version 0.0.2 - 4 new functions
+#'    - sbi_angle
+#'    - sbi_bezier
+#'    - sbi_bootstrap
+#'    - sbi_cache_image
+#'
 #' 2024-08-28: Version 0.0.1 - Initial Release
 
 #' FILE: sbi/NAMESPACE
@@ -45,7 +52,8 @@
 #'            "model.frame","predict", "rgamma", "runif", "spline")
 #' importFrom("graphics", "polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
 #'            "abline","points")
-
+#' importFrom("digest","digest")
+#'
 #' FILE: sbi/inst/files/decathlon.tab
 #' 100	long	shot	high	400	110	disq	pole	jave	1500
 #' 1	32	7.43	15.48	2.27	29.4479	26.1732	49.28	4.7	61.32	20.0781
@@ -94,7 +102,11 @@
 #' Here the list of functions provided by this package:
 #' \describe{
 #' \item{\link[sbi:sbi_aggregate2]{sbi$aggregate2(x,y,z,FUN=cor,...)}}{Aggregate two variables against one factor variable}
+#' \item{\link[sbi:sbi_angle]{sbi$angle(x,y,degree=FALSE)}}{determine the angle between two vectors}
 #' \item{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}}{Create assocplots with residual coloring}
+#' \item{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}}{create bezier lines using three coordinates}
+#' \item{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}}{perform a resampling for the given data set and function}
+#' \item{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}}{create a crc32 image for a downloaded image from the internet if not yet there}
 #' \item{\link[sbi:sbi_cohensW]{sbi$cohensW(x)}}{Effect size for 2x2 and larger contingency tables}
 #' \item{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}}{Visualize a correlation with abline.}
 #' \item{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}}{Calculate pairwise correlations for a given data frame or matrix}
@@ -149,7 +161,11 @@
 #' \section{Methods}{ 
 #' \itemize{ 
 #' \item \code{\link[sbi:sbi_aggregate2]{sbi$aggregate2(x,y,z,FUN=cor,...)}} aggregate two variables against one factor variable
+#' \item \code{\link[sbi:sbi_angle]{sbi$angle(x,y, degree=FALSE)}} determine the angle between two vectors
 #' \item \code{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}} Create assocplots with residual coloring
+#' \item \code{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}} create bezier lines using three coordinates
+#' \item \code{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}} perform a resampling for the given data set and function
+#' \item \code{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}} create a crc32 image for a downloaded image from the internet if not yet there
 #' \item \code{\link[sbi:sbi_cohensW]{sbi$cohensW(x)}} Effect size for 2x2 and larger contingency tables.
 #' \item \code{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}} Visualize a correlation with abline.
 #' \item \code{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}} calculate pairwise correlations for a given data frame or matrix
@@ -219,6 +235,52 @@ sbi$aggregate2 <- function(x, y, z, FUN = cor, ...) {
 }
 
 sbi_aggregate2 = sbi$aggregate2
+
+#' FILE: sbi/man/sbi_angle.Rd
+#' \name{sbi$angle}
+#' \alias{sbi$angle}
+#' \alias{sbi_angle}
+#' \title{determine the angle between two vectors}
+#' \usage{sbi_angle(x, y, degree=FALSE)}
+#' \description{Determine the angle between two vectors either in rad (default) or degrees}
+#' \arguments{
+#'   \item{x}{numeric vector with x and y positions}
+#'   \item{y}{numeric vector with x and y positions}
+#'   \item{degree}{should the angle returned in degree value, default: FALSE}
+#' }
+#' \details{
+#'   This function should be used to calculate angles in geometry problems.
+#' }
+#' \value{angle either in rad or in degrees}
+#' \examples{
+#' x=c(1,2)
+#' y=c(2,1)
+#' sbi$angle(x,y)
+#' sbi$angle(x,y,degree=TRUE)
+#' plot(0,type="n",xlim=c(0,2.2),ylim=c(0,2),xlab="",ylab="")
+#' grid()
+#' arrows(0,0,x[1],x[2],col="red",lwd=3)
+#' arrows(0,0,y[1],y[2],col="blue",lwd=3)
+#' text(x[1]+0.1,x[2],"x",col="red",cex=2)
+#' text(y[1]+0.1,y[2],"y",col="blue",cex=2)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, 
+#' \link[sbi:sbi_rad2deg]{sbi$rad2deg},
+#' \link[sbi:sbi_rad2deg]{sbi$rad2deg}.}
+#' FILE: sbi/R/angle.R
+sbi$angle <- function (x,y,degree=FALSE) {
+    euc = function (x) {
+        x <- matrix(x, ncol = 1)
+        return(sqrt(colSums(x^2)))
+    }
+    theta <- acos(x %*% y/(euc(x) * euc(y)))
+    if (degree) {
+        theta <- sbi$rad2deg(theta)
+    }
+    return(theta[1,1])
+}
+
+sbi_angle = sbi$agngle
 
 #' FILE: sbi/man/sbi_corr.Rd
 #' \name{sbi$corr}
@@ -323,6 +385,167 @@ sbi$assoc <- function(..., shade = TRUE) {
 }
 
 sbi_assoc = sbi$assoc
+
+#' FILE: sbi/man/sbi_bezier.Rd
+#' \name{sbi$bezier}
+#' \alias{sbi_bezier}
+#' \alias{sbi$bezier}
+#' \title{create bezier lines using three coordinates}
+#' \usage{sbi_bezier(p1,p2,p3,plot=FALSE, arrow=FALSE,
+#'                      arrow.pos=0.55,lwd=2,lty=1,...)}
+#' \description{
+#'   This function creates bezier lines based on three coordinates.
+#'   For more background information consult this discussion on
+#'   [stats.stackexchange](https://stats.stackexchange.com/questions/294824/r-understanding-bezier-curves).
+#' }
+#' \arguments{
+#'   \item{p1}{starting point as vector of x and y}
+#'   \item{p2}{curve point as vector of x and y}
+#'   \item{p3}{end point as vector of x and y}
+#'   \item{plot}{should the curve added to an existing plot, default: FALSE}
+#'   \item{arrow}{should an error be plotted if plot=TRUE, default: FALSE}
+#'   \item{arrow.pos}{where the place the arrow, between 0 and 1, default: 0.55}
+#'   \item{lwd}{line width for line and arrow, default: 2}
+#'   \item{lty}{line type for the bezier line if plotted, default: 1}
+#'   \item{...}{other arguments forwarded to the line and the arrows function}
+#' }
+#' \value{if plot=FALSE returns list with x and y coordinates}
+#' \examples{
+#' plot(1,type="n",xlim=c(0,10),ylim=c(0,10))
+#' sbi$bezier(c(1,3),c(3,5),c(5,3),plot=TRUE,arrow=TRUE,col="red")
+#' sbi$bezier(c(1,3),c(3,7),c(5,3),plot=TRUE,arrow=TRUE,col="red",lty=2)
+#' sbi$bezier(c(5,3),c(3,1),c(1,3),plot=TRUE,arrow=TRUE,col="red",lty=1)
+#' sbi$bezier(c(5,3),c(3,-1),c(1,3),plot=TRUE,arrow=TRUE,col="red",lty=2)
+#' sbi$bezier(c(8,2),c(6,7),c(0,8),plot=TRUE,arrow=TRUE,col="blue", lty=2,arrow.pos=0.8)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package},
+#' \url{https://stats.stackexchange.com/questions/294824/r-understanding-bezier-curves}}
+
+#' FILE: sbi/R/bezier.R
+sbi$bezier <- function (p1,p2,p3,plot=FALSE,
+                        arrow=FALSE,
+                        arrow.pos=0.55,lwd=2,lty=1,...) {
+    B <- function( t, P0, P1, P2 ) {
+        (1 - t) * ( (1 - t)*P0 + t*P1 ) +
+        t       * ( (1 - t)*P1 + t*P2 ) 
+    }
+    idx=arrow.pos
+    steps=seq(0,1,by=0.02)
+    x=c()
+    y=c()
+    for (s in steps) { 
+        p=B(s,p1,p2,p3);
+        x=c(x,p[1])
+        y=c(y,p[2])
+    }
+    if (is.null(idx)) {
+        idx=round(length(x)/2)-1
+    } else {
+        idx=round(length(x)*idx)
+    }
+    if (plot) {
+        points(x,y,type="l",lwd=lwd,lty=lty,...)
+
+        if (arrow) {
+            for (i in c(15,10,5,2)) {
+                arrows(x[idx],y[idx],x[idx+1],y[idx+1],length=0.2,angle=i,lwd=2,lty=1,...)
+            }
+        }
+    } else {
+        return(list(x=x,y=y))
+    }
+}
+sbi_bezier = sbi$bezier
+
+#' FILE: sbi/man/sbi_bootstrap.Rd
+#' \name{sbi$bootstrap}
+#' \alias{sbi$bootstrap}
+#' \alias{sbi_bootstrap}
+#' \title{perform a resampling for the given data set and function}
+#' \usage{sbi_bootstrap(x,FUN=NULL,n=1000,...)}
+#' \description{The function allows you to perform a resampling method without replacement to perform
+#'   a boostrap analysis for instance to cmpute a p-value or a confidence interval.
+#' }
+#' \arguments{
+#'   \item{x}{a vector, a data frame or a matrix}
+#'   \item{FUN}{function handling the given data set type but performing before executing  FUN a sampling with replacement, please note that the function must return a scalar value, default=NULL}
+#'   \item{n}{the number of resamplings to perform, default: 1000}
+#'   \item{...}{remaining arguments are delegated to the given function *FUN*}
+#' }
+#' \value{vector with the resampled values from the given function}
+#' \examples{
+#' rn=rnorm(100,mean=10,sd=2)
+#' t.test(rn)$conf.int
+#' vals=sbi$bootstrap(rn,FUN=mean)
+#' summary(vals)
+#' quantile(vals,c(0.025,0.975)) # 95% CI is very close
+#' # confidence interval for spearman correlation
+#' cor.test(swiss[,1],swiss[,2],method="spearman")
+#' vals=sbi$bootstrap(swiss[,c(1,2)],
+#'    FUN=function(x) cor(x[,1],x[,2],method="spearman"))
+#' summary(vals)
+#' quantile(vals,c(0.025,0.975)) # 95% CI shows insignifcant
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+
+#' FILE: sbi/R/bootstrap.R
+sbi$bootstrap <- function (x,FUN=NULL,n=1000,...) {
+    if (class(FUN)!="function") {
+        stop("Error: Argument FUN with a function is missing!")
+    }
+    vals=c()
+    for (i in 1:n) {
+        if (is.matrix(x) | is.data.frame(x))  {
+            idx=sample(1:nrow(x),nrow(x),replace=TRUE)
+            vals=c(vals,FUN(x[idx,],...))
+        } else {
+            idx=sample(1:length(x),length(x),replace=TRUE)
+            vals=c(vals,FUN(x[idx],...))
+        }
+    }
+    return(vals)
+}
+
+sbi_bootstrap = sbi$bootstrap
+
+#' FILE: sbi/man/sbi_cache_image.Rd
+#' \name{sbi$cache_image}
+#' \alias{sbi$cache_image}
+#' \alias{sbi_cache_image}
+#' \title{Create a crc32 image for a downloaded image from the internet if not yet there}
+#' \usage{sbi_cache_image(url,extension="png")}
+#' \description{The function allows you to cache image files from the internet.}
+#' \arguments{
+#'   \item{url}{image web url}
+#'   \item{extension}{image type, default: "png"}
+#' }
+#' \value{the local image filename}
+#' \examples{
+#' url=sbi$cache_image("https://www.plantuml.com/plantuml/png/SoWkIImgAStDuIfEojGBKj2rKyXDBqeio02ohHIAyqkBabEv75BpKe1A0000")
+#' url
+#' # This can be then embedded into your Markdown document.
+#' # like this ![ ](`r url`)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+ 
+#' FILE: sbi/R/cache_image.R
+sbi$cache_image <- function (url,extension="png") {
+    if (!requireNamespace("digest")) {
+        stop("You need to install the digest library")
+    } 
+    if (!dir.exists("img")) {
+        dir.create("img")
+    }
+    filename=paste(digest::digest(url,"crc32"),".",extension,sep="")
+    imgname=file.path("img",filename)
+    if (!file.exists(imgname)) {
+        print("downloading ...")
+        utils::download.file(url,imgname)
+    }
+    return(imgname)
+}
+
+sbi_cache_image = sbi$cache_image
 
 #' FILE: sbi/man/sbi_textplot.Rd
 #' \name{sbi$textplot}
