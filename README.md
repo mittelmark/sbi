@@ -61,3 +61,12 @@ Rscript sbi-src.R --install    sbi_0.0.1.tar.gz  # install from local tar-gz fil
 
 The   single   file  R   package   approach   is   described   in  the
 [rzfp project](https://github.com/mittelmark/rzfp).
+
+## Authors
+
+- Detlef Groth, University of Potsdam (Author and Maintainer)
+- Laura Schander, University of Potsdam (Contributor)
+
+## License
+
+MIT License see file [LICENSE](LICENSE).
