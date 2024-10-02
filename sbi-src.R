@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.0.2
-#' Date: 2024-09-12
+#' Version: 0.0.3
+#' Date: 2024-10-12
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -29,7 +29,7 @@
 #' Encoding: UTF-8
 #' NeedsCompilation: no
 #' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
-#'     cache_image.R corr.R smartbind.R flow.R corrplot.R cohensW.R corplot.R
+#'     cache_image.R corr.R smartbind.R flow.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
 #'     data.R deg2rad.R file.cat.R file.head.R modus.R pastel.R cramersV.R cv.R df2md.R dict.R
 #'     lmplot.R shape.R textplot.R  epsilonSquared.R etaSquared.R rad2deg.R report_pval.R is.dict.R
 
@@ -49,7 +49,8 @@
 #' FILE: sbi/NAMESPACE
 #' exportPattern("^[[:lower:]]+")
 #' importFrom("stats", "sd","cor","cor.test","aov","chisq.test","kruskal.test","lm",
-#'            "model.frame","predict", "rgamma", "runif", "spline")
+#'            "model.frame","predict", "rgamma", "runif", "spline",
+#'            "aggregate","prop.test","t.test")
 #' importFrom("graphics", "polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
 #'            "abline","points")
 #' importFrom("digest","digest")
@@ -107,6 +108,10 @@
 #' \item{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}}{create bezier lines using three coordinates}
 #' \item{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}}{perform a resampling for the given data set and function}
 #' \item{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}}{create a crc32 image for a downloaded image from the internet if not yet there}
+#' \item{\link[sbi:sbi_chr2ord]{sbi$chr2ord(x,map)}}{convert factors or characters to ordinal numbers}
+#' \item{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}}{Effect size comparing two means}
+#' \item{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}}{Effect size comparing for an ANOVA}
+#' \item{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}}{Effect size for 2x2 contingency tables}
 #' \item{\link[sbi:sbi_cohensW]{sbi$cohensW(x)}}{Effect size for 2x2 and larger contingency tables}
 #' \item{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}}{Visualize a correlation with abline.}
 #' \item{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}}{Calculate pairwise correlations for a given data frame or matrix}
@@ -166,6 +171,10 @@
 #' \item \code{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}} create bezier lines using three coordinates
 #' \item \code{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}} perform a resampling for the given data set and function
 #' \item \code{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}} create a crc32 image for a downloaded image from the internet if not yet there
+#' \item \code{\link[sbi:sbi_chr2ord]{sbi$chr2ord(x,map)}} convert factors or characters to ordinal numbers
+#' \item \code{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}} Effect size comparing two means
+#' \item \code{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}} Effect size comparing for an ANOVA
+#' \item \code{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}} Effect size for 2x2 contingency tables
 #' \item \code{\link[sbi:sbi_cohensW]{sbi$cohensW(x)}} Effect size for 2x2 and larger contingency tables.
 #' \item \code{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}} Visualize a correlation with abline.
 #' \item \code{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}} calculate pairwise correlations for a given data frame or matrix
@@ -797,6 +806,188 @@ sbi$flow = function (x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, lab = "", fa
 
 sbi_flow = sbi$flow
 
+
+#' FILE: sbi/man/sbi_chr2ord.Rd
+#' \name{sbi$chr2ord}
+#' \alias{sbi$chr2ord}
+#' \alias{sbi_chr2ord}
+#' \title{Create ordinal numerical variables from character or factor variables}
+#' \description{
+#' This functions creates ordinal numerical variables out of character or factor variables 
+#' based on a given mapping provided as a list.
+#' }
+#' \usage{sbi_chr2ord(x,map)}
+#' \arguments{
+#' \item{x}{character or factor vector}
+#' \item{map}{list with keys for the given x vector and numbers for the matching values}
+#' }
+#' \value{numerical values for the mapping}
+#' \examples{
+#' status=c("never","rare","often","always")
+#' x=sample(status,100,replace=TRUE)
+#' x=c(NA,x,NA)
+#' table(x,useNA='ifany')
+#' map=c(never=0, rare=1, often=2,always=3)
+#' table(sbi$chr2ord(x,map),useNA='ifany')
+#' }
+#'
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/chr2ord.R
+sbi$chr2ord = function (x,map) {
+    return(unlist(
+                  lapply(as.character(x),
+                  function(x) {
+                         if (is.na(x)) { return(NA) }
+                         return(map[[x]])
+                  }
+                  )))
+}
+sbi_chr2ord = sbi$chr2ord    
+
+#' FILE: sbi/man/sbi_cohensD.Rd
+#' \name{sbi$cohensD}
+#' \alias{sbi$cohensD}
+#' \alias{sbi_cohensD}
+#' \title{Effect size for the difference between two means}
+#' \usage{sbi_cohensD(x, y,paired=FALSE)}
+#' \description{The function cohensD calculates the effect size for the difference between two means.
+#'   Due to Cohen's rule of thumb values of around 0.2 are considered to stand 
+#'   for small effects, values of around 0.5 represent medium effects and values of around 0.8 
+#'   and larger represent large effects. 
+#' }
+#' \arguments{
+#' \item{x}{vector with numercial values}
+#' \item{y}{vector with two grouping variables, having the same length as x}
+#' \item{paired}{are the data paired, default: FALSE}
+#' }
+#' \details{
+#'   Please note that these rules of thumb are not useful for highly dependent outcome 
+#'   variables (death for instance) these rules might not be useful and as well lower
+#'   values might be of practical relevance.
+#' 
+#' Alternatively you could use the biserial correlation coefficient `r` as demonstrated in the example below.
+#' }
+#' \value{Cohen's d value}
+#' \examples{
+#' cohensD=sbi$cohensD
+#' set.seed(125)
+#' data(sleep)
+#' with(sleep,cohensD(extra,group))
+#' x1=rnorm(100,mean=20,sd=1)
+#' x2=rnorm(100,mean=22,sd=1)
+#' g1=rep('A',100)
+#' g2=rep('B',100)
+#' # difference should be around 2SD
+#' cohensD(c(x1,x2),as.factor(c(g1,g2)))
+#' # biseriell correlation coefficient as alternative
+#' # value is as well large
+#' cor(c(x1,x2),as.numeric(as.factor(c(g1,g2))))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensF]{sbi$cohensF}}
+#' FILE: sbi/R/cohensD.R
+
+sbi$cohensD <- function (x, y, paired=FALSE) {
+    num=x
+    cat=y
+    if (paired) {
+        tt=t.test(num ~ cat,paired=paired)
+        return(tt$statistic[[1]]/sqrt(length(num/2)))
+    }   
+    tt.agg=aggregate(num,by=list(cat),
+        mean,na.rm=TRUE)
+    pooledSD <- function(x, y) {
+        x=x[!is.na(x)]
+        y=y[!is.na(y)]
+        sq.devs <- (c(x - mean(x), y - mean(y)))^2
+         n <- length(sq.devs)
+        return(sqrt(sum(sq.devs)/(n - 2)))
+    }
+    d=abs(tt.agg$x[1]-tt.agg$x[2])/pooledSD(
+        num[cat==levels(cat)[1]],
+        num[cat==levels(cat)[2]])
+    return(d)
+} 
+sbi_cohensD = sbi$cohensD
+
+#' FILE: sbi/man/sbi_cohensF.Rd
+#' \name{sbi$cohensF}
+#' \alias{sbi$cohensF}
+#' \alias{sbi_cohensF}
+#' \title{Effect size for the difference between three or more means and for a ANOVA}
+#' \usage{sbi_cohensF(x, y)}
+#' \description{The function cohensF calculates the effect size for two variables in an Anova.
+#'   Due to Cohen's rule of thumb values of around 0.1 are considered to stand 
+#'   for small effects, values of around 0.25 represent medium effects and values 
+#'   of around 0.4 and above represent large effects. 
+#' }
+#' \arguments{
+#' \item{x}{vector with numercial values}
+#' \item{y}{vector with grouping variable, at least three levels, having the same length as x}
+#' }
+#' \details{
+#'   Please note that these rules of thumb are not useful for highly dependent outcome 
+#'   variables (death for instance) these rules might not be useful and as well lower
+#'   values might be of practical relevance.
+#' 
+#' }
+#' \value{Cohen's F value}
+#' \examples{
+#' data(iris)
+#' sbi$cohensF(iris$Sepal.Width, iris$Species)
+#' sbi$cohensF(iris$Sepal.Length, iris$Species)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensD]{sbi$cohensD}}
+#' FILE: sbi/R/cohensF.R
+
+sbi$cohensF <- function (x,y) {
+    mod=aov(x~y)
+    esq=sbi$etaSquared(mod)
+    cf=sqrt(esq/(1-esq))
+    return(cf[[1]])
+}
+sbi_cohensF = sbi$cohensF
+
+#' FILE: sbi/man/sbi_cohensH.Rd
+#' \name{sbi$cohensH}
+#' \alias{sbi$cohensH}
+#' \alias{sbi_cohensH}
+#' \title{Effect size for 2x2  contingency tables}
+#' \usage{sbi_cohensH(x)}
+#' \description{The function `sbi$cohensW` calculates the effect size for contingency tables. 
+#'   Due to Cohen's rule of thumb values of around 0.1 are considered to stand 
+#'   for small effects, values of around 0.3 represent medium effects and values 
+#'   above 0.5 or higher represent large effects.}
+#' \arguments{
+#' \item{x}{2x2 contingency table with counts, usually created using the table 
+#'           command for two variables}
+#' }
+#' \details{
+#'   Please note that these rules of thumb are not useful for highly dependent outcome 
+#'   variables (death for instance) these rules might not be useful and as well lower
+#'   values might be of practical relevance.
+#' }
+#' \value{Cohen's h value}
+#' \examples{
+#' # data from New Eng. J. Med. 329:297-303, 1993
+#' azt=as.table(matrix(c(76,399,129,332), byrow=TRUE,ncol=2))
+#' rownames(azt)=c("AZT","Placebo")
+#' colnames(azt)=c("DiseaseProgress", "NoDiseaseProgress")
+#' sbi$cohensH(azt)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensW]{sbi$cohensW}}
+#' FILE: sbi/R/cohensH.R
+
+
+sbi$cohensH = function (x) {
+    pt=prop.test(x)
+    h=2*abs(asin(sqrt(pt$estimate[1]))-
+        asin(sqrt(pt$estimate[2])))
+    return(h[[1]])
+}
+
+sbi_cohensH = sbi$cohensH
+
+
 #' FILE: sbi/man/sbi_cohensW.Rd
 #' \name{sbi$cohensW}
 #' \alias{sbi$cohensW}
@@ -839,7 +1030,7 @@ sbi_flow = sbi$flow
 #' sbi$cohensW(c(40,0),p=0.5)
 #' sbi$cohensW(c(40,0),p=c(0.51,0.49)) # max value here around 2*0.49
 #' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensW]{sbi$cohensW}}
 #' FILE: sbi/R/cohensW.R
 
 sbi$cohensW = function (x,p=NULL) {
