@@ -22,7 +22,7 @@
 #' URL:  https://github.com/mittelmark/sbi
 #' BugReports: https://github.com/mittelmark/sbi/issues
 #' Imports: digest
-#' Suggests: knitr, rmarkdown, extrafont
+#' Suggests: knitr, rmarkdown, extrafont, MASS
 #' VignetteBuilder: knitr
 #' License: MIT + file LICENSE
 #' Language: en-US
@@ -30,7 +30,7 @@
 #' NeedsCompilation: no
 #' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
 #'     cache_image.R corr.R smartbind.R flow.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
-#'     data.R deg2rad.R file.cat.R file.head.R modus.R pastel.R cramersV.R cv.R df2md.R dict.R
+#'     sdata.R deg2rad.R dpairs.R dpairs_legend.R file.cat.R file.head.R modus.R pastel.R cramersV.R cv.R df2md.R dict.R
 #'     lmplot.R shape.R textplot.R  epsilonSquared.R etaSquared.R rad2deg.R report_pval.R is.dict.R
 
 #' FILE: sbi/LICENSE
@@ -48,10 +48,10 @@
 
 #' FILE: sbi/NAMESPACE
 #' exportPattern("^[[:lower:]]+")
-#' importFrom("stats", "sd","cor","cor.test","aov","chisq.test","kruskal.test","lm",
+#' importFrom("stats", "density","sd","cor","cor.test","aov","chisq.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
 #'            "aggregate","prop.test","t.test")
-#' importFrom("graphics", "polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
+#' importFrom("graphics", "axTicks","boxplot", "legend","par","polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
 #'            "abline","points")
 #' importFrom("digest","digest")
 #'
@@ -118,10 +118,12 @@
 #' \item{\link[sbi:sbi_corrplot]{sbi$corrplot(mt,...)}}{Visualize a correlation matrix.}
 #' \item{\link[sbi:sbi_cramersV]{sbi$cramersV(tab)}}{Calculate Cramer's V for a contingency table as an effect size measure.}
 #' \item{\link[sbi:sbi_cv]{sbi$cv(x,na.rm=FALSE)}}{Calculate the coefficient of variation.}
-#' \item{\link[sbi:sbi_data]{sbi$data(name)}}{Load small data sets like 'c20' or 'azt'.}
+#' \item{\link[sbi:sbi_sdata]{sbi$sdata(name)}}{Load small data sets like 'c20' or 'azt'.}
 #' \item{\link[sbi:sbi_deg2rad]{sbi$deg2rad(x)}}{Convert an angle in degrees to radians.}
 #' \item{\link[sbi:sbi_df2md]{sbi$df2md(x, rownames=TRUE, caption="")}}{Convert a data frame or matrix into a Markdown table}
 #' \item{\link[sbi:sbi_dict]{sbi$dict(...)}}{Create a dictionary (list with unique keys)}
+#' \item{\link[sbi:sbi_dpairs]{sbi$dpairs(...)}}{Improved pairs plot with xyplot, boxplot or assocplot depending on the variable types}
+#' \item{\link[sbi:sbi_dpairs_legend]{sbi$dpairs_legend(...)}}{adding legends to pairs and dpairs plots}
 #' \item{\link[sbi:sbi_epsilonSquared]{sbi$epsilonSquared(x, y=NULL)}}{Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.}
 #' \item{\link[sbi:sbi_etaSquared]{sbi$etaSquared(x, y=NULL)}}{Calculate the effect size eta-squared for an Anova or a linear model.}
 #' \item{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}}{Displays a file to the terminal, not to stdout.}
@@ -181,10 +183,12 @@
 #' \item \code{\link[sbi:sbi_corrplot]{sbi$corrplot(mt,...)}} Visualize a correlation matrix.
 #' \item \code{\link[sbi:sbi_cramersV]{sbi$cramersV(tab)}} Calculate Cramer's V for a contingency table as an effect size measure
 #' \item \code{\link[sbi:sbi_cv]{sbi$cv(x,na.rm=FALSE)}} Calculate the coefficient of variation
-#' \item \code{\link[sbi:sbi_data]{sbi$data(name)}} load small data sets like 'c20' or 'azt'.
+#' \item \code{\link[sbi:sbi_sdata]{sbi$sdata(name)}} load small data sets like 'c20' or 'azt'.
 #' \item \code{\link[sbi:sbi_deg2rad]{sbi$deg2rad(x)}} Convert an angle in degrees to radians.
 #' \item \code{\link[sbi:sbi_df2md]{sbi$df2md(x, rownames=TRUE, caption="")}} convert a data frame or matrix into a Markdown table  
 #' \item \code{\link[sbi:sbi_dict]{sbi$dict(...)}} create a dictionary (list with unique keys)  
+#' \item \code{\link[sbi:sbi_dpairs]{sbi$dpairs(...)}} Improved pairs plot with xyplot, boxplot or assocplot depending on the variable types
+#' \item \code{\link[sbi:sbi_dpairs_legend]{sbi$dpairs_legend(...)}} adding legends to pairs and dpairs plots
 #' \item \code{\link[sbi:sbi_epsilonSquared]{sbi$epsilonSquared(x, y=NULL)}} Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.
 #' \item \code{\link[sbi:sbi_etaSquared]{sbi$etaSquared(x, y=NULL)}} Calculate the effect size eta-squared for an Anova or a linear model.
 #' \item \code{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}} Displays a file to the terminal, not to stdout.
@@ -1142,12 +1146,12 @@ sbi$corrplot <- function(mt, text.lower = TRUE, text.upper = FALSE, pch = 19, p.
 
 sbi_corrplot = sbi$corrplot
 
-#' FILE: sbi/man/sbi_data.Rd
-#' \name{sbi$data}
-#' \alias{sbi$data}
-#' \alias{sbi_data}
+#' FILE: sbi/man/sbi_sdata.Rd
+#' \name{sbi$sdata}
+#' \alias{sbi$sdata}
+#' \alias{sbi_sdata}
 #' \title{Retrieve small data sets}
-#' \usage{sbi_data(name)}
+#' \usage{sbi_sdata(name)}
 #' \description{Retrieve small data sets for analysis.}
 #' \arguments{
 #'   \item{name}{The name of the data set. Currently supported: 'c20' (relation between unsaturated fatty acids and insulin sensitivity) and 'azt' (treatment data for HIV patients).}
@@ -1167,17 +1171,17 @@ sbi_corrplot = sbi$corrplot
 #' }
 #' \value{A data frame or contingency table for the selected data set.}
 #' \examples{
-#' c20 <- sbi$data(name = "c20")
+#' c20 <- sbi$sdata(name = "c20")
 #' head(c20)
 #' cor(c20[, 1], c20[, 2])
 #' sbi$lmplot(c20[, 1], c20[, 2], ylim = c(0, 600), xlim = c(17, 25))
 #'
-#' azt <- sbi$data(name = "azt")
+#' azt <- sbi$sdata(name = "azt")
 #' azt
 #' }
 #' \seealso{\link[sbi:sbi_rad2deg]{sbi$rad2deg}}
-#' FILE: sbi/R/data.R
-sbi$data <- function (name="c20") {
+#' FILE: sbi/R/sdata.R
+sbi$sdata <- function (name="c20") {
   if (name == "c20") {
     c20.22=c(17.9, 18.3, 18.3, 18.4, 18.4, 20.2, 20.3, 21.8, 21.9, 22.1, 23.1, 24.2, 24.4)
     ins.sens=c(250, 220, 145, 115, 230, 200, 330, 400, 370, 260, 270, 530, 375)
@@ -1193,7 +1197,7 @@ sbi$data <- function (name="c20") {
     stop("Error: Currently only 'c20' and 'azt' datasets are supported!")
   }
 }
-sbi_data = sbi$data
+sbi_sdata = sbi$sdata
 
 #' FILE: sbi/man/sbi_deg2rad.Rd
 #' \name{sbi$deg2rad}
@@ -1582,6 +1586,224 @@ sbi$dict <- function(...) {
 
 
 sbi_dict = sbi$dict
+
+#' FILE: sbi/man/sbi_dpairs.Rd
+#' \name{sbi$dpairs}
+#' \alias{sbi$dpairs}
+#' \alias{sbi_dpairs}
+#' \title{Improved pairs plot considering the data types}
+#' \usage{sbi_dpairs(data,col.box='grey80', col.xy="grey60", cex.diag=2.5, order=TRUE,pch=19)}
+#' \description{The function `dpairs` provides an improved pairs plot which accounts
+#'   for the data type of the actual variables. It will plot in the 
+#'   lower diagonal xy-plots, box-plots or assoc-plots depending on the 
+#'   two data types. In the upper diagonal effect sizes and stars for the p-values
+#'   for the tests (anova, t.test, chisq.test or cor.test will be shown. In the diagonal 
+#'   the data distribution will be outlined. This plot is usually an useful visualization for 3-8 variables.
+#' }
+#' \arguments{
+#'   \item{data}{data frame with columns of class factor, numeric or integer}
+#'   \item{col.box}{colors for the boxplots, either a single value or a vector of colors for each level of a factor variable, default: 'grey80'}
+#'   \item{col.xy}{colors for the xy-plots, either a single value of a vector which is as long as the number of data points, default: 'grey60'}
+#'   \item{cex.diag}{character expansion for the diagonal texts}
+#'   \item{order}{should the variables be ordered by data type and name, this is recommended as it orders the plots, starting with assocplots, then boxplots and finally xyplots, default: TRUE}
+#'   \item{pch}{plotting character for xy-plots, default 19 (round circle)}
+#' }
+#' \examples{ %options: fig.width=12,fig.height=12
+#' data(iris)
+#' dpairs=sbi$dpairs
+#' par(omi = c(0.8, 0.4,0.4,0.4))
+#' dpairs(iris,col.box=2:4,col.xy=rep(c(2:4),each=50),
+#'   cex.diag=1.6)
+#' sbi$dpairs_legend(levels(iris$Species),col=2:4,cex=1)
+#' par(omi=c(0.5,0.5,0.8,0.2))
+#' btwt=MASS::birthwt; 
+#' for (col in c('low','race','smoke','ptl','ht','ui','ftv')) { 
+#'    btwt[,col]=as.factor(btwt[,col]) 
+#'  }
+#' dpairs(btwt[,2:8],cex.diag=1.6)
+#' mtext('Birth-Weight data',side=3,outer=TRUE,cex=1.5,line=1)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_dpairs_legend]{sbi$spairs_legend}}
+#' FILE: sbi/R/dpairs.R
+
+sbi$dpairs <- function (data,col.box='grey80',col.xy="grey60",cex.diag=2.5,
+                    order=TRUE,pch=19) {
+    oop=options()
+    opar=par()
+    options(warn=-1)
+    attach(sbi)
+    if (any(class(data) %in% "tbl_df")) {
+        data=as.data.frame(data)
+    }
+    if (order) {
+        data=data[,sort(colnames(data))]
+        res=c(); for (i in 1:ncol(data)) { res=c(res,class(data[,i])) }
+        idx=order(res)
+        data=data[,idx]
+    }
+    mai=rep(0.0,4)
+    par(mfrow=c(ncol(data),ncol(data)),mai=mai)
+    cnames=colnames(data)
+    for (i in 1:ncol(data)) {
+        for (j in 1:ncol(data)) {
+            if (i == j) {
+                plot(1,type='n',xlab='',ylab='',axes=FALSE,xlim=c(0,1),ylim=c(0,1))
+                text(0.5,0.5,cnames[i],cex=cex.diag)
+                par(mai=rep(0,4))
+                box(lty=3,col='grey70')
+                if (class(data[,i]) == "factor") {
+                    rect(0.1,0.1,0.9,0.3,col="grey90")
+                    for (ci in cumsum(prop.table(table(data[,i])))) {
+                        x=0.1+0.8*ci
+                        lines(x=c(x,x),y=c(0.1,0.3))
+                    }
+                }
+                if (class(data[,i]) %in% c("numeric","integer")) {
+                    ds=density(data[,i],na.rm=TRUE)
+                    ds$x=ds$x-min(ds$x)
+                    ds$x=ds$x/max(ds$x)
+                    ds$y=(ds$y/max(ds$y)*0.3)
+                    polygon(ds,col='grey80')
+                }
+                par(mai=mai)
+            } else if (i > j) {
+                if (class(data[,i]) %in% c("numeric","integer") & class(data[,j]) %in% c("numeric","integer")) {
+                    plot(data[,i] ~ data[,j],xlab='',ylab='',axes=FALSE,pch=pch,
+                         col=col.xy)
+                    box(col='grey70')
+                    if (j+1 == i) {
+                        #axis(3)
+                        #axis(4)
+                    }
+                    if (j == 1) {
+                        axis(2)
+                    }
+                    if (i == ncol(data)) {
+                        ticks=axTicks(1) 
+                        axis(1,at=ticks[1:(length(ticks)-1)],labels=ticks[1:(length(ticks)-1)],col='grey70')
+                    }
+                } else if (class(data[,i]) == "factor" & class(data[,j]) == "factor") {
+                    par(mai=rep(0.3,4))
+                    sbi$assoc(t(table(data[,i],data[,j])))
+                    par(mai=rep(0,4))
+                    box(lty=3,col='grey70')
+                    par(mai=mai)
+                } else if (class(data[,i]) %in% c("numeric","integer")) {
+                    boxplot(data[,i] ~ data[,j],col=col.box,axes=FALSE)
+                    if (j+1 == i) {
+                        #axis(3,at=1:length(levels(data[,j])),labels=levels(data[,j]))
+                        #axis(4)
+                    } 
+                    if (j == 1) {
+                        ticks=axTicks(2) 
+                        axis(2,at=ticks[1:(length(ticks)-1)],labels=ticks[1:(length(ticks)-1)],col='grey70')
+                    }
+                    if (i == ncol(data)) {
+                        axis(1,at=1:length(levels(data[,j])),labels=levels(data[,j]),col="grey70")
+                    }
+
+                    box(col="grey70")
+                } else if (class(data[,j]) %in% c("numeric","integer")) {
+                    boxplot(data[,j] ~ data[,i],col=col.box,axes=FALSE)
+                    if (j == 1) {
+                        axis(2)
+                    }
+                    if (i == ncol(data)) {
+                        axis(1,at=1:length(levels(data[,j])),labels=levels(data[,j]))
+                    }
+                    box()
+
+                } 
+            } else {
+                if (class(data[,i]) %in% c("numeric","integer") & class(data[,j]) %in% c("numeric","integer")) {
+                    r=cor.test(data[,i],data[,j])
+                    rs=cor.test(data[,i],data[,j],method='spearman')
+                    plot(1,type='n',xlab='',ylab='',axes=FALSE,xlim=c(0,1),ylim=c(0,1))
+                    text(0.5,0.59,bquote("" ~ r[P] ~ .(sprintf(" = %.2f%s",r$estimate,sbi$report_pval(r$p.value,star=TRUE)))),cex=1.5)
+                    text(0.5,0.41,bquote("" ~ r[S] ~ .(sprintf(" = %.2f%s",rs$estimate,sbi$report_pval(rs$p.value,star=TRUE)))),cex=1.5)
+                } else if (class(data[,i]) == "factor" & class(data[,j]) == "factor") {
+                    cw=sbi$cohensW(table(data[,i],data[,j]))
+                    chsq=chisq.test(table(data[,i],data[,j]))
+                    plot(1,type='n',xlab='',ylab='',axes=FALSE,xlim=c(0,1),ylim=c(0,1))
+                    text(0.5,0.5,sprintf("Cohen's w =\n%.2f %s",cw,sbi$report_pval(chsq$p.value,star=TRUE)),cex=1.5)
+                    
+                } else if (class(data[,i]) %in% c("numeric","integer")) {
+                    if (length(levels(data[,j]))==2) {
+                        tt=t.test(data[,i] ~ data[,j]) 
+                        cd=sbi$cohensD(data[,i],data[,j])
+                        plot(1,type='n',xlab='',ylab='',axes=FALSE,xlim=c(0,1),ylim=c(0,1))
+                        text(0.5,0.5,sprintf("Cohen's d =\n%.2f %s",cd,sbi$report_pval(tt$p.value,star=TRUE)),cex=1.5)
+                    } else {
+                        raov=aov(data[,i] ~ data[,j]) 
+                        #recover()
+                        rs=sbi$etaSquared(raov)
+                        pval=sbi$report_pval(summary(raov)[[1]][1,5],star=TRUE)
+                        plot(1,type='n',xlab='',ylab='',axes=FALSE,xlim=c(0,1),ylim=c(0,1))
+                        text(0.5,0.5,bquote(eta~2~sprintf(" = %.2f %s",rs,pval)),cex=1.5)
+                    }
+                } else if (class(data[,j]) %in% c("numeric","integer")) {
+                    if (length(levels(data[,i]))==2) {
+                        tt=t.test(data[,j] ~ data[,i]) 
+                        cd=sbi$cohensD(data[,j],data[,i])
+                        plot(1,type='n',xlab='',ylab='',axes=FALSE,xlim=c(0,1),ylim=c(0,1))
+                        text(0.5,0.5,sprintf("Cohen's d =\n%.2f %s",cd,sbi$report_pval(tt$p.value,star=TRUE)),cex=1.5)
+                    } else {
+                        raov=aov(data[,j] ~ data[,i]) 
+                        rs=sbi$etaSquared(raov)
+                        pval=sbi$report_pval(summary(raov)[[1]][1,5],star=TRUE)
+                        plot(1,type='n',xlab='',ylab='',axes=FALSE,xlim=c(0,1),ylim=c(0,1))
+                        val=sprintf("%.2f %s",rs,pval)
+                        text(0.5,0.5,bquote("" ~ eta^2 ~ " = " ~ .(val)),cex=1.5)
+                    }
+                } 
+                par(mai=rep(0,4))
+                box(lty=3,col='grey70')
+                par(mai=mai)
+            }
+        }
+    }
+    detach(sbi)
+    par(opar)    
+    options(oop)
+
+}
+sbi_dpairs = sbi$dpairs
+
+#' FILE: sbi/man/sbi_dpairs_legend.Rd
+#' \name{sbi$dpairs_legend}
+#' \alias{sbi$dpairs_legend}
+#' \alias{sbi_dpairs_legend}
+#' \title{Adding legend top or bottom to a `sbi$dpairs` or the standard `pairs` plot}
+#' \usage{sbi_dpairs_legend(labels,col='grey80',pch=15,side="bottom",cex=2)}
+#' \description{The function `sbi$dpairs_legend` allows the user to place a legend outside of a 
+#'   pairs or dpairs plot.}
+#' \arguments{
+#'   \item{labels}{txt labels to be plotted}
+#'   \item{col}{colors for the plotting characters}
+#'   \item{pch}{plotting symbol, default: 15}
+#'   \item{side}{where to place the legend, 'top' or 'bottom', default: 'bottom'}
+#'   \item{cex}{the character expansion for the legend, default: 2}
+#' }
+#' \examples{
+#' data(iris)
+#' par(omi = c(0.8, 0.4,0.8,0.4)) # reserve some space top and bottom
+#' sbi$dpairs(iris,col.box=2:4,col.xy=rep(c(2:4),each=50))
+#' sbi$dpairs_legend(levels(iris$Species),col=2:4)
+#' mtext('Iris Data',side=3,outer=TRUE,cex=2,line=1)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_dpairs]{sbi$spairs}}
+#' FILE: sbi/R/dpairs_legend.R
+
+sbi$dpairs_legend <- function (labels,col='grey80',pch=15,side="bottom",cex=2) {
+    opar=par()
+    options(warn=-1)
+    par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+    plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+    legend(side, labels, xpd = TRUE, horiz = TRUE, inset = c(0,0), 
+           bty = "n", pch = pch, col = col, cex = cex)
+    par(opar)
+}
+sbi_dpairs_legend = sbi$dpairs_legend
 
 #' FILE: sbi/man/sbi_epsilonSquared.Rd
 #' \name{sbi$epsilonSquared}
@@ -2189,13 +2411,17 @@ ExtractEx <- function (srcfile) {
             code=gsub("Introduction","EXAMPLES",gsub("tutorial","examples",VIGNETTE))
             cat(sprintf(code,pkg,Sys.Date(),pkg),file=fout)
         } else if (grepl("^#' \\\\name",line)) {
-            cat(paste("### ",gsub(".+\\{(.+)\\}","\\1",line),"\n"),file=fout)
+             cat(paste("### ",gsub(".+\\{(.+)\\}","\\1",line),"\n"),file=fout)
+             name=gsub("[^A-Za-z0-9]","_",gsub(".+\\{(.+)\\}.*","\\1",line))
         } else if (grepl("^#' \\\\examples",line)) {
             opt=""             
             if (grepl("%options:",line)) {
                 opt=gsub(".+%options:","",line)
             }
-            cat(sprintf("\n```{r%s}\n",opt),file=fout)
+            if (opt != "") {
+                opt=paste(",",opt,sep="")
+            }
+            cat(sprintf("\n```{r label=%s%s}\n",name,opt),file=fout)
             ex = TRUE
         } else if (ex & lastindent < 3 & substr(line,1,4) == "#' }") {
             cat("```\n\n",file=fout)                   
