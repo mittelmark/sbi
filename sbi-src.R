@@ -32,7 +32,7 @@
 #'     cache_image.R coa.R corr.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
 #'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
-#'     kurtosis.R lmplot.R mi.R modus.R pastel.R 
+#'     kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R 
 #'     rad2deg.R report_pval.R sdata.R shape.R skewness.R smartbind.R  textplot.R   
 
 #' FILE: sbi/LICENSE
@@ -53,7 +53,7 @@
 #' importFrom("stats", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
 #'            "aggregate","prop.test","t.test")
-#' importFrom("graphics", "axTicks","boxplot", "legend","par","polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
+#' importFrom("graphics", "axTicks","boxplot", "hist","legend","par","polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
 #'            "abline","points")
 ###' importFrom("digest","digest")
 #'
@@ -143,7 +143,9 @@
 #' \item{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}}{create flowcharts using the kroki online tool}
 #' \item{\link[sbi:sbi_kurtosis]{sbi$kurtosis(x)}}{fourth central moment of a distribution}
 #' \item{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}}{XY-plot with linear model and the confidence intervals}
+#' \item{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}}{lattice like histogram}
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
+#' \item{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}}{convert mkdoc documentation to HTML}
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{Return the most often level in a categorical variable.}
 #' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{Create up to 20 pastel colors.}
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree.}
@@ -219,7 +221,9 @@
 #' \item \code{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}} check if a given value within a vector is an outlier
 #' \item \code{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}} create flowcharts using the kroki online tool
 #' \item \code{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}} XY-plot with linear model and the confidence intervals.
+#' \item \code{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}} lattice like histogram
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
+#' \item \code{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}} convert mkdoc documentation to HTML
 #' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} Return the most often level in a categorical variable.
 #' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} Create up to 20 pastel colors.
 #' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} Convert angle in radian into angle in degree.
@@ -2395,6 +2399,104 @@ sbi$lmplot = function (x,y=NULL, data=NULL,col="blue",pch=19,col.lm="red",col.pl
 
 sbi_lmplot = sbi$lmplot
 
+#' FILE: sbi/man/sbi_mhist.Rd
+#' \name{sbi$mhist}
+#' \alias{sbi$mhist}
+#' \alias{sbi_mhist}
+#' \title{Lattice like histogram but base graphics compatible}
+#' \usage{sbi_mhist(x,y,breaks=10,cols='grey80',...)}
+#' \description{
+#'   This function creates for 2-4 groups histograms with a stripe on top
+#'   using the same y-scales for all groups.
+#' }
+#' \arguments{
+#'   \item{x}{numerical vector}
+#'   \item{y}{categorical variable 2-4 levels}
+#'   \item{breaks}{how many breaks within the histogram, default: 10}
+#'   \item{cols}{the colors to be used, default: 'grey80'}
+#'   \item{...}{other arguments which will be forwarded to the plot function}
+#' }
+#' \examples{ %options: fig.width=9,fig.height=6
+#' data(iris)
+#' sbi$mhist(iris$Sepal.Length,iris$Species,cols="skyblue")
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+
+#' FILE: sbi/R/mhist.R
+sbi$mhist <- function (x,y,breaks=10,cols='grey80',...) {
+    groups=y
+    y=x
+    nr=length(levels(groups))
+    opar=par(mfrow=c(1,nr),mai=c(0.4,0.6,0.4,0.0))
+    breaks=hist(y,plot=FALSE)$breaks
+    #recover()
+    if (length(cols)==1) {
+        cols=rep(cols,length(levels(groups)))
+        names(cols)=levels(groups)
+    }
+    mx=0
+    for (gr in levels(groups)) {
+        m=max(table(cut(y[groups==gr],breaks=breaks)))
+        if (m>mx) {
+            mx=m
+        }
+    }
+    mx=mx*1.15
+    x=1
+    brid=seq(1,length(breaks),by=2)
+    #recover()
+    for (gr in levels(groups)) {
+        hist(y[groups==gr],
+             ylab="n",col=cols[[gr]],main='',
+             breaks=breaks,xlim=c(min(breaks),max(breaks)),
+             ylim=c(0,mx),axes=FALSE,xaxs='i','yaxs'='i');
+          
+        box(); 
+        if (x==1 | x == 3) {
+            axis(1,labels=breaks[brid],at=breaks[brid])
+        } else {
+            axis(3,labels=breaks[brid],at=breaks[brid])
+            axis(1,labels=FALSE,at=breaks[brid])
+        }
+        if (x == 1) { 
+            # omit top tick as this is in label region
+            ticks=axTicks(2)
+            if (ticks[length(ticks)]>0.95*mx) {
+                axis(2,labels=ticks[1:(length(ticks)-1)],
+                     at=ticks[1:(length(ticks)-1)])
+            } else {
+                axis(2)
+            }
+        }
+        rect(min(breaks),mx-0.1*mx,max(breaks),mx,col='#FFE4CC')
+        text((min(breaks)+max(breaks))/2,((mx-0.1*mx)+mx)/2,gr,adj=0.5,cex=1.5)
+        if (length(levels(groups)) %in% c(2,4) & x %in% c(1,3)) {
+            par(mai=c(0.4,0.3,0.4,0.3))
+            axis(3,labels=FALSE)
+            
+        }
+        if (length(levels(groups)) %in% c(2,4) & x %in% c(2,4)) {
+            par(mai=c(0.4,0.3,0.4,0.3))
+            axis(4,labels=FALSE)
+            
+        }
+        if (length(levels(groups)) %in% c(3,6) & x %in% c(1,4)) {
+            par(mai=c(0.4,0.3,0.4,0.3))
+        }
+        if (length(levels(groups)) %in% c(3,6) & x %in% c(2,5)) {
+            par(mai=c(0.4,0.0,0.4,0.6))
+        }
+        if (length(levels(groups)) %in% c(3,6) & x %in% c(3,6)) {
+            axis(4,labels=FALSE)
+            par(mai=c(0.4,0.0,0.4,0.6))
+        }
+        x=x+1
+    }
+    par(opar)
+}
+
+sbi_mhist <- sbi$mhist
+
 #' FILE: sbi/man/sbi_mi.Rd
 #' \name{sbi$mi}
 #' \alias{sbi$mi}
@@ -2466,6 +2568,72 @@ sbi$mi = function (x,y=NULL,breaks=4,norm=FALSE) {
 }
 
 sbi_mi = sbi$mi
+
+#' FILE: sbi/man/sbi_mkdoc.Rd
+#' \name{sbi$mkdoc}
+#' \alias{sbi$mkdoc}
+#' \alias{sbi_mkdoc}
+#' \title{extract embedded Markdown documentation and code chunks within}
+#' \usage{sbi_mkdoc(infile,cssfile="mini.css",eval=FALSE)}
+#' \description{
+#'   Extract embedded Markdown documentation after `#'` and convert it into HTML. 
+#'   Further include constructs like '## include "header.md" are supported.
+#' }
+#' \arguments{
+#'   \item{infile}{R file with embedded Markdown code (after #' comments)}
+#'   \item{cssfile}{css stylesheet file, if not there a minimal css file will be created, you can modify the file later, default: mini.css}
+#'   \item{eval}{should the code chunks being evaluated, default: FALSE (for security reasons)}
+#' }
+#' \examples{ %options: eval=FALSE
+#' \dontrun{
+#'  sbi$mkdoc('test.R')
+#'  } 
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/mkdoc.R
+sbi$mkdoc <- function (infile,cssfile="mini.css",eval=FALSE)  {
+    if (eval & !requireNamespace("rmarkdown")) {
+        stop("Error: library rmarkdown missing but it is required!")
+    }
+    t1=Sys.time()
+    cat("converting ...", infile,"\n")
+    fin  = file(infile, "r")
+    outfile=gsub("\\.[rR][a-z]*$",".Rmd",infile)
+    htmlfile=gsub("\\.[rR][a-z]*$",".html",infile)    
+    fout = file(outfile,'w')
+    while(length((line = readLines(fin,n=1)))>0) {
+        if (grepl("^\\s*#'",line)) {
+            line=gsub("^\\s*#' ?","",line)       
+            if (!eval) {
+                line=gsub("```\\{r .+","```{r}",line)
+            }
+            cat(line,"\n",file=fout)
+        } else if (grepl("^\\s*## include ",line)) {
+            fname=gsub(".+?include +\"(.+)\".*","\\1",line) 
+            if (file.exists(fname)) {             
+                inc=file(fname,"r")             
+                while(length((linei = readLines(inc,n=1)))>0) {                         
+                    cat(linei,"\n",file=fout)
+                }
+                close(inc)
+            }
+        }
+    }
+    close(fin)
+    close(fout)
+    if (!file.exists(cssfile)) {
+        fout = file(cssfile,'w')
+        cat(sbi$CSS,"\n",file=fout)
+        close(fout)
+    }
+    if (!eval) {
+        system(sbi$fmt("pandoc -s -f markdown -c {1} -o {2} {3}",cssfile,htmlfile,outfile))
+    } else {
+        rmarkdown::render(outfile,rmarkdown::html_document(css="mini.css",theme=NULL))
+    }
+    cat("Processing done in",round(as.numeric(Sys.time()-t1,units="secs"),2),"seconds!\n")
+}
+sbi_mkdoc = sbi$mkdoc
 
 #' FILE: sbi/man/sbi_modus.Rd
 #' \name{sbi$modus}
