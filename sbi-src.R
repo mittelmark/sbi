@@ -29,9 +29,10 @@
 #' Encoding: UTF-8
 #' NeedsCompilation: no
 #' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
-#'     cache_image.R corr.R smartbind.R flow.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
-#'     sdata.R deg2rad.R dpairs.R dpairs_legend.R file.cat.R file.head.R modus.R pastel.R cramersV.R cv.R df2md.R dict.R
-#'     lmplot.R shape.R textplot.R  epsilonSquared.R etaSquared.R rad2deg.R report_pval.R is.dict.R
+#'     cache_image.R coa.R corr.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
+#'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
+#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R is.dict.R lmplot.R mi.R modus.R pastel.R 
+#'     rad2deg.R report_pval.R sdata.R shape.R smartbind.R  textplot.R   
 
 #' FILE: sbi/LICENSE
 #' YEAR: 2024
@@ -48,7 +49,7 @@
 
 #' FILE: sbi/NAMESPACE
 #' exportPattern("^[[:lower:]]+")
-#' importFrom("stats", "density","sd","cor","cor.test","aov","chisq.test","kruskal.test","lm",
+#' importFrom("stats", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
 #'            "aggregate","prop.test","t.test")
 #' importFrom("graphics", "axTicks","boxplot", "legend","par","polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
@@ -109,6 +110,7 @@
 #' \item{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}}{perform a resampling for the given data set and function}
 #' \item{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}}{create a crc32 image for a downloaded image from the internet if not yet there}
 #' \item{\link[sbi:sbi_chr2ord]{sbi$chr2ord(x,map)}}{convert factors or characters to ordinal numbers}
+#' \item{\link[sbi:sbi_coa]{sbi$coa(x,map)}}{co-occurence analysis}
 #' \item{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}}{Effect size comparing two means}
 #' \item{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}}{Effect size comparing for an ANOVA}
 #' \item{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}}{Effect size for 2x2 contingency tables}
@@ -124,13 +126,18 @@
 #' \item{\link[sbi:sbi_dict]{sbi$dict(...)}}{Create a dictionary (list with unique keys)}
 #' \item{\link[sbi:sbi_dpairs]{sbi$dpairs(...)}}{Improved pairs plot with xyplot, boxplot or assocplot depending on the variable types}
 #' \item{\link[sbi:sbi_dpairs_legend]{sbi$dpairs_legend(...)}}{adding legends to pairs and dpairs plots}
+#' \item{\link[sbi:sbi_drop_na]{sbi$drop_na(...)}}{remove all rows where any of the given columns contain a NA - so missing values}
 #' \item{\link[sbi:sbi_epsilonSquared]{sbi$epsilonSquared(x, y=NULL)}}{Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.}
 #' \item{\link[sbi:sbi_etaSquared]{sbi$etaSquared(x, y=NULL)}}{Calculate the effect size eta-squared for an Anova or a linear model.}
 #' \item{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}}{Displays a file to the terminal, not to stdout.}
 #' \item{\link[sbi:sbi_file.head]{sbi$file.head(filename,n=6)}}{Displays the first n lines of a file to the terminal.}
 #' \item{\link[sbi:sbi_flow]{sbi$flow(x, y=NULL, z=NULL, ...)}}{Very simple flowcharter to create flow diagrams}
+#' \item{\link[sbi:sbi_fmt]{sbi$fmt(str,...)}}{Python like string formatting}
+#' \item{\link[sbi:sbi_gmean]{sbi$gmean(x)}}{geometric mean}
+#' \item{\link[sbi:sbi_hmean]{sbi$hmean(x)}}{harmonic mean}
 #' \item{\link[sbi:sbi_is.dict]{sbi$is.dict(l)}}{Check if the given object is a dictionary (list with unique keys)}
 #' \item{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}}{XY-plot with linear model and the confidence intervals}
+#' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{Return the most often level in a categorical variable.}
 #' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{Create up to 20 pastel colors.}
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree.}
@@ -174,6 +181,7 @@
 #' \item \code{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}} perform a resampling for the given data set and function
 #' \item \code{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}} create a crc32 image for a downloaded image from the internet if not yet there
 #' \item \code{\link[sbi:sbi_chr2ord]{sbi$chr2ord(x,map)}} convert factors or characters to ordinal numbers
+#' \item \code{\link[sbi:sbi_coa]{sbi$coa(x,map)}} co-occurence analysis 
 #' \item \code{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}} Effect size comparing two means
 #' \item \code{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}} Effect size comparing for an ANOVA
 #' \item \code{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}} Effect size for 2x2 contingency tables
@@ -189,13 +197,18 @@
 #' \item \code{\link[sbi:sbi_dict]{sbi$dict(...)}} create a dictionary (list with unique keys)  
 #' \item \code{\link[sbi:sbi_dpairs]{sbi$dpairs(...)}} Improved pairs plot with xyplot, boxplot or assocplot depending on the variable types
 #' \item \code{\link[sbi:sbi_dpairs_legend]{sbi$dpairs_legend(...)}} adding legends to pairs and dpairs plots
+#' \item \code{\link[sbi:sbi_drop_na]{sbi$drop_na(...)}} remove all rows where any of the given columns contain a NA - so missing values
 #' \item \code{\link[sbi:sbi_epsilonSquared]{sbi$epsilonSquared(x, y=NULL)}} Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.
 #' \item \code{\link[sbi:sbi_etaSquared]{sbi$etaSquared(x, y=NULL)}} Calculate the effect size eta-squared for an Anova or a linear model.
 #' \item \code{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}} Displays a file to the terminal, not to stdout.
 #' \item \code{\link[sbi:sbi_file.head]{sbi$file.head(filename, n=6)}} Displays the first n lines of a file to the terminal.
 #' \item \code{\link[sbi:sbi_flow]{sbi$flow(x, y=NULL, z=NULL, ...)}} Create flowcharts with rectangles, arrows, and lines
+#' \item \code{\link[sbi:sbi_fmt]{sbi$fmt(str,...)}} Python like string formatting
+#' \item \code{\link[sbi:sbi_gmean]{sbi$gmean(x)}} geometric mean
+#' \item \code{\link[sbi:sbi_hmean]{sbi$hmean(x)}} harmonic mean
 #' \item \code{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}} check if an object is a dictionary (list with unique keys)
 #' \item \code{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}} XY-plot with linear model and the confidence intervals.
+#' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
 #' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} Return the most often level in a categorical variable.
 #' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} Create up to 20 pastel colors.
 #' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} Convert angle in radian into angle in degree.
@@ -243,7 +256,7 @@ sbi=new.env()
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/aggregate2.R
-sbi$aggregate2 <- function(x, y, z, FUN = cor, ...) {
+sbi$aggregate2 <- function (x, y, z, FUN = cor, ...) {
   return(unlist(lapply(split(data.frame(x = x, y = y), z), function(X) FUN(X[,1], X[,2]))))
 }
 
@@ -278,11 +291,11 @@ sbi_aggregate2 = sbi$aggregate2
 #' text(y[1]+0.1,y[2],"y",col="blue",cex=2)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, 
-#' \link[sbi:sbi_rad2deg]{sbi$rad2deg},
+#' \link[sbi:sbi_deg2rad]{sbi$deg2rad},
 #' \link[sbi:sbi_rad2deg]{sbi$rad2deg}.}
 #' FILE: sbi/R/angle.R
 sbi$angle <- function (x,y,degree=FALSE) {
-    euc = function (x) {
+    euc = function(x) {
         x <- matrix(x, ncol = 1)
         return(sqrt(colSums(x^2)))
     }
@@ -325,7 +338,7 @@ sbi_angle = sbi$agngle
 #' 
 #' FILE: sbi/R/corr.R
 
-sbi$corr <- function(data, method = "pearson", use = "pairwise.complete.obs") {
+sbi$corr <- function (data, method = "pearson", use = "pairwise.complete.obs") {
   mt <- matrix(0, nrow = ncol(data), ncol = ncol(data))
   colnames(mt) <- rownames(mt) <- colnames(data)
   mt.pval <- mt
@@ -367,7 +380,7 @@ sbi_corr = sbi$corr
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/assoc.R
-sbi$assoc <- function(..., shade = TRUE) {
+sbi$assoc <- function (..., shade = TRUE) {
   # https://stackoverflow.com/questions/38732663/how-to-insert-expression-into-the-body-of-a-function-in-r
   funins <- function(f, expr = expression(x <- 2 * x), after = 1) {
     body(f) <- as.call(append(as.list(body(f)), expr, after = after))
@@ -435,9 +448,7 @@ sbi_assoc = sbi$assoc
 #' \url{https://stats.stackexchange.com/questions/294824/r-understanding-bezier-curves}}
 
 #' FILE: sbi/R/bezier.R
-sbi$bezier <- function (p1,p2,p3,plot=FALSE,
-                        arrow=FALSE,
-                        arrow.pos=0.55,lwd=2,lty=1,...) {
+sbi$bezier <- function (p1,p2,p3,plot=FALSE, arrow=FALSE, arrow.pos=0.55,lwd=2,lty=1,...) {
     B <- function( t, P0, P1, P2 ) {
         (1 - t) * ( (1 - t)*P0 + t*P1 ) +
         t       * ( (1 - t)*P1 + t*P2 ) 
@@ -560,257 +571,6 @@ sbi$cache_image <- function (url,extension="png") {
 
 sbi_cache_image = sbi$cache_image
 
-#' FILE: sbi/man/sbi_textplot.Rd
-#' \name{sbi$textplot}
-#' \alias{sbi$textplot}
-#' \alias{sbi_textplot}
-#' \title{Display a data frame or matrix in a plot}
-#' \usage{sbi_textplot(x, cex=1, caption=NULL, ...)}
-#' \description{Write the data for a data frame or matrix into a plot.}
-#' \arguments{
-#'   \item{x}{A data frame or matrix.}
-#'   \item{cex}{Character expansion factor for text size, default: \code{1}.}
-#'   \item{caption}{An optional caption to display below the table, default: \code{NULL}.}
-#'   \item{...}{Other arguments passed to the \code{plot} function.}
-#' }
-#' \details{
-#' This function can be used as a workaround to display data for small data frames or matrices within a plot.
-#' }
-#' \value{NULL}
-#' \examples{
-#' par(mai=rep(0.1,4))
-#' sbi$textplot(head(swiss), caption="Table 1: Swiss data first six lines")
-#' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}}
-#' FILE: sbi/R/textplot.R
-sbi$textplot <- function (x, cex = 1, caption = NULL, ...) {
-  xlim <- c(-0.5, ncol(x) + 0.5)
-  ylim <- c(0, nrow(x) + 1.4)
-  if (!is.null(caption)) {
-    ylim[1] <- -1
-  }
-  plot(1, type = "n", xlim = xlim, ylim = ylim, axes = FALSE, xlab = "", ylab = "", ...)
-  if (!is.null(caption)) {
-    text(mean(xlim), -0.6, caption, cex = cex * 1.2)
-  }
-  abline(h = nrow(x) + 1.5, lwd = 2)
-  abline(h = nrow(x) + 0.6, lwd = 2)
-  abline(h = 0.3, lwd = 2)
-  for (i in 1:nrow(x)) {
-    text(-0.5, nrow(x) + 1 - i, rownames(x)[i], cex = cex, adj = 0)
-    for (j in 1:ncol(x)) {
-      if (i == 1) {
-        text(j, nrow(x) + 1, colnames(x)[j], cex = cex)
-      }
-      text(j, nrow(x) + 1 - i, x[i, j], cex = cex)
-    }
-  }
-}
-sbi_textplot <- sbi$textplot
-
-#' FILE: sbi/man/sbi_smartbind.Rd
-#' \name{sbi$smartbind}
-#' \alias{sbi$smartbind}
-#' \alias{sbi_smartbind}
-#' \title{Bind two data frames by matching column names}
-#' \usage{sbi_smartbind(x, y)}
-#' \description{Bind two data frames by matching column names, filling in missing columns with NAs.}
-#' \arguments{
-#'   \item{x}{A data frame or matrix.}
-#'   \item{y}{A data frame or matrix.}
-#' }
-#' \details{
-#' This function takes two data frames (or matrices) and combines them, ensuring that columns are matched by name. Columns that don't exist in one data frame are filled with \code{NA}.
-#' }
-#' \value{A data frame or matrix with combined rows of \code{x} and \code{y}.}
-#' \examples{
-#' df1 <- data.frame(a = 1:3, b = 4:6)
-#' df2 <- data.frame(b = 7:9, c = 10:12)
-#' sbi$smartbind(df1, df2)
-#' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}}
-#' FILE: sbi/R/smartbind.R
-sbi$smartbind <- function(x, y) {
-  nxcols <- setdiff(colnames(y), colnames(x))
-  nycols <- setdiff(colnames(x), colnames(y))
-  for (c in nxcols) {
-    x <- cbind(x, ncol = rep(NA, nrow(x)))
-    colnames(x)[ncol(x)] <- c
-  }
-  for (c in nycols) {
-    y <- cbind(y, ncol = rep(NA, nrow(y)))
-    colnames(y)[ncol(y)] <- c
-  }
-  y <- y[, colnames(x)]
-  x <- rbind(x, y)
-  return(x)
-}
-sbi_smartbind <- sbi$smartbind
-
-#' FILE: sbi/man/sbi_flow.Rd
-#' \name{sbi$flow}
-#' \alias{sbi$flow}
-#' \alias{sbi_flow}
-#' \title{Create simple flowcharts with different shapes and arrows}
-#' \description{
-#' The \code{sbi$flow} function allows you to create simple flowcharts with various shapes 
-#' (rectangles, circles, diamonds, etc.) and arrows or lines between them. You can specify 
-#' coordinates using chessboard notation (e.g., 'A1', 'C3') for placing shapes and drawing 
-#' connections.
-#' }
-#' \details{
-#' This function provides an easy-to-use tool for creating simple flowcharts in R. You can 
-#' customize the shapes, lines, arrows, labels, colors, and more to create flowcharts that 
-#' fit your specific needs. For more advanced diagrams, consider using packages such as \code{diagram}.
-#' }
-#' \usage{
-#' sbi_flow(x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, 
-#'          lab = "", family = "Arial", type = "arrow", axes = FALSE, lwd = 2, 
-#'          width = 1, height = 0.5, cex = 1, col = "skyblue", border = "black", 
-#'          arrow.col = "black", cut = 0.6, shadow = TRUE, shadow.col = "#bbbbbb99", ...)
-#' }
-#' \arguments{
-#'   \item{x}{Coordinate(s) in chessboard notation like 'A1', 'C3', etc.}
-#'   \item{y}{Coordinate(s) in chessboard notation. If given, assumes a line or arrow. Default: \code{NULL}.}
-#'   \item{z}{Optional third coordinate for bezier curves/arrow. Default: \code{NULL}.}
-#'   \item{x.incr}{Optional increment in x direction. Default: \code{0}.}
-#'   \item{y.incr}{Optional increment in y direction. Default: \code{0}.}
-#'   \item{lab}{Label(s) for a node shown as a rectangle. Default: \code{""}.}
-#'   \item{family}{Font family for node labels. Default: \code{"Arial"}.}
-#'   \item{type}{Shape type or arrow. Options include "arrow", "line", "rect", "circle", "ellipse", "hexagon", "diamond", etc. Default: \code{"arrow"}.}
-#'   \item{axes}{Logical; show axes on the plot. Default: \code{FALSE}.}
-#'   \item{lwd}{Line width for arrows or lines. Default: \code{2}.}
-#'   \item{width}{Width of shape. Default: \code{0.6}.}
-#'   \item{height}{Height of shape. Default: \code{0.3}.}
-#'   \item{cex}{Text expansion for labels. Default: \code{1}.}
-#'   \item{col}{Background color(s) for the shape. Default: \code{"skyblue"}.}
-#'   \item{border}{Border color for the shape. Default: \code{"black"}.}
-#'   \item{arrow.col}{Arrow color. Default: \code{"black"}.}
-#'   \item{cut}{Position of the arrow cut (relative position between 0 and 1). Default: \code{0.6}.}
-#'   \item{shadow}{Logical; add a shadow to the shape. Default: \code{TRUE}.}
-#'   \item{shadow.col}{Color of the shadow. Default: \code{"#bbbbbb99"}.}
-#'   \item{...}{Additional graphical parameters passed to plot functions.}
-#' }
-#' \examples{
-#' font <- "Arial"
-#' if (requireNamespace("extrafont", quietly = TRUE)) {
-#'    extrafont::loadfonts(device = "pdf", quiet = TRUE)
-#'    if (length(extrafont::fonts()) == 0) {
-#'         extrafont::ttf_import()
-#'         extrafont::loadfonts(device = "pdf", quiet = TRUE)
-#'    }
-#'    if ("Albertus Medium" \%in\% extrafont::fonts()) {
-#'         font <- "Albertus Medium"
-#'    } else if ("Georgia" \%in\% extrafont::fonts()) {
-#'         font <- "Georgia"
-#'    } else if ("Liberation Sans" \%in\% extrafont::fonts()) {
-#'         font <- "Liberation Sans"
-#'    }
-#' }
-#' flow <- sbi$flow
-#' flow(4, 4, axes = TRUE, cex.axis = 3, family = font)
-#' grid()
-#' flow("A1", "C1", lwd = 3)
-#' flow("A1", "B4", lwd = 3)
-#' flow("B4", "D4", lwd = 3, cut = 0.9)
-#' flow("D4", "D3", lwd = 3, type = "line")
-#' flow("C1", "D3", lwd = 3, arrow.col = "salmon", type = "line")
-#' flow("C1", "D1", lwd = 3, arrow.col = "salmon", type = "line")
-#' flow("D1", "D3", lwd = 3, arrow.col = "salmon", type = "line")
-#' flow("A1", lab = "Hello", width = 1.2, height = 0.8, cex = 1.2)
-#' flow("C1", lab = "World!", col = "salmon", width = 1.2, height = 0.8, cex = 1.2)
-#' flow("B4", lab = "B4", cex = 1.2)
-#' flow("D3", lab = "This is\nD3", cex = 1.2, col = "cornsilk", height = 0.7)
-#' } 
-#' \seealso{\link[sbi:sbi-package]{sbi-package}}
-#' FILE: sbi/R/flow.R
-sbi$flow = function (x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, lab = "", family = "Arial",
-                     type = "arrow", axes = FALSE, lwd = 2, width = 1, height = 0.5, 
-                     cex = 1, col = "skyblue", border = "black", arrow.col = "black", 
-                     cut = 0.6, shadow = TRUE, shadow.col = "#bbbbbb99", ...) {
-  
-  # Debugging output to ensure lab and type are correctly passed
-  f2v = function(x) {
-    col = substr(x, 1, 1)
-    col = as.integer(which(LETTERS == col)) + x.incr
-    row = as.integer(substr(x, 2, 2)) + y.incr
-    return(c(col, row))
-  }
-  
-  # Handle multiple input coordinates
-  if (length(x) > 1) {
-    for (i in 1:length(x)) {
-      if (length(y) == length(x)) {
-        yi = y[i]
-      } else {
-        yi = y
-      }
-      if (length(lab) == length(x)) {
-        labi = lab[i]
-      } else {
-        labi = lab
-      }
-      if (length(col) == length(x)) {
-        coli = col[i]
-      } else {
-        coli = col
-      }
-      sbi$flow(x = x[i], y = yi, x.incr = x.incr, y.incr = y.incr, lab = labi, family = family, 
-               type = type, axes = axes, lwd = lwd, width = width, height = height, 
-               cex = cex, col = coli, border = border, arrow.col = arrow.col, 
-               cut = cut, shadow = shadow, shadow.col = shadow.col, ...)
-    }
-    return()
-  }
-  
-  # Case when both x and y are numeric (setup board)
-  if (is.numeric(x) & is.numeric(y)) {
-    plot(1, type = "n", xlim = c(0.5, x + 0.5), ylim = c(0.5, y + 0.5), 
-         xlab = "", ylab = "", axes = FALSE, ...)
-    if (axes) {
-      axis(2, lwd = 0, family = family)
-      axis(1, at = 1:x, labels = LETTERS[1:x], lwd = 0, family = family)
-      box()
-    }
-    sbi$FLOWFONT = family
-  }
-  
-  # Handle arrows or lines for coordinates like "A1", "C1", etc.
-  else if (grepl("^[A-Z][0-9]+", x) && !is.null(y) && grepl("^[A-Z][0-9]+", y)) {
-    from = f2v(x)
-    to = f2v(y)
-    if (type == "arrow") {
-      hx <- (1 - cut) * from[1] + cut * to[1]
-      hy <- (1 - cut) * from[2] + cut * to[2]
-      arrows(hx, hy, to[1], to[2], lwd = lwd, code = 0, col = arrow.col, ...)
-      for (a in c(20, 15, 10, 5)) {
-        arrows(from[1], from[2], hx, hy, length = 0.05 * lwd, angle = a, lwd = lwd, col = arrow.col, ...)
-      }
-    } else {
-      lines(x = c(from[1], to[1]), y = c(from[2], to[2]), lwd = lwd, col = arrow.col, ...)
-    }
-  }
-  
-  # Handle nodes (rectangles, text, etc.)
-  else if (grepl("^[A-Z][0-9]+", x)) {
-    pos = f2v(x)
-    if (type != "text") {
-        if (type == "arrow") { type = "rectangle" }
-      poly = sbi$shape(0, 0, type = type, width = width, height = height, ...)
-    }
-    if (shadow & type != "text") {
-      polygon(poly$x + pos[1] + 0.05, poly$y + pos[2] - 0.05, col = shadow.col, border = shadow.col)
-    }
-    if (type != "text") {
-      polygon(poly$x + pos[1], poly$y + pos[2], col = col, border = border)
-    }
-    text(pos[1], pos[2], lab, cex = cex, family = sbi$FLOWFONT, ...)
-  }
-}
-
-sbi_flow = sbi$flow
-
-
 #' FILE: sbi/man/sbi_chr2ord.Rd
 #' \name{sbi$chr2ord}
 #' \alias{sbi$chr2ord}
@@ -847,6 +607,139 @@ sbi$chr2ord = function (x,map) {
                   )))
 }
 sbi_chr2ord = sbi$chr2ord    
+
+#' FILE: sbi/man/sbi_coa.Rd
+#' \name{sbi$coa}
+#' \alias{sbi$coa}
+#' \alias{sbi_coa}
+#' \title{Co-Occurence analysis}
+#' \description{
+#' The function sbi$cooccur performs a co-occurence analysis.
+#'   for small effects, values from 0.5 to 0.8 represent medium effects and values above 0.8 represent large effects. 
+#' }
+#' \usage{sbi_coa(x)}
+#' \arguments{
+#' \item{x}{either a data matrix where columns are the variables and rows are the samples or an symmetric matrix which has in the diagonal
+#'           the total number of occurence for the variable and in the off-diagonal values
+#'           the number how often two variables have a measure together}
+#' 
+#' }
+#' \value{list with the following components:
+#'     \item{co.occur}{the co-occurence matrix}
+#'     \item{dice}{the dice indices (Dice 1945)}
+#'     \item{jaccard}{the Jaccard indeces (Jaccard 1912)}
+#'     \item{residuals}{the Pearson residuals}
+#'     \item{cohens.w}{the Cohen's w effect size measure (Cohen 1988)}
+#'     \item{p.value}{the enrichment p-values of a fisher.test}
+#' }
+#' \examples{
+#' set.seed(123)
+#' M=matrix(rbinom(160,1,p=0.025),ncol=8)
+#' colnames(M)=LETTERS[1:8]
+#' # enrich A/B and C/D and D/E pairs
+#' idx=sample(1:20,5)
+#' M[idx,c("A","B")]=1
+#' idx=sample(1:20,4)
+#' M[idx,c("C","D")]=1
+#' idx=sample(1:20,3)
+#' M[idx,c("D","E")]=1
+#' COA=sbi$coa(M)
+#' lapply(COA,round, 2)
+#' # compare with mutual information
+#' round(sbi$mi(M),2)
+#' }
+#'
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/coa.R
+
+sbi$coa <- function (x) {
+    odata=x
+    if (is.data.frame(x)) {
+        x=as.matrix(x)
+    }
+    P=matrix(1,ncol=ncol(x),nrow=ncol(x))
+    colnames(P)=rownames(P)=colnames(x)
+    R=P
+    W=P
+    W[]=0
+    if (!identical(t(x),x)) {
+        # not yet a cooccur matrix
+        x[x>0]=1
+        owarn=options("warn")[[1]]
+        options(warn=-1)
+        for (i in 1:(ncol(x)-1)) {
+            for (j in (i+1):ncol(x)) {
+                if (sum(x[,i]) == 0 | sum(x[,j]) ==0) {
+                    # sum(x[,i]+x[,j]) == nrow(x)/2
+                    P[i,j]=P[j,i]=1
+                    R[i,j]=R[j,i]=0
+                    W[i,j]=W[j,i]=0
+                }  else {
+                    P[i,j]=P[j,i]=fisher.test(table(x[,i],x[,j]))$p.value
+                    res=chisq.test(table(x[,i],x[,j]))$residuals
+
+                    R[i,j]=R[j,i]=res[2,2]
+                    W[i,j]=W[j,i]=sbi$cohensW(table(x[,i],x[,j]))
+                }
+            }
+        }
+        options(warn=owarn)
+        x=t(x)
+        odata=x
+        x= x %*% t(x)
+    }
+    index <- function(x) {
+        D=x
+        D[]=0
+        J=D
+        for (i in 1:(nrow(x)-1)) {
+            for (j in i:nrow(x)) {
+                if (x[i,i]+x[j,j]==0) {
+                    D[i,j]=D[j,i]=0
+                    J[i,j]=J[j,i]=0
+                } else {
+                    D[i,j]=D[j,i]=(2*x[i,j])/(x[i,i]+x[j,j])
+                    J[i,j]=J[j,i]=x[i,j]/(x[i,i]+x[j,j]-x[i,j])
+                }
+            }
+        }
+        return(list(D=D,J=J))
+    }
+    ind=index(x)
+    if (FALSE && !identical(t(odata),odata)) {
+        P=NULL
+        # does not work
+        # randomize cols
+        P=ind$D
+        P[]=1
+        DA=array(0,dim=c(nrow(odata),nrow(odata),10))
+        DD=array(0,dim=c(nrow(odata),nrow(odata),10))        
+        for (i in 1:10) {
+            rdata=odata
+            for (j in 1:nrow(rdata)) {
+                rdata[j,]=sample(rdata[j,])
+            }
+            rdata=rdata %*% t(rdata)
+            DA[,,i]=rdata
+        }
+        for (i in 1:(nrow(x)-1)) {
+            for (j in (i+1):nrow(x)) {
+                if (x[i,j]==0) {
+                    pval=1
+                } else {
+                    pval=t.test(DA[i,j,],mu=x[i,j])$p.value
+                }
+                P[i,j]=P[j,i]=pval
+            }
+        }
+    }
+
+    return(list(co.occur=x,dice=ind$D,jaccard=ind$J,
+                residuals=R,
+                cohens.w=W,p.value=P))
+}
+
+sbi_coa = sbi$coa
 
 #' FILE: sbi/man/sbi_cohensD.Rd
 #' \name{sbi$cohensD}
@@ -1065,6 +958,45 @@ sbi$cohensW = function (x,p=NULL) {
 }
 
 sbi_cohensW = sbi$cohensW
+
+#' FILE: sbi/man/sbi_corplot.Rd
+#' \name{sbi$corplot}
+#' \title{correlation plot with a regression line}
+#' \alias{sbi$corplot}
+#' \alias{sbi_corplot}
+#' \usage{sbi_corplot(x, y, col = 'red', pch = 19, cex=2, method = "pearson", ...)}
+#' \description{Visualize a correlation with abline.}
+#' \arguments{
+#'   \item{x}{numerical vector}
+#'   \item{y}{numerical vector}
+#'   \item{col}{plotting character color, default: 'red'}
+#'   \item{pch}{the plotting symbol for the correlations, default: 19}
+#'   \item{cex}{the character expansion, default: 2}
+#'   \item{method}{the correlation method, 'pearson', 'spearman', or 'kendall', default: 'pearson'}
+#'   \item{...}{additional arguments passed to the plot function}
+#' }
+#' \details{
+#'   This function generates a scatter plot of two variables and displays the best-fit line (abline) for their correlation.
+#' }
+#' \examples{
+#' data(swiss)
+#' sbi$corplot(swiss$Fertility, swiss$Agriculture, xlab = "Fertility", ylab = "Agriculture")
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+
+#' FILE: sbi/R/corplot.R
+sbi$corplot <- function (x, y, col = 'red', pch = 19, cex = 2, method = "pearson", ...) {
+   p = cor.test(x, y, method = method, use = "complete.obs")$p.value
+   star = sbi$report_pval(p, star = TRUE)
+   r = paste('r = ', round(cor(x, y, method = method, use = "complete.obs"), 2), star, sep = "")
+   plot(x ~ y, main = r, col = col, pch = pch, cex = cex, ...)
+   abline(lm(x ~ y), col = col, lwd = 2)
+   box()
+}
+
+sbi_corplot = sbi$corplot
+
+
 #' FILE: sbi/man/sbi_corrplot.Rd
 #' \name{sbi$corrplot}
 #' \alias{sbi$corrplot}
@@ -1099,7 +1031,7 @@ sbi_cohensW = sbi$cohensW
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/corrplot.R
-sbi$corrplot <- function(mt, text.lower = TRUE, text.upper = FALSE, pch = 19, p.mat = NULL, alpha = 0.05, cex.sym = 5, cex.r = 1, cex.lab = 1.4, ...) {
+sbi$corrplot <- function (mt, text.lower = TRUE, text.upper = FALSE, pch = 19, p.mat = NULL, alpha = 0.05, cex.sym = 5, cex.r = 1, cex.lab = 1.4, ...) {
   if (class(p.mat)[1] == 'NULL') {
     p.mat = mt
     p.mat[] = 0
@@ -1146,278 +1078,6 @@ sbi$corrplot <- function(mt, text.lower = TRUE, text.upper = FALSE, pch = 19, p.
 
 sbi_corrplot = sbi$corrplot
 
-#' FILE: sbi/man/sbi_sdata.Rd
-#' \name{sbi$sdata}
-#' \alias{sbi$sdata}
-#' \alias{sbi_sdata}
-#' \title{Retrieve small data sets}
-#' \usage{sbi_sdata(name)}
-#' \description{Retrieve small data sets for analysis.}
-#' \arguments{
-#'   \item{name}{The name of the data set. Currently supported: 'c20' (relation between unsaturated fatty acids and insulin sensitivity) and 'azt' (treatment data for HIV patients).}
-#' }
-#' \details{
-#' The following data sets are supported:
-#' \describe{
-#'   \item{\code{c20}}{Data set illustrating the relationship between unsaturated fatty acids and insulin sensitivity (Borkman et al., 1993).}
-#'   \item{\code{azt}}{Treatment data for HIV patients comparing AZT against placebo (Cooper et al., 1993).}
-#' }
-#' }
-#' \references{
-#'   \itemize{
-#'     \item Borkman, M., et al. (1993). The relation between insulin sensitivity and the fatty-acid composition of skeletal-muscle phospholipids. \emph{New England Journal of Medicine}, 328(4), 238-244.
-#'     \item Cooper, D. A., et al. (1993). Zidovudine in persons with asymptomatic HIV infection and CD4+ cell counts greater than 400 per cubic millimeter. \emph{New England Journal of Medicine}, 329(5), 297-303.
-#'   }
-#' }
-#' \value{A data frame or contingency table for the selected data set.}
-#' \examples{
-#' c20 <- sbi$sdata(name = "c20")
-#' head(c20)
-#' cor(c20[, 1], c20[, 2])
-#' sbi$lmplot(c20[, 1], c20[, 2], ylim = c(0, 600), xlim = c(17, 25))
-#'
-#' azt <- sbi$sdata(name = "azt")
-#' azt
-#' }
-#' \seealso{\link[sbi:sbi_rad2deg]{sbi$rad2deg}}
-#' FILE: sbi/R/sdata.R
-sbi$sdata <- function (name="c20") {
-  if (name == "c20") {
-    c20.22=c(17.9, 18.3, 18.3, 18.4, 18.4, 20.2, 20.3, 21.8, 21.9, 22.1, 23.1, 24.2, 24.4)
-    ins.sens=c(250, 220, 145, 115, 230, 200, 330, 400, 370, 260, 270, 530, 375)
-    data = data.frame(c20.22 = c20.22, ins.sens = ins.sens)
-    return(data)
-  } else if (name == "azt") {
-    aids.azt = as.table(matrix(c(76, 399, 129, 332), byrow = TRUE, ncol = 2))
-    rownames(aids.azt) = c("AZT", "Placebo")
-    colnames(aids.azt) = c("DiseaseProgress", "NoDiseaseProgress")
-    dimnames(aids.azt) = list("Treatment" = dimnames(aids.azt)[[1]], "Progress" = dimnames(aids.azt)[[2]])
-    return(aids.azt)
-  } else {
-    stop("Error: Currently only 'c20' and 'azt' datasets are supported!")
-  }
-}
-sbi_sdata = sbi$sdata
-
-#' FILE: sbi/man/sbi_deg2rad.Rd
-#' \name{sbi$deg2rad}
-#' \alias{sbi$deg2rad}
-#' \alias{sbi_deg2rad}
-#' \title{Convert angle in degrees to radians}
-#' \usage{sbi_deg2rad(x)}
-#' \description{Convert an angle from degrees to radians.}
-#' \arguments{
-#'   \item{x}{Angle in degrees.}
-#' }
-#' \value{The angle converted to radians.}
-#' \examples{
-#' sbi$deg2rad(180)  # Returns pi radians
-#' sbi$rad2deg(sbi$deg2rad(360))  # Converts 360 degrees to radians and back to degrees
-#' }
-#' \seealso{\link[sbi:sbi_rad2deg]{sbi$rad2deg}}
-#' FILE: sbi/R/deg2rad.R
-sbi$deg2rad <- function(x) {
-  (x * pi) / 180
-}
-
-sbi_deg2rad = sbi$deg2rad
-
-#' FILE: sbi/man/sbi_corplot.Rd
-#' \name{sbi$corplot}
-#' \title{correlation plot with a regression line}
-#' \alias{sbi$corplot}
-#' \alias{sbi_corplot}
-#' \usage{sbi_corplot(x, y, col = 'red', pch = 19, cex=2, method = "pearson", ...)}
-#' \description{Visualize a correlation with abline.}
-#' \arguments{
-#'   \item{x}{numerical vector}
-#'   \item{y}{numerical vector}
-#'   \item{col}{plotting character color, default: 'red'}
-#'   \item{pch}{the plotting symbol for the correlations, default: 19}
-#'   \item{cex}{the character expansion, default: 2}
-#'   \item{method}{the correlation method, 'pearson', 'spearman', or 'kendall', default: 'pearson'}
-#'   \item{...}{additional arguments passed to the plot function}
-#' }
-#' \details{
-#'   This function generates a scatter plot of two variables and displays the best-fit line (abline) for their correlation.
-#' }
-#' \examples{
-#' data(swiss)
-#' sbi$corplot(swiss$Fertility, swiss$Agriculture, xlab = "Fertility", ylab = "Agriculture")
-#' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}}
-
-#' FILE: sbi/R/corplot.R
-sbi$corplot <- function(x, y, col = 'red', pch = 19, cex = 2, method = "pearson", ...) {
-   p = cor.test(x, y, method = method, use = "complete.obs")$p.value
-   star = sbi$report_pval(p, star = TRUE)
-   r = paste('r = ', round(cor(x, y, method = method, use = "complete.obs"), 2), star, sep = "")
-   plot(x ~ y, main = r, col = col, pch = pch, cex = cex, ...)
-   abline(lm(x ~ y), col = col, lwd = 2)
-   box()
-}
-
-sbi_corplot = sbi$corplot
-
-
-#' FILE: sbi/man/sbi_rad2deg.Rd
-#' \name{sbi$rad2deg}
-#' \alias{sbi$rad2deg}
-#' \alias{sbi_rad2deg}
-#' \title{Convert angle from radians to degrees}
-#' \usage{sbi_rad2deg(x)}
-#' \description{Convert an angle from radians to degrees.}
-#' \arguments{
-#'   \item{x}{Angle in radians}
-#' }
-#' \value{The angle converted to degrees.}
-#' \examples{
-#' sbi$rad2deg(1)
-#' sbi$rad2deg(pi) # Returns pi radians
-#' sbi$rad2deg(sbi$deg2rad(360))  # Converts 360 degrees to radians and back to degrees
-#' }
-#' \seealso{\link[sbi:sbi_deg2rad]{sbi$deg2rad}}
-
-#' FILE: sbi/R/rad2deg.R
-sbi$rad2deg <- function(x) {
-  return((x * 180) / (pi))
-}
-
-sbi_rad2deg = sbi$rad2deg
-
-
-#' FILE: sbi/man/sbi_file.cat.Rd
-#' \name{sbi$file.cat}
-#' \alias{sbi$file.cat}
-#' \alias{sbi_file.cat}
-#' \title{Displays a file to the terminal}
-#' \usage{sbi_file.cat(filename)}
-#' \description{This function reads a text file and displays it in the terminal.}
-#' \arguments{
-#'   \item{filename}{The name of the text file to display.}
-#' }
-#' \details{
-#' This function reads the contents of a text file and returns it as a string, which can be displayed in the terminal.
-#' }
-#' \value{A string containing the contents of the file.}
-#' \examples{
-#' fname=tempfile()
-#' fout=file(fname,"w")
-#' cat("hello readme\n",file=fout)
-#' close(fout)
-#' sbi$file.cat(fname)
-#' }
-#' \seealso{\link[sbi:sbi_file.head]{sbi$file.head}}
-#' FILE: sbi/R/file.cat.R
-sbi$file.cat <- function (filename) {
-  return(paste(readLines(filename), collapse="\n"))
-}
-
-sbi_file.cat = sbi$file.cat
-
-#' FILE: sbi/man/sbi_file.head.Rd
-#' \name{sbi$file.head}
-#' \alias{sbi$file.head}
-#' \alias{sbi_file.head}
-#' \title{Displays the first lines of a file}
-#' \usage{sbi_file.head(filename, n=6)}
-#' \description{This function displays the first \code{n} lines of a text file.}
-#' \arguments{
-#'   \item{filename}{The name of the text file to read.}
-#'   \item{n}{The number of lines to display from the beginning of the file, default is 6.}
-#' }
-#' \details{
-#' This function reads the first \code{n} lines of a text file and returns them as a vector of strings.
-#' }
-#' \value{A character vector containing the first \code{n} lines of the file.}
-#' \examples{
-#' fname=tempfile()
-#' fout=file(fname,"w")
-#' for (i in 1:20) {
-#'    cat(paste(i, "hello readme\n",file=fout))
-#' }
-#' close(fout)
-#' sbi$file.head(fname, n = 10)
-#' }
-#' \seealso{\link[sbi:sbi_file.cat]{sbi$file.cat}}
-
-#' FILE: sbi/R/file.head.R
-sbi$file.head <- function (filename, n=6) {
-  if (!file.exists(filename)) {
-    stop(paste('Error! File', filename, 'does not exist!'))
-  }
-  fin = file(filename, 'r')
-  res = readLines(fin, n = n)
-  close(fin)
-  return(res)
-}
-
-sbi_file.head = sbi$file.head
-
-#' FILE: sbi/man/sbi_modus.Rd
-#' \name{sbi$modus}
-#' \alias{sbi$modus}
-#' \alias{sbi_modus}
-#' \title{Return the most often level in a categorical variable}
-#' \usage{sbi_modus(catvar)}
-#' \description{Return the most often apparent level in the categorical variable.}
-#' \arguments{
-#'   \item{catvar}{a vector with elements of class factor or character.}
-#' }
-#' \details{
-#' The function computes the mode, i.e., the most frequent level in the given categorical variable.
-#' }
-#' \value{Most often apparent level in the categorical variable.}
-#' \examples{
-#' sbi$modus(c('A', 'A', 'B', 'C'))
-#' sbi$modus(c('A', 'A', 'B', 'B', 'C'))
-#' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}}
-#' FILE: sbi/R/modus.R
-sbi$modus <- function(catvar) {
-  tab <- table(catvar)
-  idx <- which(max(tab) == tab)
-  return(names(tab)[idx])
-}
-sbi_modus = sbi$modus
-
-#' FILE: sbi/man/sbi_pastel.Rd
-#' \name{sbi$pastel}
-#' \alias{sbi$pastel}
-#' \alias{sbi_pastel}
-#' \title{Create up to 20 pastel colors}
-#' \usage{sbi_pastel(n)}
-#' \description{Create a vector of pastel colors.}
-#' \arguments{
-#'   \item{n}{Number of colors requested, must be between 1 and 20.}
-#' }
-#' \details{
-#' This function generates a sequence of up to 20 pastel colors for R versions earlier than 3.6 where \code{hcl.colors} may not be available.
-#' }
-#' \value{A vector of pastel colors.}
-#' \examples{
-#' sbi$pastel(4)
-#' par(mai=c(0.2,0.2,0.2,0.1))
-#' plot(1:20, col=sbi$pastel(20), cex=3, pch=15)
-#' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}}
-#' FILE: sbi/R/pastel.R
-sbi$pastel <- function(n) {
-  if (n > 20 || n < 1) {
-    stop("only between 1 and 20 colors can be given")
-  }
-  pcols <- c(
-    "#FFC5D0", "#FDC8C3", "#F6CBB7", "#EDD0AE", "#E2D4A8", "#D4D8A7", 
-    "#C5DCAB", "#B6DFB4", "#A8E1BF", "#9EE2CB", "#99E2D8", "#9BE0E5", 
-    "#A4DDEF", "#B3D9F7", "#C4D5FB", "#D5D0FC", "#E4CBF9", "#F0C7F2", 
-    "#F9C5E9", "#FEC4DD"
-  )
-  idx <- seq(1, 20, by = floor(20 / n))
-  return(pcols[idx])
-}
-
-sbi_pastel = sbi$pastel
-
 #' FILE: sbi/man/sbi_cramersV.Rd
 #' \name{sbi$cramersV}
 #' \alias{sbi$cramersV}
@@ -1446,7 +1106,7 @@ sbi_pastel = sbi$pastel
 #' }
 #' \seealso{\link[sbi:sbi_cohensW]{sbi$cohensW}}
 #' FILE: sbi/R/cramersV.R
-sbi$cramersV <- function(tab, correct = TRUE) {
+sbi$cramersV <- function (tab, correct = TRUE) {
   owarn = options("warn")[[1]]
   options(warn = -1)
   t = min(dim(tab))
@@ -1478,7 +1138,7 @@ sbi_cramersV = sbi$cramersV
 #' \seealso{\link[sbi:sbi_cv]{sbi$sv}}
 
 #' FILE: sbi/R/cv.R
-sbi$cv <- function(x, na.rm = FALSE) {
+sbi$cv <- function (x, na.rm = FALSE) {
   cv = 100 * sd(x, na.rm = na.rm) / mean(x, na.rm = na.rm)
   return(cv)
 }
@@ -1506,7 +1166,7 @@ sbi_cv = sbi$cv
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/df2md.R
-sbi$df2md <- function(x, caption = '', rownames = TRUE) {
+sbi$df2md <- function (x, caption = '', rownames = TRUE) {
   df <- x
   cn <- colnames(df)
   if (is.null(cn[1])) {
@@ -1576,7 +1236,7 @@ sbi_df2md = sbi$df2md
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/dict.R
-sbi$dict <- function(...) {
+sbi$dict <- function (...) {
   l <- list(...)
   if (!sbi$is.dict(l)) {
     stop('Error: dict must have key-value pairs and keys cannot be duplicated!')
@@ -1805,6 +1465,38 @@ sbi$dpairs_legend <- function (labels,col='grey80',pch=15,side="bottom",cex=2) {
 }
 sbi_dpairs_legend = sbi$dpairs_legend
 
+
+#' FILE: sbi/man/sbi_drop_na.Rd
+#' \name{sbi$drop_na}
+#' \alias{sbi$drop_na}
+#' \alias{sbi_drop_na}
+#' \title{Removes all rows where any of the columns contain a NA}
+#' \usage{sbi_drop_na(x,cols)}
+#' \description{More sophisticated then `na.omit`. In contrast to this method, `sbi$drop_na` just
+#'    checks the given columns to delete rows which have any NA in these two columns in the given rows. 
+#'    This mimics the `tidyr::drop_na` function.}
+#' \arguments{
+#'   \item{x}{data frame or matrix}
+#'   \item{cols}{columns to check for NA's}
+#' }
+#' \examples{
+#' data(iris)
+#' ir=iris
+#' ir[c(1,3),1]=NA
+#' ir[2,2]=NA
+#' ir[4,4]=NA
+#' head(ir)
+#' head(na.omit(ir)) # removes all rows with an NA somewhere
+#' head(sbi$drop_na(ir,1:2)) # just checks the first two columns
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/drop_na.R
+
+sbi$drop_na <- function (x,cols) { 
+    idx=which(apply(!is.na(x[,cols]),1,all)); return(x[idx,]) 
+} 
+sbi_drop_na = sbi$drop_na
+
 #' FILE: sbi/man/sbi_epsilonSquared.Rd
 #' \name{sbi$epsilonSquared}
 #' \alias{sbi$epsilonSquared}
@@ -1893,45 +1585,386 @@ sbi$etaSquared <- function (x, y = NULL) {
 
 sbi_etaSquared = sbi$etaSquared
 
-#' FILE: sbi/man/report_pval.Rd
-#' \name{sbi$report_pval}
-#' \alias{sbi$report_pval}
-#' \alias{sbi_report_pval}
-#' \title{Report p-value with significance stars}
-#' \usage{sbi_report_pval(p, star=TRUE)}
-#' \description{Convert p-value into a string with significance stars.}
+#' FILE: sbi/man/sbi_deg2rad.Rd
+#' \name{sbi$deg2rad}
+#' \alias{sbi$deg2rad}
+#' \alias{sbi_deg2rad}
+#' \title{Convert angle in degrees to radians}
+#' \usage{sbi_deg2rad(x)}
+#' \description{Convert an angle from degrees to radians.}
 #' \arguments{
-#'   \item{p}{numeric; p-value.}
-#'   \item{star}{logical; should stars be shown for significance levels, default: TRUE.}
+#'   \item{x}{Angle in degrees.}
+#' }
+#' \value{The angle converted to radians.}
+#' \examples{
+#' sbi$deg2rad(180)  # Returns pi radians
+#' sbi$rad2deg(sbi$deg2rad(360))  # Converts 360 degrees to radians and back to degrees
+#' }
+#' \seealso{\link[sbi:sbi_rad2deg]{sbi$rad2deg}}
+#' FILE: sbi/R/deg2rad.R
+sbi$deg2rad <- function (x) {
+  (x * pi) / 180
+}
+
+sbi_deg2rad = sbi$deg2rad
+
+
+#' FILE: sbi/man/sbi_file.cat.Rd
+#' \name{sbi$file.cat}
+#' \alias{sbi$file.cat}
+#' \alias{sbi_file.cat}
+#' \title{Displays a file to the terminal}
+#' \usage{sbi_file.cat(filename)}
+#' \description{This function reads a text file and displays it in the terminal.}
+#' \arguments{
+#'   \item{filename}{The name of the text file to display.}
 #' }
 #' \details{
-#' The function converts p-values into strings, and if \code{star = TRUE}, adds stars to indicate significance levels.
+#' This function reads the contents of a text file and returns it as a string, which can be displayed in the terminal.
 #' }
-#' \value{A character string with the p-value and optional significance stars.}
+#' \value{A string containing the contents of the file.}
 #' \examples{
-#' sbi$report_pval(0.03)
-#' sbi$report_pval(0.0001)
-#' sbi$report_pval(0.3)
+#' fname=tempfile()
+#' fout=file(fname,"w")
+#' cat("hello readme\n",file=fout)
+#' close(fout)
+#' sbi$file.cat(fname)
 #' }
+#' \seealso{\link[sbi:sbi_file.head]{sbi$file.head}}
+#' FILE: sbi/R/file.cat.R
+sbi$file.cat <- function (filename) {
+  return(paste(readLines(filename), collapse="\n"))
+}
+
+sbi_file.cat = sbi$file.cat
+
+#' FILE: sbi/man/sbi_file.head.Rd
+#' \name{sbi$file.head}
+#' \alias{sbi$file.head}
+#' \alias{sbi_file.head}
+#' \title{Displays the first lines of a file}
+#' \usage{sbi_file.head(filename, n=6)}
+#' \description{This function displays the first \code{n} lines of a text file.}
+#' \arguments{
+#'   \item{filename}{The name of the text file to read.}
+#'   \item{n}{The number of lines to display from the beginning of the file, default is 6.}
+#' }
+#' \details{
+#' This function reads the first \code{n} lines of a text file and returns them as a vector of strings.
+#' }
+#' \value{A character vector containing the first \code{n} lines of the file.}
+#' \examples{
+#' fname=tempfile()
+#' fout=file(fname,"w")
+#' for (i in 1:20) {
+#'    cat(paste(i, "hello readme\n",file=fout))
+#' }
+#' close(fout)
+#' sbi$file.head(fname, n = 10)
+#' }
+#' \seealso{\link[sbi:sbi_file.cat]{sbi$file.cat}}
+
+#' FILE: sbi/R/file.head.R
+sbi$file.head <- function (filename, n=6) {
+  if (!file.exists(filename)) {
+    stop(paste('Error! File', filename, 'does not exist!'))
+  }
+  fin = file(filename, 'r')
+  res = readLines(fin, n = n)
+  close(fin)
+  return(res)
+}
+
+sbi_file.head = sbi$file.head
+
+#' FILE: sbi/man/sbi_flow.Rd
+#' \name{sbi$flow}
+#' \alias{sbi$flow}
+#' \alias{sbi_flow}
+#' \title{Create simple flowcharts with different shapes and arrows}
+#' \description{
+#' The \code{sbi$flow} function allows you to create simple flowcharts with various shapes 
+#' (rectangles, circles, diamonds, etc.) and arrows or lines between them. You can specify 
+#' coordinates using chessboard notation (e.g., 'A1', 'C3') for placing shapes and drawing 
+#' connections.
+#' }
+#' \details{
+#' This function provides an easy-to-use tool for creating simple flowcharts in R. You can 
+#' customize the shapes, lines, arrows, labels, colors, and more to create flowcharts that 
+#' fit your specific needs. For more advanced diagrams, consider using packages such as \code{diagram}.
+#' }
+#' \usage{
+#' sbi_flow(x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, 
+#'          lab = "", family = "Arial", type = "arrow", axes = FALSE, lwd = 2, 
+#'          width = 1, height = 0.5, cex = 1, col = "skyblue", border = "black", 
+#'          arrow.col = "black", cut = 0.6, shadow = TRUE, shadow.col = "#bbbbbb99", ...)
+#' }
+#' \arguments{
+#'   \item{x}{Coordinate(s) in chessboard notation like 'A1', 'C3', etc.}
+#'   \item{y}{Coordinate(s) in chessboard notation. If given, assumes a line or arrow. Default: \code{NULL}.}
+#'   \item{z}{Optional third coordinate for bezier curves/arrow. Default: \code{NULL}.}
+#'   \item{x.incr}{Optional increment in x direction. Default: \code{0}.}
+#'   \item{y.incr}{Optional increment in y direction. Default: \code{0}.}
+#'   \item{lab}{Label(s) for a node shown as a rectangle. Default: \code{""}.}
+#'   \item{family}{Font family for node labels. Default: \code{"Arial"}.}
+#'   \item{type}{Shape type or arrow. Options include "arrow", "line", "rect", "circle", "ellipse", "hexagon", "diamond", etc. Default: \code{"arrow"}.}
+#'   \item{axes}{Logical; show axes on the plot. Default: \code{FALSE}.}
+#'   \item{lwd}{Line width for arrows or lines. Default: \code{2}.}
+#'   \item{width}{Width of shape. Default: \code{0.6}.}
+#'   \item{height}{Height of shape. Default: \code{0.3}.}
+#'   \item{cex}{Text expansion for labels. Default: \code{1}.}
+#'   \item{col}{Background color(s) for the shape. Default: \code{"skyblue"}.}
+#'   \item{border}{Border color for the shape. Default: \code{"black"}.}
+#'   \item{arrow.col}{Arrow color. Default: \code{"black"}.}
+#'   \item{cut}{Position of the arrow cut (relative position between 0 and 1). Default: \code{0.6}.}
+#'   \item{shadow}{Logical; add a shadow to the shape. Default: \code{TRUE}.}
+#'   \item{shadow.col}{Color of the shadow. Default: \code{"#bbbbbb99"}.}
+#'   \item{...}{Additional graphical parameters passed to plot functions.}
+#' }
+#' \examples{
+#' font <- "Arial"
+#' if (requireNamespace("extrafont", quietly = TRUE)) {
+#'    extrafont::loadfonts(device = "pdf", quiet = TRUE)
+#'    if (length(extrafont::fonts()) == 0) {
+#'         extrafont::ttf_import()
+#'         extrafont::loadfonts(device = "pdf", quiet = TRUE)
+#'    }
+#'    if ("Albertus Medium" \%in\% extrafont::fonts()) {
+#'         font <- "Albertus Medium"
+#'    } else if ("Georgia" \%in\% extrafont::fonts()) {
+#'         font <- "Georgia"
+#'    } else if ("Liberation Sans" \%in\% extrafont::fonts()) {
+#'         font <- "Liberation Sans"
+#'    }
+#' }
+#' flow <- sbi$flow
+#' flow(4, 4, axes = TRUE, cex.axis = 3, family = font)
+#' grid()
+#' flow("A1", "C1", lwd = 3)
+#' flow("A1", "B4", lwd = 3)
+#' flow("B4", "D4", lwd = 3, cut = 0.9)
+#' flow("D4", "D3", lwd = 3, type = "line")
+#' flow("C1", "D3", lwd = 3, arrow.col = "salmon", type = "line")
+#' flow("C1", "D1", lwd = 3, arrow.col = "salmon", type = "line")
+#' flow("D1", "D3", lwd = 3, arrow.col = "salmon", type = "line")
+#' flow("A1", lab = "Hello", width = 1.2, height = 0.8, cex = 1.2)
+#' flow("C1", lab = "World!", col = "salmon", width = 1.2, height = 0.8, cex = 1.2)
+#' flow("B4", lab = "B4", cex = 1.2)
+#' flow("D3", lab = "This is\nD3", cex = 1.2, col = "cornsilk", height = 0.7)
+#' } 
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
-#' FILE: sbi/R/report_pval.R
-sbi$report_pval <- function(p, star=TRUE) {
-  if (star) {
-    if (p < 0.001) {
-      return("***")
-    } else if (p < 0.01) {
-      return("**")
-    } else if (p < 0.05) {
-      return("*")
-    } else {
-      return("")
+#' FILE: sbi/R/flow.R
+sbi$flow = function (x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, lab = "", family = "Arial",
+                     type = "arrow", axes = FALSE, lwd = 2, width = 1, height = 0.5, 
+                     cex = 1, col = "skyblue", border = "black", arrow.col = "black", 
+                     cut = 0.6, shadow = TRUE, shadow.col = "#bbbbbb99", ...) {
+  
+  # Debugging output to ensure lab and type are correctly passed
+  f2v = function(x) {
+    col = substr(x, 1, 1)
+    col = as.integer(which(LETTERS == col)) + x.incr
+    row = as.integer(substr(x, 2, 2)) + y.incr
+    return(c(col, row))
+  }
+  
+  # Handle multiple input coordinates
+  if (length(x) > 1) {
+    for (i in 1:length(x)) {
+      if (length(y) == length(x)) {
+        yi = y[i]
+      } else {
+        yi = y
+      }
+      if (length(lab) == length(x)) {
+        labi = lab[i]
+      } else {
+        labi = lab
+      }
+      if (length(col) == length(x)) {
+        coli = col[i]
+      } else {
+        coli = col
+      }
+      sbi$flow(x = x[i], y = yi, x.incr = x.incr, y.incr = y.incr, lab = labi, family = family, 
+               type = type, axes = axes, lwd = lwd, width = width, height = height, 
+               cex = cex, col = coli, border = border, arrow.col = arrow.col, 
+               cut = cut, shadow = shadow, shadow.col = shadow.col, ...)
     }
-  } else {
-    return(sprintf("p = %.4f", p))
+    return()
+  }
+  
+  # Case when both x and y are numeric (setup board)
+  if (is.numeric(x) & is.numeric(y)) {
+    plot(1, type = "n", xlim = c(0.5, x + 0.5), ylim = c(0.5, y + 0.5), 
+         xlab = "", ylab = "", axes = FALSE, ...)
+    if (axes) {
+      axis(2, lwd = 0, family = family)
+      axis(1, at = 1:x, labels = LETTERS[1:x], lwd = 0, family = family)
+      box()
+    }
+    sbi$FLOWFONT = family
+  }
+  
+  # Handle arrows or lines for coordinates like "A1", "C1", etc.
+  else if (grepl("^[A-Z][0-9]+", x) && !is.null(y) && grepl("^[A-Z][0-9]+", y)) {
+    from = f2v(x)
+    to = f2v(y)
+    if (type == "arrow") {
+      hx <- (1 - cut) * from[1] + cut * to[1]
+      hy <- (1 - cut) * from[2] + cut * to[2]
+      arrows(hx, hy, to[1], to[2], lwd = lwd, code = 0, col = arrow.col, ...)
+      for (a in c(20, 15, 10, 5)) {
+        arrows(from[1], from[2], hx, hy, length = 0.05 * lwd, angle = a, lwd = lwd, col = arrow.col, ...)
+      }
+    } else {
+      lines(x = c(from[1], to[1]), y = c(from[2], to[2]), lwd = lwd, col = arrow.col, ...)
+    }
+  }
+  
+  # Handle nodes (rectangles, text, etc.)
+  else if (grepl("^[A-Z][0-9]+", x)) {
+    pos = f2v(x)
+    if (type != "text") {
+        if (type == "arrow") { type = "rectangle" }
+      poly = sbi$shape(0, 0, type = type, width = width, height = height, ...)
+    }
+    if (shadow & type != "text") {
+      polygon(poly$x + pos[1] + 0.05, poly$y + pos[2] - 0.05, col = shadow.col, border = shadow.col)
+    }
+    if (type != "text") {
+      polygon(poly$x + pos[1], poly$y + pos[2], col = col, border = border)
+    }
+    text(pos[1], pos[2], lab, cex = cex, family = sbi$FLOWFONT, ...)
   }
 }
 
-sbi_report_pval = sbi$report_pval
+sbi_flow = sbi$flow
+
+#' FILE: sbi/man/sbi_fmt.Rd
+#' \name{sbi$fmt}
+#' \alias{sbi$fmt}
+#' \alias{sbi_fmt}
+#' \title{Python like string formatting)}
+#' \usage{sbi_fmt(str,...)}
+#' \description{
+#' This function implements Python like string formatting using curly braces as placeholder.
+#' }
+#' \arguments{
+#'   \item{str}{string with curly brace place holders, either empty or with numbers}
+#'   \item{...}{variables or values used to replace the curly brace placeholders}
+#' }
+#' \details{
+#' The implements  features empty pairs of curly braces as well as numbered curly brace pairs to replace them
+#' using the given variables or strings. 
+#' }
+#' \value{
+#'  string with curly braces replaced by the given values
+#' }
+#' \examples{
+#' sbi$fmt('I can say {} {}!',"Hello", "World")
+#' sbi$fmt('I can say {2} {1}!',"World", "Hello")
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/fmt.R
+sbi$fmt <- function (str,...) {
+    args=list(...);
+    if (class(args[[1]]) == 'list') {
+        args=args[[1]]
+    }
+    for (i in 1:length(args)) {
+        str=sub("\\{\\}",args[[i]],str)
+        str=sub(paste("\\{",i,"\\}",sep=''),
+                args[[i]],str)
+    }
+    return(str)
+}
+
+sbi_fmt= sbi$fmt
+
+#' FILE: sbi/man/sbi_gmean.Rd
+#' \name{sbi$gmean}
+#' \alias{sbi$gmean}
+#' \alias{sbi_gmean}
+#' \title{geometric mean of a numercial vector}
+#' \usage{sbi_gmean(x, na.rm=FALSE)}
+#' \description{
+#' Calculate the geometric mean of a numerical vector. All values in `x` should be above zero.
+#' }
+#' \arguments{
+#'   \item{x}{vector with positive numerical values}
+#'  \item{na.rm}{should NA's be removed, default: FALSE}
+#' }
+#' \value{
+#'  The geometric mean of the given vector
+#' }
+#' \examples{
+#' gmean=sbi$gmean
+#' x=10; y=20; z = 30
+#' gmean(c(x,y,z))
+#' gmean(c(x+0.5*x,y,z))
+#' gmean(c(x,y+0.5*y,z))
+#' gmean(c(x,y,z+z*0.5))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_hmean]{sbi$hmean}.} 
+#' FILE: sbi/R/gmean.R
+sbi$gmean <- function (x,na.rm=FALSE) {
+    idx=which(!is.na(x))
+    if (na.rm) {
+        x=x[idx]
+    } else if (length(idx)!= length(x)) {
+        return(NA)
+    }
+    s=x[1]
+    for (i in 2:length(x)) {
+        s=s*x[i]
+    }
+    return(s^(1/length(x)))
+}
+
+
+sbi_gmean = sbi$gmean
+
+
+#' FILE: sbi/man/sbi_hmean.Rd
+#' \name{sbi$hmean}
+#' \alias{sbi$hmean}
+#' \alias{sbi_hmean}
+#' \title{harmonic mean of a numercial vector}
+#' \usage{sbi_hmean(x, na.rm=FALSE)}
+#' \description{
+#' Calculate the harmonic mean of a numerical vector. All values in `x` should be above zero.
+#' }
+#' \arguments{
+#'   \item{x}{vector with positive numerical values}
+#'  \item{na.rm}{should NA's be removed, default: FALSE}
+#' }
+#' \value{
+#'  The harmonic mean of the given vector
+#' }
+#' \examples{
+#' hmean=sbi$hmean
+#' hmean(c(60,30)) # average speed
+#' hmean(c(60,30,0)) # speed is zero
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_hmean]{sbi$hmean}.} 
+#' FILE: sbi/R/hmean.R
+sbi$hmean <- function (x,na.rm=FALSE) {
+    idx=which(!is.na(x))
+    if (na.rm) {
+        x=x[idx]
+    } else if (length(idx)!= length(x)) {
+        return(NA)
+    }
+    s=1/x[1]
+    for (i in 2:length(x)) {
+        s=s+(1/x[i])
+    }
+    return(1/(s/length(x)))
+}
+
+
+sbi_hmean = sbi$hmean
+
 
 #' FILE: sbi/man/sbi_is.dict.Rd
 #' \name{sbi$is.dict}
@@ -1957,7 +1990,7 @@ sbi_report_pval = sbi$report_pval
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/is.dict.R
-sbi$is.dict <- function(obj) {
+sbi$is.dict <- function (obj) {
   if (!is.list(obj)) {
     return(FALSE)
   }
@@ -2078,6 +2111,302 @@ sbi$lmplot = function (x,y=NULL, data=NULL,col="blue",pch=19,col.lm="red",col.pl
 
 sbi_lmplot = sbi$lmplot
 
+#' FILE: sbi/man/sbi_mi.Rd
+#' \name{sbi$mi}
+#' \alias{sbi$mi}
+#' \alias{sbi_mi}
+#' \title{Mutual Information for two numerical variables or for a binned table}
+#' \usage{sbi_mi(x,y=NULL,breaks=4,norm=FALSE)}
+#' \description{Return the mutual information, the non-linear strength of a relationship between two 
+#'   numerical or of a binned table}
+#' \arguments{
+#'   \item{x}{either a binned table, a matrix or data.frame or a numerical vector}
+#'   \item{y}{a numerical vector if x is not a binned table or matrix or data.frame}
+#'   \item{breaks}{number of breaks to create a binned table if x and y are numerical vectors, default: 4}
+#'   \item{norm}{if input is given should the matrix be normalized by dividing the off-diagonal values by the mutual information in the diagonals, so the self mutual information, default: FALSE}
+#' }
+#' \details{
+#' The function computes the mode, i.e., the most frequent level in the given categorical variable.
+#' }
+#' \value{Mutual information value as scalar if input is table or two vectors or as matrix if input is matrix or data.frame}
+#' \examples{
+#' rn1=rnorm(100,mean=10,sd=1);
+#' rn2=rn1+0.5*rnorm(100)
+#' cor(rn1,rn2) # high
+#' cor(rn1,sample(rn2)) #random 
+#' sbi$mi(rn1,rn2) # high 
+#' sbi$mi(rn1,sample(rn2)) #random
+#' sbi$mi(rn1,rn2,breaks=4)
+#' sbi$mi(rn1,rn2,breaks=7)
+#' data(swiss)
+#' round(sbi$mi(swiss),2)
+#' round(sbi$mi(swiss,norm=TRUE),2)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/mi.R
+sbi$mi = function (x,y=NULL,breaks=4,norm=FALSE) {
+    if (is.matrix(x) | is.data.frame(x)) {
+        if (ncol(x)==2) {
+            return(sbi$mi(x=x[,1],y=x[,2],breaks=breaks))
+        } else {
+            M=matrix(0,nrow=ncol(x),ncol=ncol(x))
+            rownames(M)=colnames(M)=colnames(x)
+            for (i in 1:(ncol(x)-1)) {
+                for (j in i:ncol(x)) {
+                    M[i,j]=M[j,i]=sbi$mi(x[,i],x[,j],breaks=breaks)
+                }   
+            }
+            # last cell
+            M[ncol(x),ncol(x)]=sbi$mi(x[,ncol(x)],x[,ncol(x)])
+            if (norm) {
+                M=M/diag(M)
+            }
+            return(M)
+        }
+    }
+    if (!is.table(x)) {
+        if (class(y)[1] != "NULL") {
+            x=table(cut(x,breaks=breaks),cut(y,breaks=breaks))        
+        } else {
+            stop("if x is vector, y must be given as well")
+        }
+    }
+    f1=x/sum(x)
+    fx=rowSums(f1)
+    fy=colSums(f1)
+    fn=fx %o% fy
+    f2=fn/sum(fn)
+    LR = ifelse(f1>0,log(f1/f2),0)
+    MI = sum(f1*LR)
+    return(MI)
+}
+
+sbi_mi = sbi$mi
+
+#' FILE: sbi/man/sbi_modus.Rd
+#' \name{sbi$modus}
+#' \alias{sbi$modus}
+#' \alias{sbi_modus}
+#' \title{Return the most often level in a categorical variable}
+#' \usage{sbi_modus(catvar)}
+#' \description{Return the most often apparent level in the categorical variable.}
+#' \arguments{
+#'   \item{catvar}{a vector with elements of class factor or character.}
+#' }
+#' \details{
+#' The function computes the mode, i.e., the most frequent level in the given categorical variable.
+#' }
+#' \value{Most often apparent level in the categorical variable.}
+#' \examples{
+#' sbi$modus(c('A', 'A', 'B', 'C'))
+#' sbi$modus(c('A', 'A', 'B', 'B', 'C'))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/modus.R
+sbi$modus <- function (catvar) {
+  tab <- table(catvar)
+  idx <- which(max(tab) == tab)
+  return(names(tab)[idx])
+}
+sbi_modus = sbi$modus
+
+#' FILE: sbi/man/sbi_rad2deg.Rd
+#' \name{sbi$rad2deg}
+#' \alias{sbi$rad2deg}
+#' \alias{sbi_rad2deg}
+#' \title{Convert angle from radians to degrees}
+#' \usage{sbi_rad2deg(x)}
+#' \description{Convert an angle from radians to degrees.}
+#' \arguments{
+#'   \item{x}{Angle in radians}
+#' }
+#' \value{The angle converted to degrees.}
+#' \examples{
+#' sbi$rad2deg(1)
+#' sbi$rad2deg(pi) # Returns pi radians
+#' sbi$rad2deg(sbi$deg2rad(360))  # Converts 360 degrees to radians and back to degrees
+#' }
+#' \seealso{\link[sbi:sbi_deg2rad]{sbi$deg2rad}}
+
+#' FILE: sbi/R/rad2deg.R
+sbi$rad2deg <- function (x) {
+  return((x * 180) / (pi))
+}
+
+sbi_rad2deg = sbi$rad2deg
+
+
+#' FILE: sbi/man/sbi_pastel.Rd
+#' \name{sbi$pastel}
+#' \alias{sbi$pastel}
+#' \alias{sbi_pastel}
+#' \title{Create up to 20 pastel colors}
+#' \usage{sbi_pastel(n)}
+#' \description{Create a vector of pastel colors.}
+#' \arguments{
+#'   \item{n}{Number of colors requested, must be between 1 and 20.}
+#' }
+#' \details{
+#' This function generates a sequence of up to 20 pastel colors for R versions earlier than 3.6 where \code{hcl.colors} may not be available.
+#' }
+#' \value{A vector of pastel colors.}
+#' \examples{
+#' sbi$pastel(4)
+#' par(mai=c(0.2,0.2,0.2,0.1))
+#' plot(1:20, col=sbi$pastel(20), cex=3, pch=15)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/pastel.R
+sbi$pastel <- function (n) {
+  if (n > 20 || n < 1) {
+    stop("only between 1 and 20 colors can be given")
+  }
+  pcols <- c(
+    "#FFC5D0", "#FDC8C3", "#F6CBB7", "#EDD0AE", "#E2D4A8", "#D4D8A7", 
+    "#C5DCAB", "#B6DFB4", "#A8E1BF", "#9EE2CB", "#99E2D8", "#9BE0E5", 
+    "#A4DDEF", "#B3D9F7", "#C4D5FB", "#D5D0FC", "#E4CBF9", "#F0C7F2", 
+    "#F9C5E9", "#FEC4DD"
+  )
+  idx <- seq(1, 20, by = floor(20 / n))
+  return(pcols[idx])
+}
+
+sbi_pastel = sbi$pastel
+
+
+#' FILE: sbi/man/report_pval.Rd
+#' \name{sbi$report_pval}
+#' \alias{sbi$report_pval}
+#' \alias{sbi_report_pval}
+#' \title{Report p-value with significance stars}
+#' \usage{sbi_report_pval(p, star=TRUE)}
+#' \description{Convert p-value into a string with significance stars.}
+#' \arguments{
+#'   \item{p}{numeric; p-value.}
+#'   \item{star}{logical; should stars be shown for significance levels, default: TRUE.}
+#' }
+#' \details{
+#' The function converts p-values into strings, and if \code{star = TRUE}, adds stars to indicate significance levels.
+#' }
+#' \value{A character string with the p-value and optional significance stars.}
+#' \examples{
+#' sbi$report_pval(0.03)
+#' sbi$report_pval(0.0001)
+#' sbi$report_pval(0.3)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/report_pval.R
+sbi$report_pval <- function (p, star=TRUE) {
+  if (star) {
+    if (p < 0.001) {
+      return("***")
+    } else if (p < 0.01) {
+      return("**")
+    } else if (p < 0.05) {
+      return("*")
+    } else {
+      return("")
+    }
+  } else {
+    return(sprintf("p = %.4f", p))
+  }
+}
+
+sbi_report_pval = sbi$report_pval
+
+#' FILE: sbi/man/sbi_sdata.Rd
+#' \name{sbi$sdata}
+#' \alias{sbi$sdata}
+#' \alias{sbi_sdata}
+#' \title{Retrieve small data sets}
+#' \usage{sbi_sdata(name)}
+#' \description{Retrieve small data sets for analysis.}
+#' \arguments{
+#'   \item{name}{The name of the data set. Currently supported: 'c20' (relation between unsaturated fatty acids and insulin sensitivity) and 'azt' (treatment data for HIV patients).}
+#' }
+#' \details{
+#' The following data sets are supported:
+#' \describe{
+#'   \item{\code{c20}}{Data set illustrating the relationship between unsaturated fatty acids and insulin sensitivity (Borkman et al., 1993).}
+#'   \item{\code{azt}}{Treatment data for HIV patients comparing AZT against placebo (Cooper et al., 1993).}
+#' }
+#' }
+#' \references{
+#'   \itemize{
+#'     \item Borkman, M., et al. (1993). The relation between insulin sensitivity and the fatty-acid composition of skeletal-muscle phospholipids. \emph{New England Journal of Medicine}, 328(4), 238-244.
+#'     \item Cooper, D. A., et al. (1993). Zidovudine in persons with asymptomatic HIV infection and CD4+ cell counts greater than 400 per cubic millimeter. \emph{New England Journal of Medicine}, 329(5), 297-303.
+#'   }
+#' }
+#' \value{A data frame or contingency table for the selected data set.}
+#' \examples{
+#' c20 <- sbi$sdata(name = "c20")
+#' head(c20)
+#' cor(c20[, 1], c20[, 2])
+#' sbi$lmplot(c20[, 1], c20[, 2], ylim = c(0, 600), xlim = c(17, 25))
+#'
+#' azt <- sbi$sdata(name = "azt")
+#' azt
+#' }
+#' \seealso{\link[sbi:sbi_rad2deg]{sbi$rad2deg}}
+#' FILE: sbi/R/sdata.R
+sbi$sdata <- function (name="c20") {
+  if (name == "c20") {
+    c20.22=c(17.9, 18.3, 18.3, 18.4, 18.4, 20.2, 20.3, 21.8, 21.9, 22.1, 23.1, 24.2, 24.4)
+    ins.sens=c(250, 220, 145, 115, 230, 200, 330, 400, 370, 260, 270, 530, 375)
+    data = data.frame(c20.22 = c20.22, ins.sens = ins.sens)
+    return(data)
+  } else if (name == "azt") {
+    aids.azt = as.table(matrix(c(76, 399, 129, 332), byrow = TRUE, ncol = 2))
+    rownames(aids.azt) = c("AZT", "Placebo")
+    colnames(aids.azt) = c("DiseaseProgress", "NoDiseaseProgress")
+    dimnames(aids.azt) = list("Treatment" = dimnames(aids.azt)[[1]], "Progress" = dimnames(aids.azt)[[2]])
+    return(aids.azt)
+  } else {
+    stop("Error: Currently only 'c20' and 'azt' datasets are supported!")
+  }
+}
+sbi_sdata = sbi$sdata
+
+#' FILE: sbi/man/sbi_smartbind.Rd
+#' \name{sbi$smartbind}
+#' \alias{sbi$smartbind}
+#' \alias{sbi_smartbind}
+#' \title{Bind two data frames by matching column names}
+#' \usage{sbi_smartbind(x, y)}
+#' \description{Bind two data frames by matching column names, filling in missing columns with NAs.}
+#' \arguments{
+#'   \item{x}{A data frame or matrix.}
+#'   \item{y}{A data frame or matrix.}
+#' }
+#' \details{
+#' This function takes two data frames (or matrices) and combines them, ensuring that columns are matched by name. Columns that don't exist in one data frame are filled with \code{NA}.
+#' }
+#' \value{A data frame or matrix with combined rows of \code{x} and \code{y}.}
+#' \examples{
+#' df1 <- data.frame(a = 1:3, b = 4:6)
+#' df2 <- data.frame(b = 7:9, c = 10:12)
+#' sbi$smartbind(df1, df2)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/smartbind.R
+sbi$smartbind <- function (x, y) {
+  nxcols <- setdiff(colnames(y), colnames(x))
+  nycols <- setdiff(colnames(x), colnames(y))
+  for (c in nxcols) {
+    x <- cbind(x, ncol = rep(NA, nrow(x)))
+    colnames(x)[ncol(x)] <- c
+  }
+  for (c in nycols) {
+    y <- cbind(y, ncol = rep(NA, nrow(y)))
+    colnames(y)[ncol(y)] <- c
+  }
+  y <- y[, colnames(x)]
+  x <- rbind(x, y)
+  return(x)
+}
+sbi_smartbind <- sbi$smartbind
+
+
 #' FILE: sbi/man/sbi_shape.Rd
 #' \name{sbi$shape}
 #' \title{create polygon shapes centered at given x and y coordinates}
@@ -2161,7 +2490,7 @@ sbi_lmplot = sbi$lmplot
 #'     }
 #' }
 #' # some stones
-#' set = function (x,y,col="black") {
+#' set = function(x,y,col="black") {
 #'     w=0.9
 #'     if (col=="white") {
 #'        w=0.95
@@ -2181,13 +2510,13 @@ sbi_lmplot = sbi$lmplot
 
 sbi$shape <- function (x=0,y=0,width=1,height=1,type="circle",
                        seed=17,dir="left", arrow=FALSE,...) {
-    circle = function (x,y, radius=1,length=100) {
+    circle = function(x,y, radius=1,length=100) {
         theta = seq(0, 2 * pi, length = 100) 
         return(list(x=radius*cos(theta)+x,
                     y=radius*sin(theta)+y))
     }
     # https://gis.stackexchange.com/questions/24827/smoothing-polygons-in-contour-map/24929#24929
-    randPoly = function (n=6,seed=17) {
+    randPoly = function(n=6,seed=17) {
         set.seed(seed)
         n.vertices <- 10
         theta <- (runif(n.vertices) + 1:n.vertices - 1) * 2 * pi / n.vertices
@@ -2225,7 +2554,7 @@ sbi$shape <- function (x=0,y=0,width=1,height=1,type="circle",
         # Retain only the middle part.
         cbind(x1, x2)[k < x & x <= n+k, ]
     }
-    center = function (poly) {
+    center = function(poly) {
         poly$x=poly$x-mean(poly$x)
         poly$x=poly$x/diff(range(poly$x))
         poly$y=poly$y-mean(poly$y)
@@ -2274,6 +2603,55 @@ sbi$shape <- function (x=0,y=0,width=1,height=1,type="circle",
 }
 
 sbi_shape = sbi$shape
+
+#' FILE: sbi/man/sbi_textplot.Rd
+#' \name{sbi$textplot}
+#' \alias{sbi$textplot}
+#' \alias{sbi_textplot}
+#' \title{Display a data frame or matrix in a plot}
+#' \usage{sbi_textplot(x, cex=1, caption=NULL, ...)}
+#' \description{Write the data for a data frame or matrix into a plot.}
+#' \arguments{
+#'   \item{x}{A data frame or matrix.}
+#'   \item{cex}{Character expansion factor for text size, default: \code{1}.}
+#'   \item{caption}{An optional caption to display below the table, default: \code{NULL}.}
+#'   \item{...}{Other arguments passed to the \code{plot} function.}
+#' }
+#' \details{
+#' This function can be used as a workaround to display data for small data frames or matrices within a plot.
+#' }
+#' \value{NULL}
+#' \examples{
+#' par(mai=rep(0.1,4))
+#' sbi$textplot(head(swiss), caption="Table 1: Swiss data first six lines")
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/textplot.R
+
+sbi$textplot <- function (x, cex = 1, caption = NULL, ...) {
+  xlim <- c(-0.5, ncol(x) + 0.5)
+  ylim <- c(0, nrow(x) + 1.4)
+  if (!is.null(caption)) {
+    ylim[1] <- -1
+  }
+  plot(1, type = "n", xlim = xlim, ylim = ylim, axes = FALSE, xlab = "", ylab = "", ...)
+  if (!is.null(caption)) {
+    text(mean(xlim), -0.6, caption, cex = cex * 1.2)
+  }
+  abline(h = nrow(x) + 1.5, lwd = 2)
+  abline(h = nrow(x) + 0.6, lwd = 2)
+  abline(h = 0.3, lwd = 2)
+  for (i in 1:nrow(x)) {
+    text(-0.5, nrow(x) + 1 - i, rownames(x)[i], cex = cex, adj = 0)
+    for (j in 1:ncol(x)) {
+      if (i == 1) {
+        text(j, nrow(x) + 1, colnames(x)[j], cex = cex)
+      }
+      text(j, nrow(x) + 1 - i, x[i, j], cex = cex)
+    }
+  }
+}
+sbi_textplot <- sbi$textplot
 
 #' FILE: EOF
 
