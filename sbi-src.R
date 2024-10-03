@@ -31,7 +31,7 @@
 #' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
 #'     cache_image.R coa.R corr.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
-#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R is.dict.R lmplot.R mi.R modus.R pastel.R 
+#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R lmplot.R mi.R modus.R pastel.R 
 #'     rad2deg.R report_pval.R sdata.R shape.R smartbind.R  textplot.R   
 
 #' FILE: sbi/LICENSE
@@ -135,7 +135,9 @@
 #' \item{\link[sbi:sbi_fmt]{sbi$fmt(str,...)}}{Python like string formatting}
 #' \item{\link[sbi:sbi_gmean]{sbi$gmean(x)}}{geometric mean}
 #' \item{\link[sbi:sbi_hmean]{sbi$hmean(x)}}{harmonic mean}
-#' \item{\link[sbi:sbi_is.dict]{sbi$is.dict(l)}}{Check if the given object is a dictionary (list with unique keys)}
+#' \item{\link[sbi:sbi_import]{sbi$import(basename)}}{load other R files, relative to the current script file}
+#' \item{\link[sbi:sbi_input]{sbi$input(prompt)}}{get input from the user, as well in Rscript files}
+#' \item{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}}{Check if the given object is a dictionary (list with unique keys)}
 #' \item{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}}{XY-plot with linear model and the confidence intervals}
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{Return the most often level in a categorical variable.}
@@ -206,6 +208,8 @@
 #' \item \code{\link[sbi:sbi_fmt]{sbi$fmt(str,...)}} Python like string formatting
 #' \item \code{\link[sbi:sbi_gmean]{sbi$gmean(x)}} geometric mean
 #' \item \code{\link[sbi:sbi_hmean]{sbi$hmean(x)}} harmonic mean
+#' \item \code{\link[sbi:sbi_import]{sbi$import(basename)}} load other R files, relative to the current script file
+#' \item \code{\link[sbi:sbi_input]{sbi$input(prompt)}} get input from the user, as well in Rscript files
 #' \item \code{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}} check if an object is a dictionary (list with unique keys)
 #' \item \code{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}} XY-plot with linear model and the confidence intervals.
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
@@ -1965,6 +1969,93 @@ sbi$hmean <- function (x,na.rm=FALSE) {
 
 sbi_hmean = sbi$hmean
 
+#' FILE: sbi/man/sbi_import.Rd
+#' \name{sbi$import}
+#' \alias{sbi$import}
+#' \alias{sbi_import}
+#' \title{Load other R files relative to the current R file}
+#' \usage{sbi_import(basename)}
+#' \description{
+#' This function loads other R files relative to the current Rscript file.
+#' }
+#' \arguments{
+#'   \item{basename}{The filename of the R file without an extension.}
+#' }
+#' \details{
+#' The function allows the user to split its R application more easily into separate files, 
+#' where other files still can be loaded more easily placed in parallel to the main script file.
+#' }
+#' \examples{ %options: eval=FALSE
+#' \dontrun{
+#'  fout = file("test.R",'w')
+#'  cat("test = function (msg) { return(paste('testing',msg)) }\n",file=fout)
+#'  close(fout)
+#'  sbi$import('test')
+#'  test("Hello from test!")
+#'  }
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/import.R
+sbi$import <- function (basename) {
+    if (interactive()) {
+        stop("Error: The function sbi_import works only in R-scripts run with Rscript")
+    }
+    options <- commandArgs(trailingOnly = FALSE)
+    file.arg <- "--file="
+    idx=grep(file.arg,options)
+    script.name <- sub(file.arg, "", options[idx])
+    dir=dirname(script.name)
+    success=FALSE
+    for (ext in c(".R",".r")) {
+        fname=paste(basename,ext,sep="")
+        if (file.exists(file.path(dir,fname))) {
+            source(file.path(dir,fname))
+            success=TRUE
+            break
+        }
+    }
+    if (!success) {
+        stop(paste("Error: Module '",basename,"' not available!",sep=""))
+    }
+}
+
+sbi_import = sbi$import
+
+#' FILE: sbi/man/sbi_input.Rd
+#' \name{sbi$input}
+#' \alias{sbi$input}
+#' \alias{sbi_input}
+#' \title{Get input strings from the user as well from with R script files}
+#' \usage{sbi_input(prompt)}
+#' \description{
+#'  Replacement for the readline function in non-interactive scripts. 
+#'   As the readline function does only works in interactive mode we need an alternative.
+#' }
+#' \arguments{
+#'   \item{prompt}{text displayed to ask for input of the user}
+#' }
+#' \value{
+#' input entered by the user as a string
+#' }
+#' \examples{ %options: eval=FALSE
+#' \dontrun{
+#'  x=sbi$input('Enter a numerical value: ')
+#'  x=as.numeric(x)
+#'  print(paste("x*x is",x*x))
+#'  }
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/input.R
+sbi$input = function (prompt="Enter: ") {
+    if (interactive() ){ 
+        return(readline(prompt))
+    } else {
+        cat(prompt);
+        return(readLines("stdin",n=1))
+    }
+}
+sbi_input = sbi$input
+
 
 #' FILE: sbi/man/sbi_is.dict.Rd
 #' \name{sbi$is.dict}
@@ -2780,6 +2871,7 @@ ExtractEx <- function (srcfile) {
     fin  = file(srcfile, "r")
     fout = NULL
     ex = FALSE
+    dr = FALSE
     lastindent = 0;
     while(length((line = readLines(fin,n=1)))>0) {
         if (grepl("^#' Package:",line)) {
@@ -2791,6 +2883,9 @@ ExtractEx <- function (srcfile) {
         } else if (grepl("^#' \\\\name",line)) {
              cat(paste("### ",gsub(".+\\{(.+)\\}","\\1",line),"\n"),file=fout)
              name=gsub("[^A-Za-z0-9]","_",gsub(".+\\{(.+)\\}.*","\\1",line))
+        } else if (grepl("^#' \\\\title",line)) {
+            cat(paste("\n\n",gsub(".+\\{(.+)\\}","\\1",line),"\n",sep=""),file=fout)
+            ex = FALSE
         } else if (grepl("^#' \\\\examples",line)) {
             opt=""             
             if (grepl("%options:",line)) {
@@ -2804,9 +2899,10 @@ ExtractEx <- function (srcfile) {
         } else if (ex & lastindent < 3 & substr(line,1,4) == "#' }") {
             cat("```\n\n",file=fout)                   
             ex = FALSE
-        } else if (grepl("^#' \\\\title",line)) {
-            cat(paste("\n\n",gsub(".+\\{(.+)\\}","\\1",line),"\n",sep=""),file=fout)
-            ex = FALSE
+        } else if (ex & substr(line,1,11) == "#' \\dontrun") {
+            dr = TRUE
+        } else if (dr & substr(line,1,5) == "#'  }") {
+            dr = FALSE
         } else if (ex) {
             lastindent = nchar(gsub("#'([ ]+).*","\\1",line))
             cat(gsub("\\\\%","%",gsub("#' ", "",line)),file=fout)  
