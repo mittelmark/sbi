@@ -32,8 +32,8 @@
 #'     cache_image.R coa.R corr.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
 #'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
-#'     lmplot.R mi.R modus.R pastel.R 
-#'     rad2deg.R report_pval.R sdata.R shape.R smartbind.R  textplot.R   
+#'     kurtosis.R lmplot.R mi.R modus.R pastel.R 
+#'     rad2deg.R report_pval.R sdata.R shape.R skewness.R smartbind.R  textplot.R   
 
 #' FILE: sbi/LICENSE
 #' YEAR: 2024
@@ -141,6 +141,7 @@
 #' \item{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}}{Check if the given object is a dictionary (list with unique keys)}
 #' \item{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}}{check if a given value within a vector is an outlier}
 #' \item{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}}{create flowcharts using the kroki online tool}
+#' \item{\link[sbi:sbi_kurtosis]{sbi$kurtosis(x)}}{fourth central moment of a distribution}
 #' \item{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}}{XY-plot with linear model and the confidence intervals}
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{Return the most often level in a categorical variable.}
@@ -148,6 +149,7 @@
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree.}
 #' \item{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star=FALSE)}}{Report a p-value with optional stars based on significance thresholds}
 #' \item{\link[sbi:sbi_shape]{sbi$shape(x,y)}}{Create random polygon shapes centered at given x and y coordinates.}
+#' \item{\link[sbi:sbi_skewness]{sbi$skewness(x)}}{third central moment of a distribution}
 #' \item{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}}{Bind two data frames by matching column names, filling in missing columns with NAs.}
 #' \item{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}}{Display a data frame or matrix in a plot.}
 #' }
@@ -2238,6 +2240,50 @@ sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache
 
 sbi_kroki = sbi$kroki
 
+#' FILE: sbi/man/sbi_kurtosis.Rd
+#' \name{sbi$kurtosis}
+#' \alias{sbi$kurtosis}
+#' \alias{sbi_kurtosis}
+#' \title{fourth central moment of a distribution}
+#' \usage{sbi_kurtosis(x, na.rm=FALSE)}
+#' \description{
+#'   Calculate the fourth central moment of a distribution. Values higher than 0
+#'   indicate heavy-tailed distributions, values of lower than zero means 
+#'   light-tailed (sharp peak) distributions. Values around zero mean normal value
+#'   like distribution. As the normal kurtosis formula has for normal distributions
+#'   a value of three, usually the excess kurtosis as in this implementation is 
+#'   used which involves substraction of 3.
+#' }
+#' \arguments{
+#'   \item{x}{vector with positive numerical values}
+#'   \item{na.rm}{should NA's be removed, default: FALSE}
+#' }
+#' \value{numerical value for the excess kurtosis}
+#' \examples{
+#' sbi$kurtosis(1:10)      # very uniform, should be negative
+#' sbi$kurtosis(runif(10,min=1,max=5)+rnorm(10,mean=3,sd=0.2))
+#' sbi$kurtosis(rnorm(100,mean=10,sd=0.5)) # close to zero
+#' sbi$kurtosis(rt(50,df=1)) # higher than normal
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_skewness]{sbi$skewness}}
+#' FILE: sbi/R/kurtosis.R
+
+sbi$kurtosis <- function (x,na.rm=FALSE) {
+    if (na.rm) {
+        x=x[!is.na(x)]
+    } else {
+        if (any(is.na(x))) {
+            return(NA)
+        }
+    }
+    g=(sum((x-mean(x,na.rm=na.rm))^4)
+       /length(x))/(sd(x)^4)-3
+    return(g)
+}
+
+sbi_kurtosis <- sbi$kurtosis
+
+
 #' FILE: sbi/man/sbi_lmplot.Rd
 #' \name{sbi$lmplot}
 #' \alias{sbi$lmplot}
@@ -2605,46 +2651,6 @@ sbi$sdata <- function (name="c20") {
 }
 sbi_sdata = sbi$sdata
 
-#' FILE: sbi/man/sbi_smartbind.Rd
-#' \name{sbi$smartbind}
-#' \alias{sbi$smartbind}
-#' \alias{sbi_smartbind}
-#' \title{Bind two data frames by matching column names}
-#' \usage{sbi_smartbind(x, y)}
-#' \description{Bind two data frames by matching column names, filling in missing columns with NAs.}
-#' \arguments{
-#'   \item{x}{A data frame or matrix.}
-#'   \item{y}{A data frame or matrix.}
-#' }
-#' \details{
-#' This function takes two data frames (or matrices) and combines them, ensuring that columns are matched by name. Columns that don't exist in one data frame are filled with \code{NA}.
-#' }
-#' \value{A data frame or matrix with combined rows of \code{x} and \code{y}.}
-#' \examples{
-#' df1 <- data.frame(a = 1:3, b = 4:6)
-#' df2 <- data.frame(b = 7:9, c = 10:12)
-#' sbi$smartbind(df1, df2)
-#' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}}
-#' FILE: sbi/R/smartbind.R
-sbi$smartbind <- function (x, y) {
-  nxcols <- setdiff(colnames(y), colnames(x))
-  nycols <- setdiff(colnames(x), colnames(y))
-  for (c in nxcols) {
-    x <- cbind(x, ncol = rep(NA, nrow(x)))
-    colnames(x)[ncol(x)] <- c
-  }
-  for (c in nycols) {
-    y <- cbind(y, ncol = rep(NA, nrow(y)))
-    colnames(y)[ncol(y)] <- c
-  }
-  y <- y[, colnames(x)]
-  x <- rbind(x, y)
-  return(x)
-}
-sbi_smartbind <- sbi$smartbind
-
-
 #' FILE: sbi/man/sbi_shape.Rd
 #' \name{sbi$shape}
 #' \title{create polygon shapes centered at given x and y coordinates}
@@ -2841,6 +2847,86 @@ sbi$shape <- function (x=0,y=0,width=1,height=1,type="circle",
 }
 
 sbi_shape = sbi$shape
+
+#' FILE: sbi/man/sbi_skewness.Rd
+#' \name{sbi$skewness}
+#' \alias{sbi$skewness}
+#' \alias{sbi_skewness}
+#' \title{third central moment of a distribution}
+#' \usage{sbi_skewness(x, na.rm=FALSE)}
+#' \description{Calculate the third central moment of a distribution. Values higher than zero
+#'   indicate right-tailed distributions, values of lower than zero mean 
+#'   left-tailed distributions. Values around zero mean normal value
+#'   like distribution. 
+#' }
+#' \arguments{
+#'   \item{x}{vector with positive numerical values}
+#'   \item{na.rm}{should NA's be removed, default: FALSE}
+#' }
+#' \value{numerical value for the skewness of the vector}
+#' \examples{
+#' sbi$skewness(1:100)          # very uniform, 0
+#' sbi$skewness(rnorm(100))     # normal, close to 0
+#' # now with right tail
+#' sbi$skewness(c(rnorm(100,mean=20),rnorm(30,mean=23,sd=2)))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_kurtosis]{sbi$kurtosis}}
+#' FILE: sbi/R/skewness.R
+sbi$skewness <- function (x,na.rm=FALSE) {
+    if (na.rm) {
+        x=x[!is.na(x)]
+    } else {
+        if (any(is.na(x))) {
+            return(NA)
+        }
+    }
+    g=(sum((x-mean(x,na.rm=na.rm))^3)/
+       length(x))/(sd(x)^3)
+    return(g)
+}
+
+sbi_skewness <- sbi$skewness
+
+
+#' FILE: sbi/man/sbi_smartbind.Rd
+#' \name{sbi$smartbind}
+#' \alias{sbi$smartbind}
+#' \alias{sbi_smartbind}
+#' \title{Bind two data frames by matching column names}
+#' \usage{sbi_smartbind(x, y)}
+#' \description{Bind two data frames by matching column names, filling in missing columns with NAs.}
+#' \arguments{
+#'   \item{x}{A data frame or matrix.}
+#'   \item{y}{A data frame or matrix.}
+#' }
+#' \details{
+#' This function takes two data frames (or matrices) and combines them, ensuring that columns are matched by name. Columns that don't exist in one data frame are filled with \code{NA}.
+#' }
+#' \value{A data frame or matrix with combined rows of \code{x} and \code{y}.}
+#' \examples{
+#' df1 <- data.frame(a = 1:3, b = 4:6)
+#' df2 <- data.frame(b = 7:9, c = 10:12)
+#' sbi$smartbind(df1, df2)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/smartbind.R
+sbi$smartbind <- function (x, y) {
+  nxcols <- setdiff(colnames(y), colnames(x))
+  nycols <- setdiff(colnames(x), colnames(y))
+  for (c in nxcols) {
+    x <- cbind(x, ncol = rep(NA, nrow(x)))
+    colnames(x)[ncol(x)] <- c
+  }
+  for (c in nycols) {
+    y <- cbind(y, ncol = rep(NA, nrow(y)))
+    colnames(y)[ncol(y)] <- c
+  }
+  y <- y[, colnames(x)]
+  x <- rbind(x, y)
+  return(x)
+}
+sbi_smartbind <- sbi$smartbind
+
 
 #' FILE: sbi/man/sbi_textplot.Rd
 #' \name{sbi$textplot}
