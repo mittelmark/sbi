@@ -21,8 +21,8 @@
 #'    useful functions helpful for in general statistical analysis.
 #' URL:  https://github.com/mittelmark/sbi
 #' BugReports: https://github.com/mittelmark/sbi/issues
-#' Imports: digest
-#' Suggests: knitr, rmarkdown, extrafont, MASS
+####' Imports: 
+#' Suggests: knitr, rmarkdown, extrafont, MASS, digest, tcltk, png
 #' VignetteBuilder: knitr
 #' License: MIT + file LICENSE
 #' Language: en-US
@@ -31,7 +31,8 @@
 #' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
 #'     cache_image.R coa.R corr.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
-#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R lmplot.R mi.R modus.R pastel.R 
+#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
+#'     lmplot.R mi.R modus.R pastel.R 
 #'     rad2deg.R report_pval.R sdata.R shape.R smartbind.R  textplot.R   
 
 #' FILE: sbi/LICENSE
@@ -54,7 +55,7 @@
 #'            "aggregate","prop.test","t.test")
 #' importFrom("graphics", "axTicks","boxplot", "legend","par","polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
 #'            "abline","points")
-#' importFrom("digest","digest")
+###' importFrom("digest","digest")
 #'
 #' FILE: sbi/inst/files/decathlon.tab
 #' 100	long	shot	high	400	110	disq	pole	jave	1500
@@ -138,6 +139,8 @@
 #' \item{\link[sbi:sbi_import]{sbi$import(basename)}}{load other R files, relative to the current script file}
 #' \item{\link[sbi:sbi_input]{sbi$input(prompt)}}{get input from the user, as well in Rscript files}
 #' \item{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}}{Check if the given object is a dictionary (list with unique keys)}
+#' \item{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}}{check if a given value within a vector is an outlier}
+#' \item{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}}{create flowcharts using the kroki online tool}
 #' \item{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}}{XY-plot with linear model and the confidence intervals}
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{Return the most often level in a categorical variable.}
@@ -211,6 +214,8 @@
 #' \item \code{\link[sbi:sbi_import]{sbi$import(basename)}} load other R files, relative to the current script file
 #' \item \code{\link[sbi:sbi_input]{sbi$input(prompt)}} get input from the user, as well in Rscript files
 #' \item \code{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}} check if an object is a dictionary (list with unique keys)
+#' \item \code{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}} check if a given value within a vector is an outlier
+#' \item \code{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}} create flowcharts using the kroki online tool
 #' \item \code{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}} XY-plot with linear model and the confidence intervals.
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
 #' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} Return the most often level in a categorical variable.
@@ -2078,6 +2083,10 @@ sbi_input = sbi$input
 #' \examples{
 #' d = sbi$dict(a = 1, b = 2)
 #' sbi$is.dict(d)  # Returns TRUE
+#' l = list(a=1,b=2,a=3)
+#' class(d)
+#' class(l)
+#' sbi$is.dict(l)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/is.dict.R
@@ -2090,6 +2099,144 @@ sbi$is.dict <- function (obj) {
 }
 
 sbi_is.dict = sbi$is.dict
+
+
+#' FILE: sbi/man/sbi_is.outlier.Rd
+#' \name{sbi$is.outlier}
+#' \alias{sbi$is.outlier}
+#' \alias{sbi_is.outlier}
+#' \title{check if a given value within a vector is an outlier}
+#' \usage{sbi_is.outlier(x)}
+#' \description{
+#' Check if a given value within a vector is an outlier based on the 3xSD criteria.
+#' }
+#' \arguments{
+#'   \item{x}{A vector with numerical values.}
+#' }
+#' \details{
+#'  The function applies the 3SD criteria declaring all values which are more than 3 standard deviations away
+#'  from the mean as an outlier.
+#' }
+#' \value{
+#' a vector with boolean values, where TRUE means that the value is an outlier based on the 3SD criteria.
+#' }
+#' \examples{
+#' rn=rnorm(3000)
+#' table(sbi$is.outlier(rn))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/is.outlier.R
+sbi$is.outlier = function (x) { 
+    return(abs(scale(x))>3) 
+}
+
+sbi_is.outlier = sbi$is.outlier
+
+#' FILE: sbi/man/sbi_kroki.Rd
+#' \name{sbi$kroki}
+#' \alias{sbi$kroki}
+#' \alias{sbi_kroki}
+#' \title{Create diagrams using the online tool https://kroki.io}
+#' \usage{sbi_kroki(text="A --> B",filename=NULL,type="ditaa",ext="png",cache=TRUE,plot=FALSE)}
+#' \description{
+#'   This function is creates a URL which can be easily embedded into Markdown code for displaying
+#'   diagrams supported by the online tool https://kroki.io.
+#'   There is as well an online diagram editor, see here: https://niolesk.top/.
+#' }
+#' \arguments{
+#'  \item{text}{some diagram code, default: "A --> B"}
+#'  \item{filename}{some input file, either _text_ or _file_ must be given, default: NULL}
+#'  \item{type}{diagram type, supported is ditaa, graphviz, and many others, see the kroki website, default: "ditaa"}
+#'  \item{ext}{file extension, usally 'png', 'svg' or 'pdf', default: "png"}
+#'  \item{cache}{should the image be cached locally using crc32 digest files in an _img_ folder, default: TRUE}
+#'  \item{plot}{should the image directly plotted, default: FALSE}
+#' }
+#' \details{
+#'  The function allows you to create sophisticated flowcharts using different diagram tools
+#'  by the niolesk webservice. For details on how to create diagrams you might to have a look at the 
+#'  diagram tool help pages. Here some links:
+#'  \describe{
+#'    \item{ditaa documentation}{\url{https://github.com/stathissideris/ditaa}}
+#'    \item{plantuml documentation}{\url{https://plantuml.com/}}
+#'  }
+#' }
+#' \examples{
+#' url1=sbi$kroki('
+#' digraph g { 
+#'  rankdir="LR";
+#'  node[style=filled,fillcolor=beige];
+#'  A -> B -> C ; 
+#'  }',
+#'  type="graphviz")
+#'  url2=sbi$kroki("
+#'  +---------+    +--------+
+#'  |    AcEEF+--->+   BcFEE+
+#'  +---------+    +--------+
+#'  ")
+#'  print(url1)
+#'  print(url2)
+#'  sbi$kroki("digraph { node[shape=box,style=filled,fillcolor=beige]; plot -> kroki; }",type="graphviz",plot=TRUE)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/kroki.R
+
+sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache=TRUE,plot=FALSE) {
+    # memCompress and openssl::base64_encode in R 
+    # did not work always as expected
+    # using good old Tcl
+    if (!requireNamespace("tcltk",quietly=TRUE)) {
+        stop("Error: package tcltk is required to run sbi$kroki")
+    }
+    tcltk::.Tcl("
+    proc dia2kroki {text} {
+        return [string map {+ - / _ = \"\"}  [binary encode base64 [zlib compress $text]]]
+    }
+    ")
+    if(plot & !requireNamespace("png",quietly=TRUE)) {
+        stop("Error: Plotting kroki images requires library png!")
+    }
+    if (!is.null(filename)) {
+        if (!file.exists(filename)) {
+            stop(paste("Error: File",filename,"does not exists!"))
+        } else {
+            fin=file(filename,'r')
+            text=readLines(fin,n=-1L)
+            close(fin)
+            text=paste(text,collapse="\n")
+        }
+    }
+    url = tcltk::tclvalue(tcltk::tcl("dia2kroki",text))
+    url= paste("https://kroki.io",type,ext,url,sep="/")
+    if (cache) {
+        if (!requireNamespace("digest",quietly=TRUE)) {
+            stop("You need to install the digest library to cache images!")
+        } 
+        if (!dir.exists("img")) {
+            dir.create("img")
+        }
+        filename=paste(digest::digest(url,"crc32"),".",ext,sep="")
+        imgname=file.path("img",filename)
+        if (!file.exists(imgname)) {
+            print("downloading ...")
+            utils::download.file(url,imgname,mode="wb")
+        }
+        if (plot) {
+            img=png::readPNG(imgname)
+            grid::grid.raster(img)
+        } else {
+            return(imgname)
+        }
+    } else {
+        if (plot) {
+            img=png::readPNG(url)
+            grid::grid.raster(img)
+        } else {
+            return(url)
+        }
+    }
+}
+
+sbi_kroki = sbi$kroki
 
 #' FILE: sbi/man/sbi_lmplot.Rd
 #' \name{sbi$lmplot}
