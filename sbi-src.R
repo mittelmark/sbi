@@ -22,7 +22,7 @@
 #' URL:  https://github.com/mittelmark/sbi
 #' BugReports: https://github.com/mittelmark/sbi/issues
 ####' Imports: 
-#' Suggests: knitr, rmarkdown, extrafont, MASS, digest, tcltk, png
+#' Suggests: knitr, rmarkdown, extrafont, MASS, digest, tcltk, png, tools
 #' VignetteBuilder: knitr
 #' License: MIT + file LICENSE
 #' Language: en-US
@@ -32,8 +32,9 @@
 #'     cache_image.R coa.R corr.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
 #'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
-#'     kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R 
-#'     rad2deg.R report_pval.R sdata.R shape.R skewness.R smartbind.R  textplot.R   
+#'     kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
+#'     pcor.R pcor.test.R
+#'     rad2deg.R report_pval.R shell.R sdata.R sem.R shape.R skewness.R smartbind.R  textplot.R   
 
 #' FILE: sbi/LICENSE
 #' YEAR: 2024
@@ -52,9 +53,11 @@
 #' exportPattern("^[[:lower:]]+")
 #' importFrom("stats", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
-#'            "aggregate","prop.test","t.test")
+#'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals")
 #' importFrom("graphics", "axTicks","boxplot", "hist","legend","par","polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
 #'            "abline","points")
+#' importFrom("utils","read.table","installed.packages")
+#' importFrom("tools","package_dependencies")
 ###' importFrom("digest","digest")
 #'
 #' FILE: sbi/inst/files/decathlon.tab
@@ -92,7 +95,6 @@
 #' 31	31.4961	6.22	13.98	1.91	28.0976	24.937	46.18	4.6	57.84	18.3057
 #' 32	31.3862	6.43	12.33	1.94	28.6282	26.4	38.72	4	57.26	18.3849
 #' 33	31.115	7.19	10.27	1.91	28.3968	24.4444	34.36	4.1	54.94	20.0015
-
 #' FILE: sbi/man/sbi-package.Rd
 #' \name{sbi-package}
 #' \alias{sbi-package}
@@ -121,7 +123,6 @@
 #' \item{\link[sbi:sbi_corrplot]{sbi$corrplot(mt,...)}}{Visualize a correlation matrix.}
 #' \item{\link[sbi:sbi_cramersV]{sbi$cramersV(tab)}}{Calculate Cramer's V for a contingency table as an effect size measure.}
 #' \item{\link[sbi:sbi_cv]{sbi$cv(x,na.rm=FALSE)}}{Calculate the coefficient of variation.}
-#' \item{\link[sbi:sbi_sdata]{sbi$sdata(name)}}{Load small data sets like 'c20' or 'azt'.}
 #' \item{\link[sbi:sbi_deg2rad]{sbi$deg2rad(x)}}{Convert an angle in degrees to radians.}
 #' \item{\link[sbi:sbi_df2md]{sbi$df2md(x, rownames=TRUE, caption="")}}{Convert a data frame or matrix into a Markdown table}
 #' \item{\link[sbi:sbi_dict]{sbi$dict(...)}}{Create a dictionary (list with unique keys)}
@@ -147,10 +148,16 @@
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}}{convert mkdoc documentation to HTML}
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{Return the most often level in a categorical variable.}
-#' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{Create up to 20 pastel colors.}
-#' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree.}
+#' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{create up to 20 pastel colors}
+#' \item{\link[sbi:sbi_packageDependencies]{sbi$packageDependencies(pkgname)}}{return the dependencies of the given package}
+#' \item{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}}{partial correlation}
+#' \item{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}}{partial correlation test}
+#' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree}
 #' \item{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star=FALSE)}}{Report a p-value with optional stars based on significance thresholds}
-#' \item{\link[sbi:sbi_shape]{sbi$shape(x,y)}}{Create random polygon shapes centered at given x and y coordinates.}
+#' \item{\link[sbi:sbi_sdata]{sbi$sdata(name)}}{Load small data sets like 'c20' or 'azt'.}
+#' \item{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}}{standard error of the mean}
+#' \item{\link[sbi:sbi_shape]{sbi$shape(x,y)}}{Create random polygon shapes centered at given x and y coordinates}
+#' \item{\link[sbi:sbi_shell]{sbi$shell(script)}}{Executes a given sell script in text format (Unix only)}
 #' \item{\link[sbi:sbi_skewness]{sbi$skewness(x)}}{third central moment of a distribution}
 #' \item{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}}{Bind two data frames by matching column names, filling in missing columns with NAs.}
 #' \item{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}}{Display a data frame or matrix in a plot.}
@@ -200,7 +207,6 @@
 #' \item \code{\link[sbi:sbi_corrplot]{sbi$corrplot(mt,...)}} Visualize a correlation matrix.
 #' \item \code{\link[sbi:sbi_cramersV]{sbi$cramersV(tab)}} Calculate Cramer's V for a contingency table as an effect size measure
 #' \item \code{\link[sbi:sbi_cv]{sbi$cv(x,na.rm=FALSE)}} Calculate the coefficient of variation
-#' \item \code{\link[sbi:sbi_sdata]{sbi$sdata(name)}} load small data sets like 'c20' or 'azt'.
 #' \item \code{\link[sbi:sbi_deg2rad]{sbi$deg2rad(x)}} Convert an angle in degrees to radians.
 #' \item \code{\link[sbi:sbi_df2md]{sbi$df2md(x, rownames=TRUE, caption="")}} convert a data frame or matrix into a Markdown table  
 #' \item \code{\link[sbi:sbi_dict]{sbi$dict(...)}} create a dictionary (list with unique keys)  
@@ -226,9 +232,15 @@
 #' \item \code{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}} convert mkdoc documentation to HTML
 #' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} Return the most often level in a categorical variable.
 #' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} Create up to 20 pastel colors.
-#' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} Convert angle in radian into angle in degree.
-#' \item \code{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star = FALSE)}} Report a p-value with optional stars based on significance thresholds.
-#' \item \code{\link[sbi:sbi_shape]{sbi$shape(x,y)}} Create random polygon shapes centered at given x and y coordinates.
+#' \item \code{\link[sbi:sbi_packageDependencies]{sbi$packageDependencies(pkgname)}} return the dependencies of the given package
+#' \item \code{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}} partial correlation
+#' \item \code{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}} partial correlation test
+#' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} convert angle in radian into angle in degree
+#' \item \code{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star = FALSE)}} report a p-value with optional stars based on significance thresholds
+#' \item \code{\link[sbi:sbi_sdata]{sbi$sdata(name)}} load small data sets like 'c20' or 'azt'.
+#' \item \code{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}} standard error of the mean
+#' \item \code{\link[sbi:sbi_shape]{sbi$shape(x,y)}} create random polygon shapes centered at given x and y coordinates
+#' \item \code{\link[sbi:sbi_shell]{sbi$shell(script)}} executes a given sell script in text format (Unix only)
 #' \item \code{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}} bind two data frames by matching columns and filling missing values with NA.
 #' \item \code{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}} display a small data frame or matrix inside a plot.
 #' }
@@ -2662,6 +2674,121 @@ sbi$modus <- function (catvar) {
 }
 sbi_modus = sbi$modus
 
+#' FILE: sbi/man/sbi_pcor.Rd
+#' \name{sbi$pcor}
+#' \alias{sbi$pcor}
+#' \alias{sbi_pcor}
+#' \title{partial correlation}
+#' \usage{sbi_pcor(x,y,z, method="pearson")}
+#' \description{Partial correlation between two variables after control for other variables.}
+#' \arguments{
+#'   \item{x}{numeric vector, missing values are allowed}
+#'   \item{y}{numeric vector, missing values are allowed}
+#'   \item{z}{numeric vector, matrix or data frame,  missing values are allowed}
+#'   \item{method}{character string indicating which partial correlation coefficient is to be computed, either "pearson" (default), or or "spearman"}
+#' }
+#' \value{Estimate gives the partial correlation coefficient between x and y given z}
+#' \details{
+#'   Calculate partial correlation coefficient of either parametric ("Pearson") 
+#'   or non-parametric ("Spearman") statistics corrected for one or more other variables.
+#' }
+#' \examples{
+#' y.data <- data.frame(
+#'   hl=c(7,15,19,15,21,22,57,15,20,18),
+#'   disp=c(0.000,0.964,0.000,0.000,0.921,0.000,0.000,1.006,0.000,1.011),
+#'   deg=c(9,2,3,4,1,3,1,3,6,1),
+#'   BC=c(1.78e-02,1.05e-06,1.37e-05,7.18e-03,0.00e+00,0.00e+00,0.00e+00,
+#'        4.48e-03,2.10e-06,0.00e+00)
+#' )
+#' # partial correlation between "hl" and "disp" given "deg" and "BC"
+#' sbi$pcor(y.data$hl,y.data$disp,y.data[,c("deg","BC")])
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_pcor.test]{sbi$pcor.test}.}
+
+#' FILE: sbi/R/pcor.R
+sbi$pcor = function (x,y,z,method='pearson') {
+    r=sbi$pcor.test(x,y,z,method=method)$estimate
+    return(r)
+}
+
+sbi_pcor = sbi$pcor
+
+#' FILE: sbi/man/sbi_pcor.test.Rd
+#' \name{sbi$pcor.test}
+#' \alias{sbi$pcor.test}
+#' \alias{sbi_pcor.test}
+#' \title{partial correlation test}
+#' \usage{sbi_pcor.test(x,y,z,method="pearson")}
+#' \description{Partial correlation test between two variables after control for other variables.}
+#' \arguments{
+#'   \item{x}{numeric vector, missing values are allowed}
+#'   \item{y}{numeric vector, missing values are allowed}
+#'   \item{z}{numeric vector, matrix or data frame,  missing values are allowed}
+#'   \item{method}{character string indicating which partial correlation coefficient is to be computed, either "pearson" (default), or or "spearman"}
+#' }
+#' \value{Returns list with the following components:
+#'   \item{estimate}{gives the partial correlation coefficient between x and y given z}
+#'   \item{p.value}{gives the p-value of the test}
+#'   \item{statistics}{gives the value of the test statistics}
+#'   \item{n}{gives the number of samples after deleting all the missing samples}
+#'   \item{gn}{gives the number of given variables}
+#'   \item{method}{gives the correlation method used}
+#' }
+#' \details{
+#'   Calculate partial correlation coefficient of either parametric ("Pearson") 
+#'   or non-parametric ("Spearman") statistics corrected for one or more other variables.
+#' 
+#'   This implementation is based on ideas in:
+#'   \url{http://r.789695.n4.nabble.com/Partial-correlations-and-p-values-td908641.html}
+#'   same results as with ppcor package!
+#' }
+#' \examples{
+#' y.data <- data.frame(
+#'   hl=c(7,15,19,15,21,22,57,15,20,18),
+#'   disp=c(0.000,0.964,0.000,0.000,0.921,0.000,0.000,1.006,0.000,1.011),
+#'   deg=c(9,2,3,4,1,3,1,3,6,1),
+#'   BC=c(1.78e-02,1.05e-06,1.37e-05,7.18e-03,0.00e+00,0.00e+00,0.00e+00,
+#'        4.48e-03,2.10e-06,0.00e+00)
+#' )
+#' # partial correlation between "hl" and "disp" given "deg" and "BC"
+#' sbi$pcor.test(y.data$hl,y.data$disp,y.data[,c("deg","BC")])
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_pcor]{sbi$pcor}.}
+
+#' FILE: sbi/R/pcor.test.R
+sbi$pcor.test <- function (x,y,z,method='pearson') {
+   if (is.data.frame(z)) {
+       z=as.matrix(z)
+   }
+   if (is.matrix(z)) {
+       df=data.frame(x=x,y=y) 
+       for (col in 1:ncol(z)) {
+           df=cbind(df,z=z[,col])
+           colnames(df)[ncol(df)]=colnames(z)[col]
+       }
+   } else {
+       df=data.frame(x=x,y=y,z=z)
+   }
+   frmx=formula(paste("x~",paste(colnames(df)[3:ncol(df)],collapse="+"),sep=""))
+   frmy=formula(paste("y~",paste(colnames(df)[3:ncol(df)],collapse="+"),sep=""))
+   df=na.omit(df)
+   if (method=='spearman') {
+       df=as.data.frame(apply(df,2,rank))
+   }
+   xres=residuals(lm(frmx,data=df))
+   yres=residuals(lm(frmy,data=df))
+
+   pr=cor(xres,yres)
+   gn=ncol(df)-2 # number of z
+   n=nrow(df)
+   statistic <- pr*sqrt((n-2-gn)/(1-pr^2))
+   p.value <- 2*pnorm(-abs(statistic))
+   return(data.frame(estimate=pr,p.value=p.value,statistic=statistic,n=n,gn=gn,method=method))
+}
+
+sbi_pcor.test = sbi$pcor.test
+
+
 #' FILE: sbi/man/sbi_rad2deg.Rd
 #' \name{sbi$rad2deg}
 #' \alias{sbi$rad2deg}
@@ -2686,6 +2813,63 @@ sbi$rad2deg <- function (x) {
 }
 
 sbi_rad2deg = sbi$rad2deg
+
+#' FILE: sbi/man/sbi_packageDependencies.Rd
+#' \name{sbi$packageDpendencies}
+#' \alias{sbi$packageDpendencies}
+#' \alias{sbi_packageDependencies}
+#' \title{display packages dependencies}
+#' \usage{sbi_packageDependencies(pkgName, mode='all', cran="https://ftp.belnet.be/mirror/CRAN/")}
+#' \description{
+#'   Please use only the packages you really need. 
+#'   If there is just a simple functionality try to code this yourself, for instance the [sbi$drop_na](#drop_na) functionality. So, before you install a package check what other 
+#'   packages you get. If you give your script to other users, they must install all these packages as well.
+#' }
+#' \arguments{
+#'   \item{pkgName}{package name given as text string}
+#'   \item{mode}{which package names to return, the following modes are available:
+#'                'all' - all required packages, 'install'  not yet installed packages,
+#'                'nonbase' - packages not in a standard R installation,
+#'               default: 'all' }
+#'   \item{cran}{the default CRAN site, default: "https://ftp.belnet.be/mirror/CRAN/"}
+#' }
+#' \value{vector of required packages}
+#' \examples{
+#' sbi$packageDependencies('igraph',mode='nonbase') # not so many
+#' sbi$packageDependencies('igraph',mode='all')
+#' sbi$packageDependencies('tidyr',mode='nonbase')  # quite a lot!
+#' sbi$packageDependencies('devtools',mode='nonbase')  # even more !
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/packageDependencies.R
+sbi$packageDependencies <- function(pkgName, mode='all', cran="https://ftp.belnet.be/mirror/CRAN/")  {
+    x=pkgName
+    if (!interactive()) {
+         r <- getOption("repos");
+         r["CRAN"] <- cran
+         #"https://lib.ugent.be/CRAN/" 
+         options(repos=r) 
+    }
+    requireNamespace("tools")
+    deps=package_dependencies(x,recursive=TRUE)[[1]]
+    if (mode == 'install') {
+        idx = which(
+        !(deps %in% rownames(installed.packages())))
+        return(deps[idx])
+    } else if (mode == 'nonbase') {
+        ipacks=installed.packages()
+        bpacks=ipacks[ipacks[,'Priority'] %in% 
+            c('base','recommended'),]
+        rnms=setdiff(rownames(ipacks),rownames(bpacks))
+        return(intersect(deps,rnms))
+    } else if (mode == 'all') {
+        return(deps)
+    } else {
+        stop('mode must be either `all`, `install` or `nonbase`!')
+    }
+
+}
+sbi_packageDependencies = sbi$packageDependencies
 
 
 #' FILE: sbi/man/sbi_pastel.Rd
@@ -2781,6 +2965,7 @@ sbi_report_pval = sbi$report_pval
 #' \describe{
 #'   \item{\code{c20}}{Data set illustrating the relationship between unsaturated fatty acids and insulin sensitivity (Borkman et al., 1993).}
 #'   \item{\code{azt}}{Treatment data for HIV patients comparing AZT against placebo (Cooper et al., 1993).}
+#'   \item{\code{decathlon}}{Data from the 1988 olympics decathlon, distance results (100m, 110m hurdles, 400m and 1500m) are given in km/hour not in seconds}
 #' }
 #' }
 #' \references{
@@ -2795,11 +2980,13 @@ sbi_report_pval = sbi$report_pval
 #' head(c20)
 #' cor(c20[, 1], c20[, 2])
 #' sbi$lmplot(c20[, 1], c20[, 2], ylim = c(0, 600), xlim = c(17, 25))
-#'
 #' azt <- sbi$sdata(name = "azt")
 #' azt
+#' dec <- sbi$sdata(name = "decathlon")
+#' dim(dec)
+#' head(dec)
 #' }
-#' \seealso{\link[sbi:sbi_rad2deg]{sbi$rad2deg}}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/sdata.R
 sbi$sdata <- function (name="c20") {
   if (name == "c20") {
@@ -2813,11 +3000,44 @@ sbi$sdata <- function (name="c20") {
     colnames(aids.azt) = c("DiseaseProgress", "NoDiseaseProgress")
     dimnames(aids.azt) = list("Treatment" = dimnames(aids.azt)[[1]], "Progress" = dimnames(aids.azt)[[2]])
     return(aids.azt)
+  } else if (name == "decathlon") {
+      file_path <- system.file("files", "decathlon.tab", package = "sbi") 
+      data=read.table(file_path,sep="\t",header=TRUE)
+      return(data)
   } else {
-    stop("Error: Currently only 'c20' and 'azt' datasets are supported!")
+    stop("Error: Currently only 'c20', 'azt' and 'decathlon', datasets are supported!")
   }
 }
 sbi_sdata = sbi$sdata
+
+#' FILE: sbi/man/sem.Rd
+#' \name{sbi$sem}
+#' \alias{sbi$sem}
+#' \alias{sbi_sem}
+#' \title{calculate the standard error of the mean for a given numerical vector}
+#' \usage{sbi_sem(x, na.rm=FALSE)}
+#' \description{
+#'   The function calculates the standard error of the mean which shows how close we are to the population mean.
+#'   The formula of the SEM is: sd/sqrt(n).
+#' }
+#' \arguments{
+#'   \item{x}{numeric vector}
+#'   \item{na.rm}{remove missing values, default: FALSE}
+#' }
+#' \value{computed standard error of the mean}
+#' \examples{
+#' sem=sbi$sem
+#' sem(rnorm(50,mean=10,sd=3))
+#' sem(rnorm(1000,mean=10,sd=3))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/sem.R
+
+sbi$sem <- function(x,na.rm=FALSE) {
+    sd(x,na.rm=na.rm)/sqrt(length(x[!is.na(x)])) 
+}
+
+sbi_sem = sbi$sem
 
 #' FILE: sbi/man/sbi_shape.Rd
 #' \name{sbi$shape}
@@ -3055,6 +3275,58 @@ sbi$skewness <- function (x,na.rm=FALSE) {
 
 sbi_skewness <- sbi$skewness
 
+#' FILE: sbi/man/sbi_shell.Rd
+#' \name{sbi$shell}
+#' \alias{sbi$shell}
+#' \alias{sbi_shell}
+#' \title{executes a given shell script in text format (Unix only)}
+#' \usage{sbi_shell(script,filename="shell-script.sh")}
+#' \description{
+#'   This function can be used to execute shell script text and embed the output in the
+#'   current document.
+#' }
+#' \arguments{
+#'   \item{script}{text of a shell script}
+#'   \item{filename}{the script filename, default: "shell-script.sh"}
+#' }
+#' \value{The script output printed to stdout}
+#' \details{
+#'  Typical application examples of this function are the embedding of diagram
+#'  code or database output if tools like sqlite3, GraphViz dot, PlantUML or fossil
+#'  are installed locally. In contrast to the 'sbi$kroki' function in this case no 
+#'  internet connection is required. This code is tested on Unix systems like Linux
+#'  and MacOS only. Windows with Unix like shells Msys2 or Cygwin might work as well
+#'  but are untested.
+#' }
+#' \examples{ %options eval=FALSE
+#' \dontrun{
+#' ## The resulting png file can be embedded using standard Markdown syntax
+#' sbi$shell("#!/usr/bin/env -S dot -Tpng -odot.png
+#' digraph G {
+#' rankdir=LR;
+#'   node[style=filled,fillcolor=skyblue];
+#'   a -> b [arrowhead=none];
+#'   b -> c [arrowhead=none];
+#'   c -> d [arrowhead=none];
+#'   a [shape=rpromoter,label=\"UAS\",fillcolor=salmon];
+#'   b [shape=rectangle,label=\"LacI\"];
+#'   c [shape=rpromoter,label=\"UAS\",fillcolor=salmon];
+#'   d [shape=rectangle,label=\"Reporter\"];
+#'   }
+#'  ")
+#'  }
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_kroki]{sbi$kroki}.}
+#' FILE: sbi/R/shell.R
+sbi$shell <- function (script,filename="shell-script.sh") {
+    fout = file(filename,'w')
+    cat(script,"\n",file=fout)
+    close(fout)
+    system(sprintf("chmod 755 %s",filename))
+    res=system(sprintf("./%s\n",filename))
+    return(res)
+}
+sbi_shell <- sbi$shell
 
 #' FILE: sbi/man/sbi_smartbind.Rd
 #' \name{sbi$smartbind}
@@ -3413,7 +3685,7 @@ Main <- function (argv) {
           PACKAGE=gsub("^#' Package: +([^ ]+) ?.*","\\1",line)
         } else if (grepl("^#' Version:",line)) {
           VERSION=gsub("^#' Version: +([^ ]+) ?.*","\\1",line)
-        }            
+        }
         cat(gsub("^#' ?","",line),"\n",file=fout)
       }
     }
