@@ -34,7 +34,8 @@
 #'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
 #'     kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     pcor.R pcor.test.R
-#'     rad2deg.R report_pval.R shell.R sdata.R sem.R shape.R skewness.R smartbind.R  textplot.R   
+#'     rad2deg.R report_pval.R shell.R sdata.R sem.R shape.R skewness.R smartbind.R
+#'     textplot.R untab.R venn.R wilcoxR.R
 
 #' FILE: sbi/LICENSE
 #' YEAR: 2024
@@ -53,7 +54,8 @@
 #' exportPattern("^[[:lower:]]+")
 #' importFrom("stats", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
-#'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals")
+#'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals",
+#'            "qnorm", "wilcox.test")
 #' importFrom("graphics", "axTicks","boxplot", "hist","legend","par","polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
 #'            "abline","points")
 #' importFrom("utils","read.table","installed.packages")
@@ -161,6 +163,9 @@
 #' \item{\link[sbi:sbi_skewness]{sbi$skewness(x)}}{third central moment of a distribution}
 #' \item{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}}{Bind two data frames by matching column names, filling in missing columns with NAs.}
 #' \item{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}}{Display a data frame or matrix in a plot.}
+#' \item{\link[sbi:sbi_untab]{sbi$untab(x)}}{expand a contingency table to a data frame one item per row (data)}
+#' \item{\link[sbi:sbi_venn]{sbi$venn(x)}}{Venn diagram for logical relations between two and three sets (plot)}
+#' \item{\link[sbi:sbi_wilcoxR]{sbi$wilcoxR(x)}}{calculate effect size r, for a wilcox test object (effect size, stats)}
 #' }
 #' }
 #' \value{returns the result of addition of x and y} 
@@ -243,6 +248,9 @@
 #' \item \code{\link[sbi:sbi_shell]{sbi$shell(script)}} executes a given sell script in text format (Unix only)
 #' \item \code{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}} bind two data frames by matching columns and filling missing values with NA.
 #' \item \code{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}} display a small data frame or matrix inside a plot.
+#' \item \code{\link[sbi:sbi_untab]{sbi$untab(x)}} expand a contingency table to a data frame one item per row (data)
+#' \item \code{\link[sbi:sbi_venn]{sbi$venn(x)}} Venn diagram for logical relations between two and three sets (plot)
+#' \item \code{\link[sbi:sbi_wilcoxR]{sbi$wilcoxR(x)}} calculate effect size r, for a wilcox test object (effect size, stats)
 #' }
 #' } 
 #' \examples{ 
@@ -3367,7 +3375,6 @@ sbi$smartbind <- function (x, y) {
 }
 sbi_smartbind <- sbi$smartbind
 
-
 #' FILE: sbi/man/sbi_textplot.Rd
 #' \name{sbi$textplot}
 #' \alias{sbi$textplot}
@@ -3416,6 +3423,273 @@ sbi$textplot <- function (x, cex = 1, caption = NULL, ...) {
   }
 }
 sbi_textplot <- sbi$textplot
+
+#' FILE: sbi/man/sbi_untab.Rd
+#' \name{sbi$untab}
+#' \alias{sbi$untab}
+#' \alias{sbi_untab}
+#' \title{convert a contingency table to a data frame one item per row}
+#' \usage{sbi_untab(x)}
+#' \description{
+#'   This function takes a contingency table and expands it two a data frame
+#'   where every level combination is created according to the number of entries in the
+#'   contingency table. You can reverse the process using the table command. The procedure is useful for
+#'   instance for performing sample bootstrapping.
+#' }
+#' \arguments{
+#'   \item{x}{a contingency table or a matrix}
+#' }
+#' \value{data frame with two columns, column names are either the dimnames of the given table or
+#'             generic columnames like 'rowvar' and 'colvar'}
+#' \examples{
+#' M=matrix(c(4,3,1,2),ncol=2,dimnames=list(
+#'          size=c('small','tall'),
+#'         smoking=c('no','yes')))
+#' M
+#' N=sbi$untab(M)
+#' head(N)
+#' summary(N)
+#' table(N[,1],N[,2])
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/untab.R
+
+sbi$untab <- function (x) {
+    tab=x
+    nms=names(dimnames(tab))
+    if (any(is.null(nms)))
+    nms=c('rowvar','colvar')
+    df=data.frame(a=c(),b=c())
+    for (i in 1:nrow(tab)) {
+        for (j in 1:ncol(tab)) {
+            if (tab[i,j]> 0) {
+                for (k in 1:tab[i,j]) {
+                    if (nrow(df)==0) {
+                        df=data.frame(vrow=rownames(tab)[i],vcol=colnames(tab)[j])
+                    } else {
+                        df=rbind(df,data.frame(vrow=rownames(tab)[i],vcol=colnames(tab)[j]))
+                    }
+                }
+            }
+        }
+    }   
+    df[,1]=as.factor(df[,1])
+    df[,2]=as.factor(df[,2])
+    colnames(df)=nms
+    return(df)
+}
+
+sbi_untab <- sbi$untab
+
+#' FILE: sbi/man/sbi_venn.Rd
+#' \name{sbi$venn}
+#' \alias{sbi$venn}
+#' \alias{sbi_venn}
+#' \title{plot Venn diagram for logical relations between two or three sets}
+#' \usage{sbi_venn(x,y=NULL,z=NULL,vars=NULL,col=c("#cc888899","#8888cc99","#88cc8899"),cex=1.6,...)}
+#' \description{
+#'   This function takes a contingency table and expands it two a data frame
+#'   where every level combination is created according to the number of entries in the
+#'   contingency table. You can reverse the process using the table command. The procedure is useful for
+#'   instance for performing sample bootstrapping.
+#' }
+#' \arguments{
+#'   \item{x}{data frame or matrix or vector, in the latter case y and for 3 sets as well z must be given}
+#'   \item{y}{vector if x is vector, default: NULL}
+#'   \item{z}{vector if x and y are vectors, default: NULL}
+#'   \item{vars}{variable names to display if x, y and z are vectors, default: NULL}
+#'   \item{col}{background colors for the circles, default: c("#cc888899","#8888cc99","#88cc8899")}
+#'   \item{cex}{character expansion for the text characters, default: 1.6}
+#'   \item{...}{argument delegated to the plot function}
+#' }
+#' \examples{
+#' X=matrix(rnorm(2700),ncol=3)
+#' colnames(X)=c("A","B","C")
+#' X=X>0.4
+#' Y=X[,1:2]
+#' Y=Y>0.7
+#' par(mfrow=c(2,2),mai=rep(0.1,4),pty='s')
+#' sbi$venn(X)
+#' sbi$venn(Y)
+#' sbi$venn(x=LETTERS[1:9],y=LETTERS[3:6],z=LETTERS[4:12],vars=c('Xvar','Yvar','Zvar'))
+#' sbi$venn(x=LETTERS[1:9],y=LETTERS[3:6],vars=c('Xvar','Yvar'))
+#' }
+#' \keyword{plot}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/venn.R
+
+sbi$venn = function (x,y=NULL,z=NULL,vars=NULL,col=c("#cc888899","#8888cc99","#88cc8899"),cex=1.6,...) {
+    circle = function (x,y, radius=1,length=100) {
+        theta = seq(0, 2 * pi, length = 100) 
+        return(list(x=radius*cos(theta)+x,
+                    y=radius*sin(theta)+y))
+    }
+    venn2D = function (x,col=c("#cc888899","#8888cc99"),cex=1.6,...) {
+        if (!is.data.frame(x) & !is.matrix(x)) {
+            stop("Error: Not a two column matrix or data frame!")
+        }
+        if (ncol(x) != 2) {
+            stop("Error: Not a two column matrix or data frame!")   
+        }
+        # reset to useful values, slightly smaller than the defaults:
+        # defaults: mai=c(1.02, 0.82, 0.82, 0.42)
+        #opar=par(mai=c(1, 0.8, 0.8, 0.4),pty='s')
+        # compute circle size
+        circ.cex=60*par()$fin[1]/9
+        
+        plot(c(1,2),c(1,1),xlim=c(0.5,2.5),ylim=c(0.5,2.5),
+             pch=19,cex=circ.cex,axes=FALSE,type="n",
+             xlab="",ylab="",
+             col=col,...)
+        polygon(circle(1.2,1.5,radius=0.65),col=col[1],border=col[1])
+        polygon(circle(1.8,1.5,radius=0.65),col=col[2],border=col[2])
+        text(1.1,2.3,colnames(x)[1],cex=cex)
+        text(1.9,2.3,colnames(x)[2],cex=cex)
+        # the changes
+        if (class(x[,1]) == "logical") {
+            is=length(which(x[,1] & x[,2]))
+            ls=length(which(x[,1] & !x[,2]))
+            rs=length(which(!x[,1] & x[,2]))
+            os=length(which(!x[,1] & !x[,2]))
+        } else {
+            xv=x[,1]
+            xv=xv[xv!=""]
+            yv=x[,2]
+            yv=yv[yv!=""]
+            is=length(intersect(xv,yv))
+            ls=length(setdiff(xv,yv))
+            rs=length(setdiff(yv,xv))
+            os=""
+        }   
+        text(1.5,1.5,is,cex=cex)
+        text(0.9,1.5,ls,cex=cex)
+        text(2.1,1.5,rs,cex=cex)
+        text(1.5,0.7,os,cex=cex)
+        #par(opar)
+    }                                                   
+    if (class(y)[1] != "NULL" & class(z)[1]!="NULL") {
+        M=matrix('',ncol=3,nrow=max(c(length(x),length(y),length(z))))
+        M[1:length(x),1]=x
+        M[1:length(y),2]=y
+        M[1:length(z),3]=z        
+        colnames(M)=c('x','y','z')
+        if (class(vars[1])!="NULL") {
+            colnames(M)=vars
+        }
+        sbi$venn(M,col=col,cex=cex,...)
+    } else if (class(y)[1] != "NULL") {
+        M=matrix('',ncol=2,nrow=max(c(length(x),length(y))))
+        M[1:length(x),1]=x
+        M[1:length(y),2]=y
+        colnames(M)=c('x','y')
+        if (class(vars[1])!="NULL") {
+            colnames(M)=vars
+        }
+        sbi$venn(M,col=col,cex=cex,...)
+    } else if (!is.data.frame(x) & !is.matrix(x)) {
+        stop("Error: Not a matrix or data frame!")
+    } else if (ncol(x) == 2) {
+        venn2D(x,col=col[1:2],cex=cex,...)
+    } else if (ncol(x) != 3) {
+        stop("Error: Only two or three column matrix or data frame is accepted!")  
+    } else if (!class(x[,1]) == "logical") {    
+        rnames=unique(c(x[,1],x[,2],x[,3]))
+        rnames=rnames[which(rnames!="")]
+        M=matrix(FALSE,ncol=3,nrow=length(rnames))
+        rownames(M)=rnames
+        colnames(M)=colnames(x)
+        for (i in 1:3) {
+            idx=which(rnames%in%x[,i])
+            M[idx,i]=TRUE
+        }   
+        sbi$venn(M,col=col,cex=cex,...)
+    } else {  
+        #opar=par(mai=c(0.5, 0.4, 0.4, 0.2),pty='s')
+        circ.cex=70*par()$fin[1]/9
+        plot(c(3.5,5.5,4.5),c(5.5,5.5,3.5),xlim=c(0,9),ylim=c(0,9),
+             pch=19,cex=circ.cex,axes=FALSE,asp=1,
+             xlab="",ylab="", col=col,type="n",...)
+        polygon(circle(3.5,5.5,radius=2.3),col=col[1],border=col[1])
+        polygon(circle(5.5,5.5,radius=2.3),col=col[2],border=col[2])
+        polygon(circle(4.5,3.5,radius=2.3),col=col[3],border=col[3])
+        
+        text(0.5,7,colnames(x)[1],cex=cex)
+        text(8.5,7,colnames(x)[2],cex=cex)
+        text(4.5,0.25,colnames(x)[3],cex=cex)
+        is=length(which(x[,1] & x[,2] & x[,3]))
+        ls=length(which(x[,1] & !x[,2] & !x[,3]))
+        rs=length(which(!x[,1] & x[,2] & !x[,3]))
+        bs=length(which(!x[,1] & !x[,2] & x[,3]))        
+        os=length(which(!x[,1] & !x[,2] & !x[,3]))
+        xys=length(which(x[,1] & x[,2] & !x[,3]))
+        xzs=length(which(x[,1] & !x[,2] & x[,3]))        
+        yzs=length(which(!x[,1] & x[,2] & x[,3]))                
+        text(4.5,4.8,is,cex=cex*0.8)
+        if (os>0) {
+            text(4.5,8.5,os,cex=cex*0.8)
+        }
+        text(2.2,6,ls,cex=cex*0.8)
+        text(6.8,6,rs,cex=cex*0.8)
+        text(4.5,2.1,bs,cex=cex*0.8)
+        text(4.5,6.6,xys,cex=cex*0.8)    
+        text(2.9,4,xzs,cex=cex*0.8)        
+        text(6,4,yzs,cex=cex*0.8)            
+        #par(opar)
+    }   
+}
+
+sbi_venn <- sbi$venn
+
+#' FILE: sbi/man/sbi_wilcoxR.Rd
+#' \name{sbi$wilcoxR}
+#' \alias{sbi$wilcoxR}
+#' \alias{sbi_wilcoxR}
+#' \title{calculate the effect size for a wilcox test (Rosenthal 1991)}
+#' \usage{sbi_wilcoxR(x,y=NULL,n=NULL)}
+#' \description{
+#'   Calculate the effect size for a wilcox test due to Rosenthal (1991).
+#'   Cohen's rule of thumb for interpretation is: approx 0.1 small, 0.3 medium and 0.5 and above is a large effect. 
+#' 
+#' }
+#' \arguments{
+#'   \item{x}{either a wilcox test object or a vector with numerical values}
+#'   \item{y}{if x is numerical vector either a vector with numerical values or a vector with cvategorical data having the same length as x}
+#'   \item{n}{number of samples, required if x is a wilcox.test object}
+#' }
+#' \value{numerical value for effect size r having the same interpretation rules a Pearson's r}
+#' \examples{
+#' set.seed(123)
+#' rn1=rnorm(100,mean=10,sd=1)
+#' rn2=rnorm(80,mean=11,sd=1)
+#' rn2=c(rn2,rnorm(20,mean=12,sd=2)) # bimodal distribution
+#' mean(rn1)
+#' mean(rn2)
+#' sbi$wilcoxR(rn1,rn2) # two numerical vectors
+#' wt=wilcox.test(rn1,rn2,exact=FALSE) 
+#' sbi$wilcoxR(wt,n=200) # a test object
+#' cat = as.factor(c(rep('A',100),rep('B',100)))
+#' sbi$wilcoxR(x=c(rn1,rn2),y=cat) # num ~ cat
+#' }
+#' \keyword{effect-size}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensD]{sbi$cohensD}.}
+#' FILE: sbi/R/wilcoxR.R
+
+sbi$wilcoxR <- function (x,y=NULL,n=NULL) {
+    if (class(y)[1] %in% c("numeric","integer")) {
+        wt=wilcox.test(x,y,exact=FALSE)
+        n=length(x[which(!is.na(x))]) +  length(x[which(!is.na(x))])
+        return(sbi$wilcoxR(wt,n=n))
+    }  else if (class(y)[1] %in% c("factor")) {
+        wt=wilcox.test(x~y,exact=FALSE)
+        n=length(x[which(!is.na(x) & !is.na(y))])        
+        return(sbi$wilcoxR(wt,n=n))
+    } else {
+        z = qnorm(x$p.value/2)
+        return(abs(z/sqrt(n)))
+    }
+}
+
+sbi_wilcoxR <- sbi$wilcoxR
 
 #' FILE: EOF
 
