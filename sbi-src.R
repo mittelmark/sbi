@@ -35,7 +35,7 @@
 #'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
 #'     kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     pcor.R pcor.test.R
-#'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R
+#'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
 #'     rad2deg.R report_pval.R shell.R sdata.R sem.R shape.R skewness.R smartbind.R
 #'     textplot.R untab.R venn.R wilcoxR.R
 #'     ni.R pipe.R
@@ -166,6 +166,9 @@
 #' \item{\link[sbi:sbi_pca_oncor]{sbi$pca_oncor(x)}}{perform a PCA on a squared (correlation) matrix (stats)}
 #' \item{\link[sbi:sbi_pca_pairs]{sbi$pca_pairs(x)}}{improved pairs plot for pca objects (plot)}
 #' \item{\link[sbi:sbi_pca_plot]{sbi$pca_plot(x)}}{improved screeplot for pca objects (plot)}
+#' \item{\link[sbi:sbi_pca_to_data]{sbi$pca_to_data(pca)}}{transform prcomp PCA objects  back to data (pca, data)}
+#' \item{\link[sbi:sbi_pca_variances]{sbi$pca_variances(pca)}}{absolute variance contributions of variables to PC's (pca, data)}
+#' \item{\link[sbi:sbi_pca_varplot]{sbi$pca_varplot(pca)}}{PCA variance plot (pca, plot)}
 #' \item{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}}{partial correlation}
 #' \item{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}}{partial correlation test}
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree}
@@ -260,6 +263,9 @@
 #' \item \code{\link[sbi:sbi_pca_oncor]{sbi$pca_oncor(x)}} perform a PCA on a squared (correlation) matrix (stats)
 #' \item \code{\link[sbi:sbi_pca_pairs]{sbi$pca_pairs(x)}} improved pairs plot for pca objects (plot)
 #' \item \code{\link[sbi:sbi_pca_plot]{sbi$pca_plot(x)}} improved screeplot for pca objects (plot)
+#' \item \code{\link[sbi:sbi_pca_to_data]{sbi$pca_to_data(pca)}} transform prcomp PCA objects  back to data (pca, data)
+#' \item \code{\link[sbi:sbi_pca_variances]{sbi$pca_variances(pca)}} absolute variance contributions of variables to PC's (pca, data)
+#' \item \code{\link[sbi:sbi_pca_varplot]{sbi$pca_varplot(pca)}} PCA variance plot (pca, plot)
 #' \item \code{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}} partial correlation
 #' \item \code{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}} partial correlation test
 #' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} convert angle in radian into angle in degree
@@ -3394,6 +3400,187 @@ sbi$pca_plot <- function (pca,n=10,type="bar", cex=1.5,
     box()
 }
 sbi_pca_plot = sbi$pca_plot
+
+#' FILE: sbi/man/sbi_pca_to_data.Rd
+#' \name{sbi$pca_to_data}
+#' \alias{sbi$pca_to_data}
+#' \alias{sbi_pca_to_data}
+#' \title{Transform prcomp PCA objects  back to data}
+#' \description{
+#'   The method allows you transform PCA data back to original data. 
+#'   This can be as well used to eliminate some components and then create
+#'   data by removing the effect of these components.
+#' }
+#' \usage{sbi_pca_to_data(pca)}
+#' \arguments{
+#'   \item{pca}{
+#'     pca object of class prcomp
+#'   }
+#' }
+#' \value{return data matrix with the original data}
+#' \examples{
+#' pca=prcomp(iris[,1:4])
+#' head(iris[,1:4])
+#' head(sbi$pca_to_data(pca))
+#' # remove effect of first component
+#' pca$rotation[,1]=0
+#' head(sbi$pca_to_data(pca))
+#' }
+#' \seealso{ 
+#' \code{\link[sbi:sbi-package]{sbi-package}},
+#' \code{\link[sbi:sbi_pca_biplot]{sbi$pca_biplot}}, 
+#' \code{\link[sbi:sbi_pca_corplot]{sbi$pca_corplot}}, 
+#' \code{\link[sbi:sbi_pca_pairs]{sbi$pca_pairs}},
+#' \code{\link[sbi:sbi_pca_plot]{sbi$pca_plot}},
+#' \code{\link[sbi:sbi_pca_variances]{sbi$pca_variances}},
+#' \code{\link[sbi:sbi_pca_varplot]{sbi$pca_varplot}}
+#' }
+#' FILE: sbi/R/pca_to_data.R
+sbi$pca_to_data <- function (pca) {
+  if (!is.logical(pca$scale)) {
+    data=t(t(pca$x %*% t(pca$rotation)) * pca$scale + pca$center)   
+  } else {
+    data=t(t(pca$x %*% t(pca$rotation)) + pca$center)
+  }
+  return(data)
+}
+
+sbi_pca_to_data = sbi$pca_to_data
+
+
+#' FILE: sbi/man/sbi_pca_variances.Rd
+#' \name{sbi_pca_variances}
+#' \alias{sbi$pca_variances}
+#' \alias{sbi_pca_variances}
+#' \title{Absolute variance contributions of variables to PC's}
+#' \description{
+#'   The function returns the absolute variance contributions for each variable to each component.
+#'   Every squared loading value for each component and variable  is multiplied
+#'   with the component importance. The sum of the returned matrix is therefor 1.
+#' }
+#' \usage{sbi_pca_variances(pca)}
+#' \arguments{
+#'   \item{pca}{
+#'     a PCA object created with `prcomp`.
+#'   }
+#' }
+#' \value{return matrix with absolute variances for each component and variable.}
+#' \examples{
+#' pca=prcomp(USArrests,scale=TRUE)
+#' round(sbi$pca_variances(pca),2)
+#' sum(sbi$pca_variances(pca))
+#' }
+#' \seealso{ 
+#' \code{\link[sbi:sbi-package]{sbi-package}}, \code{\link[sbi:sbi-class]{sbi-class}},
+#' \code{\link[sbi:sbi_pca_biplot]{sbi$pca_biplot}}, 
+#' \code{\link[sbi:sbi_pca_corplot]{sbi$pca_corplot}}, 
+#' \code{\link[sbi:sbi_pca_pairs]{sbi$pca_pairs}},
+#' \code{\link[sbi:sbi_pca_plot]{sbi$pca_plot}},
+#' \code{\link[sbi:sbi_pca_to_data]{sbi$pca_to_data}},
+#' \code{\link[sbi:sbi_pca_varplot]{sbi$pca_varplot}}
+#' }
+#' FILE: sbi/R/pca_variances.R
+sbi_pca_variances = function (pca) {
+  imp=summary(pca)$importance[2,]
+  var= summary(pca)$rotation[,]^2
+  for (i in 1:ncol(var)) { var[,i]=var[,i]*imp[i] }
+  return(var)
+}
+
+sbi$pca_variances = sbi$pca_variances
+
+#' FILE: sbi/man/sbi_pca_varplot.Rd
+#' \name{sbi_pca_varplot}
+#' \alias{sbi$pca_varplot}
+#' \alias{sbi_pca_varplot}
+#' \title{PCA variance plot}
+#' \description{
+#'     The function provides a PCA matrix plot to show associations 
+#'   between PCs and variables. Shown are the squared values, but retaining the 
+#'   original sign of the the variances. So the abolute sum of all values should be one.
+#' }
+#' \usage{sbi_pca_varplot(pca, pcs=10, main="Variance plot", cex.lab=1.5, cex.sym=8, 
+#'         cex.var=1, pch=16, ...)}
+#' \arguments{
+#'   \item{pca}{
+#'     pca object which was created using the function \code{prcomp}
+#'   }
+#'   \item{pcs}{
+#'     number of the first PC's or vector of PC names to be plotted, default: 10 (or max number of PC's)
+#'   }
+#'   \item{main}{
+#'     title of the plot, default: 'Variance plot'
+#'   }
+#'   \item{cex.lab}{
+#'     character expansion for column and rownames, default: 1.5
+#'   }
+#'   \item{cex.sym}{
+#'     character expansion for the plotting symbols, default: 8
+#'   }
+#'   \item{cex.var}{
+#'     character expansion for the variance values, default: 1
+#'   }
+#'   \item{pch}{
+#'     plotting character for the variances, default: 16 (filled circle)
+#'   }
+#'   \item{\ldots}{
+#'     remaining arguments are delegated to the standard plot function
+#'   }
+#' }
+#' \examples{
+#' data(USArrests)
+#' sbi$pca_varplot(prcomp(USArrests,scale=TRUE),cex.sym=8)
+#' data(swiss)
+#' pca=prcomp(swiss,scale=TRUE)
+#' round(sbi$pca_variances(pca),3)
+#' sbi$pca_varplot(pca,cex.sym=5,cex.var=0.7,cex.lab=1)
+#' }
+#' \seealso{ 
+#' \code{\link[sbi:sbi-package]{sbi-package}}, \code{\link[sbi:sbi-class]{sbi-class}},
+#' \code{\link[sbi:sbi_pca_biplot]{sbi$pca_biplot}}, 
+#' \code{\link[sbi:sbi_pca_corplot]{sbi$pca_corplot}}, 
+#' \code{\link[sbi:sbi_pca_pairs]{sbi$pca_pairs}},
+#' \code{\link[sbi:sbi_pca_plot]{sbi$pca_plot}},
+#' \code{\link[sbi:sbi_pca_to_data]{sbi$pca_to_data}},
+#' \code{\link[sbi:sbi_pca_variances]{sbi$pca_varplot}}
+#' }
+#' FILE: sbi/R/pca_varplot.R
+sbi$pca_varplot = function (pca,pcs=10,main="Variance plot",
+                              cex.lab=1.5,cex.sym=8, cex.var=1, pch=16,
+                              ...) {
+  vars=sbi$pca_variances(pca)
+  pcar=summary(pca)$rotation
+  if (class(pcs)=="numeric") {
+    if (pcs>ncol(vars)) {
+      pcs=ncol(vars)
+    }
+    vars=vars[,1:pcs]
+  } else {
+    vars=vars[,pcs]
+  }
+  mt=vars
+  yend=nrow(mt)+1
+  xend=ncol(mt)+1
+  plot(1,type="n",xlab="",ylab="",axes=FALSE,
+       xlim=c(-0.5,xend),ylim=c(nrow(mt)+0.35,0),...)
+  text(1:(ncol(mt)),0.25,colnames(mt),cex=cex.lab)
+  text(-0.5,1:nrow(mt),rownames(mt),cex=cex.lab,pos=4)
+  cols=paste("#DD3333",rev(c(15,30, 45, 60, 75, 90, "AA","BB","CC","DD")),sep="")
+  cols=c(cols,paste("#3333DD",c(15,30, 45, 60, 75, 90, "AA","BB","CC","DD"),sep=""))
+  breaks=seq(-1,1,by=0.1)                  
+  mt[pcar<0]=mt[pcar<0]*-1                      
+  for (i in 1:nrow(mt)) {
+    for (j in 1:ncol(mt)) {
+      coli=cut(mt[j,i],breaks=breaks,labels=1:20)
+      points(i,j,pch=pch,cex=cex.sym,col=cols[coli])
+      text(x=j,y=i,label=sprintf("%0.2f",mt[i,j],2),cex=cex.var)
+    }
+  }
+}
+
+sbi_pca_varplot = sbi$pca_varplot
+
+
 #' FILE: sbi/man/sbi_pastel.Rd
 #' \name{sbi$pastel}
 #' \alias{sbi$pastel}
