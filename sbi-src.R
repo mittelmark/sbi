@@ -29,7 +29,8 @@
 #' Encoding: UTF-8
 #' NeedsCompilation: no
 #' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
-#'     cache_image.R coa.R corr.R chr2ord.R corrplot.R cohensD.R cohensF.R cohensH.R cohensW.R corplot.R
+#'     cache_image.R chr2ord.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
+#'     cohensD.R cohensF.R cohensH.R cohensW.R 
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
 #'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
 #'     kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
@@ -42,6 +43,8 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2024-10-07: Version 0.0.3 - many new functions sbi.R from beeproject
+#'
 #' 2024-09-12: Version 0.0.2 - 4 new functions
 #'    - sbi_angle
 #'    - sbi_bezier
@@ -119,10 +122,11 @@
 #' \item{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}}{Effect size comparing two means}
 #' \item{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}}{Effect size comparing for an ANOVA}
 #' \item{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}}{Effect size for 2x2 contingency tables}
-#' \item{\link[sbi:sbi_cohensW]{sbi$cohensW(x)}}{Effect size for 2x2 and larger contingency tables}
 #' \item{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}}{Visualize a correlation with abline.}
 #' \item{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}}{Calculate pairwise correlations for a given data frame or matrix}
 #' \item{\link[sbi:sbi_corrplot]{sbi$corrplot(mt,...)}}{Visualize a correlation matrix.}
+#' \item{\link[sbi:sbi_corvar]{sbi$corvar(x,r,mean=0,sd=1)}}{create a vector with a given correlation to an other vector}
+#' \item{\link[sbi:sbi_corvars]{sbi$corvars(n,r.matrix,mu.vec)}}{create a data frame with a given correlation structure}
 #' \item{\link[sbi:sbi_cramersV]{sbi$cramersV(tab)}}{Calculate Cramer's V for a contingency table as an effect size measure.}
 #' \item{\link[sbi:sbi_cv]{sbi$cv(x,na.rm=FALSE)}}{Calculate the coefficient of variation.}
 #' \item{\link[sbi:sbi_deg2rad]{sbi$deg2rad(x)}}{Convert an angle in degrees to radians.}
@@ -206,10 +210,11 @@
 #' \item \code{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}} Effect size comparing two means
 #' \item \code{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}} Effect size comparing for an ANOVA
 #' \item \code{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}} Effect size for 2x2 contingency tables
-#' \item \code{\link[sbi:sbi_cohensW]{sbi$cohensW(x)}} Effect size for 2x2 and larger contingency tables.
 #' \item \code{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}} Visualize a correlation with abline.
 #' \item \code{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}} calculate pairwise correlations for a given data frame or matrix
 #' \item \code{\link[sbi:sbi_corrplot]{sbi$corrplot(mt,...)}} Visualize a correlation matrix.
+#' \item \code{\link[sbi:sbi_corvar]{sbi$corvar(x,r,mean=0,sd=1)}} create a vector with a given correlation to an other vector
+#' \item \code{\link[sbi:sbi_corvars]{sbi$corvars(n,r.matrix,mu.vec)}} create a data frame with a given correlation structure
 #' \item \code{\link[sbi:sbi_cramersV]{sbi$cramersV(tab)}} Calculate Cramer's V for a contingency table as an effect size measure
 #' \item \code{\link[sbi:sbi_cv]{sbi$cv(x,na.rm=FALSE)}} Calculate the coefficient of variation
 #' \item \code{\link[sbi:sbi_deg2rad]{sbi$deg2rad(x)}} Convert an angle in degrees to radians.
@@ -885,10 +890,10 @@ sbi_cohensF = sbi$cohensF
 #' \alias{sbi_cohensH}
 #' \title{Effect size for 2x2  contingency tables}
 #' \usage{sbi_cohensH(x)}
-#' \description{The function `sbi$cohensW` calculates the effect size for contingency tables. 
-#'   Due to Cohen's rule of thumb values of around 0.1 are considered to stand 
-#'   for small effects, values of around 0.3 represent medium effects and values 
-#'   above 0.5 or higher represent large effects.}
+#' \description{The function `sbi$cohensH` calculates the effect size for contingency tables. 
+#'   Due to Cohen's rule of thumb values of around 0.2 are considered to stand 
+#'   for small effects, values of around 0.5 represent medium effects and values 
+#'   around 0.8 or higher represent large effects.}
 #' \arguments{
 #' \item{x}{2x2 contingency table with counts, usually created using the table 
 #'           command for two variables}
@@ -1112,6 +1117,95 @@ sbi$corrplot <- function (mt, text.lower = TRUE, text.upper = FALSE, pch = 19, p
 }
 
 sbi_corrplot = sbi$corrplot
+
+#' FILE: sbi/man/sbi_corvar.Rd
+#' \name{sbi$corvar}
+#' \alias{sbi$corvar}
+#' \alias{sbi_corvar}
+#' \title{create a vector with a given correlation to another vector}
+#' \usage{sbi_corvar(x,r,mean=0,sd=1)}
+#' \description{The function `sbi$corvar` can be used to create sample data following a certain
+#'   correlation structure. This might be helpful for illustration purposes or to evaluate
+#' }
+#' \arguments{
+#'   \item{x}{vector with numerical values}
+#'   \item{r}{correlation value , must between -1 and 1}
+#'   \item{mean}{mean for the requested data vector, default: 0}
+#'   \item{sd}{standard deviation for the requested data vector, default: 1}
+#' }
+#' \value{numerical vector having the requested pearson correlation to `x`}
+#' \examples{
+#' set.seed(123)
+#' A=rnorm(300,mean=160,sd=6)
+#' B=sbi$corvar(A,r=0.7,mean=80,sd=4)
+#' C=sbi$corvar(A,r=0.5,mean=40,sd=2)
+#' D=sbi$corvar(B,r=0.4,mean=18,sd=1)
+#' E=sbi$corvar(D,r=0.4,mean=30,sd=1)
+#' df=data.frame(A=A,B=B,C=C,D=D,E=E)
+#' summary(df)
+#' round(cor(df),2)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_corvars]{sbi$corvars}}
+#' FILE: sbi/R/corvar.R
+
+sbi$corvar = function (x,r,mean=0,sd=1) {
+    mu2=mean
+    y = stats::rnorm(length(x),mean=mu2,sd=sd)
+    d <- data.frame(x = x, y = y)   
+    corr <- r  # target correlation
+    corr_mat <- matrix(corr, ncol = 2, nrow = 2)
+    diag(corr_mat) <- 1
+    mvdat <- MASS::mvrnorm(n = nrow(d), mu = c(0, 0), 
+     Sigma = corr_mat, empirical = TRUE)  
+    rx <- rank(mvdat[ , 1], ties.method = "first")
+    ry <- rank(mvdat[ , 2], ties.method = "first")
+    dx_sorted <- sort(d$x)
+    dy_sorted <- sort(d$y)
+    dvx=dx_sorted[rx]
+    dvy=dy_sorted[ry]
+    dvx2=x
+    dvy2=dvy[order(dvx)]
+    dvy2=dvy2[rank(dvx2,ties.method='random')]
+    return(dvy2)
+}   
+
+sbi_corvar = sbi$corvar
+
+#' FILE: sbi/man/sbi_corvars.Rd
+#' \name{sbi$corvars}
+#' \alias{sbi$corvars}
+#' \alias{sbi_corvars}
+#' \title{create a data frame with a given correlation structure}
+#' \usage{sbi_corvars(n,r.matrix,mu.vec)}
+#' \description{The function `sbi$corvars` can be used to create sample data following a certain
+#'   correlation structure. This might be helpful for illustration purposes or to evaluate
+#' }
+#' \arguments{
+#'   \item{n}{number of values for each variable}
+#'   \item{r.matrix}{matrix of correlation values, must be symmetric}
+#'   \item{mu.vec}{means for the values of each variable, default: 0}
+#' }
+#' \value{data frame with `n` rows and `ncol(r.matrix)` columns}
+#' \examples{
+#' set.seed(123)
+#' r.mt=matrix(c(1,0.7,0.4, 0.7,1,0.3, 0.4,0.3,1),
+#'      byrow=TRUE,ncol=3)
+#' mt.vars=sbi$corvars(100,r.mt,c(1,10,5))
+#' summary(mt.vars)
+#' cor(mt.vars)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_corvar]{sbi$corvar}}
+#' FILE: sbi/R/corvars.R
+
+sbi$corvars = function (n,r.matrix,mu.vec) {
+    samples = n
+    data = MASS::mvrnorm(n, mu=mu.vec, Sigma=r.matrix,
+                   empirical=TRUE)
+    return(data)
+}
+
+sbi_corvars = sbi$corvars
+
 
 #' FILE: sbi/man/sbi_cramersV.Rd
 #' \name{sbi$cramersV}
