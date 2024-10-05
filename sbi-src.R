@@ -21,7 +21,7 @@
 #'    useful functions helpful for in general statistical analysis.
 #' URL:  https://github.com/mittelmark/sbi
 #' BugReports: https://github.com/mittelmark/sbi/issues
-####' Imports: 
+#' Imports: cluster
 #' Suggests: knitr, rmarkdown, extrafont, MASS, digest, tcltk, png, tools
 #' VignetteBuilder: knitr
 #' License: MIT + file LICENSE
@@ -35,9 +35,10 @@
 #'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
 #'     kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     pcor.R pcor.test.R
+#'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R
 #'     rad2deg.R report_pval.R shell.R sdata.R sem.R shape.R skewness.R smartbind.R
 #'     textplot.R untab.R venn.R wilcoxR.R
-
+#'     ni.R pipe.R
 #' FILE: sbi/LICENSE
 #' YEAR: 2024
 #' COPYRIGHT HOLDER: Detlef Groth
@@ -55,13 +56,17 @@
 
 #' FILE: sbi/NAMESPACE
 #' exportPattern("^[[:lower:]]+")
+#' export("%>%")
+#' export("%ni%")
 #' importFrom("stats", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
 #'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals",
-#'            "qnorm", "wilcox.test")
-#' importFrom("graphics", "axTicks","boxplot", "hist","legend","par","polygon", "arrows", "lines", "text", "rect", "plot", "axis", "box",
+#'            "qnorm", "wilcox.test","cov", "qchisq")
+#' importFrom("graphics", "axTicks","barplot","boxplot", "hist","legend","pairs", "par","polygon", 
+#'             "arrows", "lines", "text", "rect", "plot", "axis", "box",
 #'            "abline","points")
-#' importFrom("utils","read.table","installed.packages")
+#' importFrom("grDevices", "col2rgb", "rgb")
+#' importFrom("utils","head","read.table","installed.packages")
 #' importFrom("tools","package_dependencies")
 ###' importFrom("digest","digest")
 #'
@@ -156,6 +161,11 @@
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{Return the most often level in a categorical variable.}
 #' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{create up to 20 pastel colors}
 #' \item{\link[sbi:sbi_packageDependencies]{sbi$packageDependencies(pkgname)}}{return the dependencies of the given package}
+#' \item{\link[sbi:sbi_pca_biplot]{sbi$pca_biplot(x)}}{improved biplot for pca objects (plot)}
+#' \item{\link[sbi:sbi_pca_corplot]{sbi$pca_corplot(x)}}{correlation plot for original variables and PCs}
+#' \item{\link[sbi:sbi_pca_oncor]{sbi$pca_oncor(x)}}{perform a PCA on a squared (correlation) matrix (stats)}
+#' \item{\link[sbi:sbi_pca_pairs]{sbi$pca_pairs(x)}}{improved pairs plot for pca objects (plot)}
+#' \item{\link[sbi:sbi_pca_plot]{sbi$pca_plot(x)}}{improved screeplot for pca objects (plot)}
 #' \item{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}}{partial correlation}
 #' \item{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}}{partial correlation test}
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree}
@@ -170,6 +180,8 @@
 #' \item{\link[sbi:sbi_untab]{sbi$untab(x)}}{expand a contingency table to a data frame one item per row (data)}
 #' \item{\link[sbi:sbi_venn]{sbi$venn(x)}}{Venn diagram for logical relations between two and three sets (plot)}
 #' \item{\link[sbi:sbi_wilcoxR]{sbi$wilcoxR(x)}}{calculate effect size r, for a wilcox test object (effect size, stats)}
+#' \item{\link[sbi:sbi_pipe]{lhs \%>\% rhs}}{pipe operator}
+#' \item{\link[sbi:sbi_ni]{lhs \%ni\% rhs}}{not in operator}
 #' }
 #' }
 #' \value{returns the result of addition of x and y} 
@@ -243,6 +255,11 @@
 #' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} Return the most often level in a categorical variable.
 #' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} Create up to 20 pastel colors.
 #' \item \code{\link[sbi:sbi_packageDependencies]{sbi$packageDependencies(pkgname)}} return the dependencies of the given package
+#' \item \code{\link[sbi:sbi_pca_biplot]{sbi$pca_biplot(x)}} improved biplot for pca objects (plot)
+#' \item \code{\link[sbi:sbi_pca_corplot]{sbi$pca_corplot(x)}} correlation plot for original variables and PCs (plot)
+#' \item \code{\link[sbi:sbi_pca_oncor]{sbi$pca_oncor(x)}} perform a PCA on a squared (correlation) matrix (stats)
+#' \item \code{\link[sbi:sbi_pca_pairs]{sbi$pca_pairs(x)}} improved pairs plot for pca objects (plot)
+#' \item \code{\link[sbi:sbi_pca_plot]{sbi$pca_plot(x)}} improved screeplot for pca objects (plot)
 #' \item \code{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}} partial correlation
 #' \item \code{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}} partial correlation test
 #' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} convert angle in radian into angle in degree
@@ -256,6 +273,8 @@
 #' \item \code{\link[sbi:sbi_untab]{sbi$untab(x)}} expand a contingency table to a data frame one item per row (data)
 #' \item \code{\link[sbi:sbi_venn]{sbi$venn(x)}} Venn diagram for logical relations between two and three sets (plot)
 #' \item \code{\link[sbi:sbi_wilcoxR]{sbi$wilcoxR(x)}} calculate effect size r, for a wilcox test object (effect size, stats)
+#' \item \code{\link[sbi:sbi_pipe]{lhs \%>\% rhs}} pipe operator
+#' \item \code{\link[sbi:sbi_ni]{lhs \%ni\% rhs}} not in operator
 #' }
 #' } 
 #' \examples{ 
@@ -2113,7 +2132,7 @@ sbi_hmean = sbi$hmean
 #' \examples{ %options: eval=FALSE
 #' \dontrun{
 #'  fout = file("test.R",'w')
-#'  cat("test = function (msg) { return(paste('testing',msg)) }\n",file=fout)
+#'  cat("test = function(msg) { return(paste('testing',msg)) }\n",file=fout)
 #'  close(fout)
 #'  sbi$import('test')
 #'  test("Hello from test!")
@@ -2973,7 +2992,408 @@ sbi$packageDependencies <- function(pkgName, mode='all', cran="https://ftp.belne
 }
 sbi_packageDependencies = sbi$packageDependencies
 
+#' FILE: sbi/man/sbi_pca_biplot.Rd
+#' \name{sbi$pca_biplot}
+#' \alias{sbi$pca_biplot}
+#' \alias{sbi_pca_biplot}
+#' \title{ Improved biplot for pca objects. }
+#' \description{
+#' The function `sbi$pca_biplot` provides an improved biplot for
+#' visualizing the pairwise scores of individual principal components of 
+#' an object created using the function `prcomp`. In contrast to the default 
+#' biplot function  this plot visualizes the data as points and not row numbers,
+#' it allows to display groups using color codes and distribution ellipses.
+#' }
+#' \usage{ sbi_pca_biplot(pca,pcs=c("PC1","PC2"),
+#'                        pch=19,col='black',
+#'                        arrows=TRUE,arrow.fac=1,
+#'                        ellipse=FALSE,ell.fill=FALSE,xlab=NULL,ylab=NULL,...) }
+#' \arguments{
+#' \item{pca}{pca object of class `prcomp`, created using the function `prcomp`}
+#' \item{pcs}{the components to plot, default: c('PC1','PC2')}
+#' \item{pch}{plotting character, default: 19}
+#' \item{col}{plotting color, default: black}
+#' \item{arrows}{should loading arrows be displayed, default: TRUE}
+#' \item{arrow.fac}{scaling factor for arrow length, default: 1}
+#' \item{ellipse}{should 85 and 95 confidence intervals for the chisq distribution be shown. If this is shown colors for each group using the col argument must be given, default: FALSE}
+#' \item{ell.fill}{should a filled 85 percent confidence interval be shown, colors will be used from the plotting color with opacity, default: FALSE}
+#' \item{xlab}{custom xlab, if not given the PC name with variance in percent is shown, default: NULL}
+#' \item{ylab}{custom ylab, if not given the PC name with variance in percent is shown, default: NULL}
+#' \item{\ldots}{additional arguments delegated to the standard plot function}
+#' }
+#' \value{NULL}
+#' \examples{ %options: fig.width=10,fig.height=5
+#' par(mai=c(0.8,0.8,0.2,0.6),mfrow=c(1,2))
+#' data(iris)
+#' pci=prcomp(iris[,1:4],scale=TRUE)
+#' sbi$pca_biplot(pci,col=rep(2:4,each=50),ellipse=TRUE,ell.fill=TRUE,
+#'  arrow.fac=2.3,arrows=TRUE,main="biplot")
+#' legend('topright',pch=19,col=2:4,levels(iris$Species))
+#' # standard score plot
+#' sbi$pca_biplot(pci,col=rep(2:4,each=50),ellipse=FALSE,
+#'  arrow.fac=2.3,arrows=FALSE,main="scoreplot")
+#' }
+#' 
+#' FILE: sbi/R/pca_biplot.R
 
+sbi$pca_biplot = function (pca,pcs=c("PC1","PC2"),
+                       pch=19,col='black',
+                       arrows=TRUE,arrow.fac=1,
+                       ellipse=FALSE,ell.fill=FALSE,xlab=NULL,ylab=NULL,...) {
+    if (missing("xlab")) {
+        xlab=paste(pcs[1]," (", round(summary(pca)$importance[2,pcs[1]]*100,1),"%)",sep="")
+    } 
+    if (missing("ylab")) {
+        ylab=paste(pcs[2]," (", round(summary(pca)$importance[2,pcs[2]]*100,1),"%)",sep="")
+    } 
+    plot(pca$x[,pcs[1]],pca$x[,pcs[2]],pch=pch,col=col,type="n",xlab=xlab,ylab=ylab,...)
+    abline(h=0,lty=2)
+    abline(v=0,lty=2)    
+    if (ellipse) {
+        if (length(col)!= nrow(pca$x)) {
+            stop("colors must have sam elength as data points")
+        }
+        ell.col=col
+        i=1
+        for (cl in names(table(ell.col))) {
+            C=cov(pca$x[ell.col==cl,c(pcs[1],pcs[2])])    # Covarianz-Matrix C bestimmen
+            d85=qchisq(0.85, df = 2)     # 85% - Faktor , um die Ellipse zu skalieren
+            M=colMeans(pca$x[ell.col==cl,c(pcs[1],pcs[2])]) #   Mittelwerte (Zentrum) des Clusters
+            el=cluster::ellipsoidPoints(C, d85, loc=M)  # Ellipsen-Punkte aus C und M berechnen
+            if (ell.fill) {
+                colfill=paste(rgb(t(col2rgb(cl))/255),"33",sep="")
+                polygon(el,col=colfill,border=NA)
+                i=i+1
+                next
+            }
+            lines(el,col=cl,lwd=1.5,lty=2)    #  Ellipse als geschlossene Linies zeichnen
+            d95=qchisq(0.95, df = 2)     # 85% - Faktor , um die Ellipse zu skalieren
+            el=cluster::ellipsoidPoints(C, d95, loc=M)  # Ellipsen-Punkte aus C und M berechnen
+            lines(el,col=cl,lwd=1.5,lty=1)    #  Ellipse als geschlossene Linies zeichnen                        
+
+        }
+    }
+    points(pca$x[,pcs[1]],pca$x[,pcs[2]],pch=pch,col=col,...)
+    if (arrows) {
+        loadings=pca$rotation
+        arrows(0,0,loadings[,pcs[1]]*arrow.fac,loadings[,pcs[2]]*arrow.fac,
+               length=0.1,angle=20,col='black')
+        text(loadings[,pcs[1]]*arrow.fac*1.2,loadings[,pcs[2]]*arrow.fac*1.2,
+             rownames(loadings),col='black',font=2)
+    }
+}
+sbi_pca_biplot = sbi$pca_biplot
+
+#' FILE: sbi/man/sbi_pca_corplot.Rd
+#' \name{sbi$pca_corplot}
+#' \alias{sbi_pca_corplot}
+#' \alias{sbi$pca_corplot}
+#' \title{PCA correlation plot}
+#' \description{
+#'   The function provides a PCA correlation plot to show associations 
+#'   between PCs and variables. The closer a variable to the PC coordinate 
+#'   the higher the correlation, the more away from the center of the 
+#'   coordinate system, the higher the impact of the variable on this PC.
+#'   You can think about the corplot as a biplot ommiting the samples and 
+#'   the arrows.
+#' }
+#' \usage{sbi_pca_corplot(pca,pcs=c("PC1","PC2"), main="Correlation plot",cex=NULL,nvar=64,...)}
+#' \arguments{
+#'   \item{pca}{
+#'     pca object which was created using the function \code{prcomp}.
+#'   }
+#'   \item{pcs}{
+#'     vector of two PCs to be plotted against each other, default: c('PC1','PC2')
+#'   }
+#'   \item{main}{
+#'     title of the plot, default: 'Correlation plot'
+#'   }
+#'   \item{cex}{
+#'     character expansion for the samples, default: NULL (automatic calculation)
+#'   }
+#'   \item{nvar}{
+#'     number of variables which will be displayed, for both components the variables which contributes mostly to the variances will be used, default: 64.
+#'   }
+#'   \item{\ldots}{
+#'     remaining arguments are delegated to the standard plot function
+#'   }
+#' }
+#' \examples{
+#' par(mfrow=c(1,2),mai=c(0.7,0.7,0.5,0.1))
+#' library(cluster)
+#' data(votes.repub)
+#' pca=prcomp(t(na.omit(votes.repub)))
+#' sbi$pca_corplot(pca)
+#' data(swiss)
+#' pca=prcomp(swiss,scale.=TRUE)
+#' sbi$pca_corplot(pca)
+#' }
+#' \seealso{ 
+#' \code{\link[sbi:sbi-package]{sbi-package}}, \code{\link[sbi:sbi-class]{sbi-class}},
+#' \code{\link[sbi:sbi_pca_biplot]{sbi$pca_biplot}}, 
+#' \code{\link[sbi:sbi_pca_pairs]{sbi$pca_pairs}}, 
+#' \code{\link[sbi:sbi_pca_plot]{sbi_pca_plot}}
+#' }
+#' FILE: sbi/R/pca_corplot.R
+sbi$pca_corplot = function (pca,pcs=c("PC1","PC2"), main="Correlation plot",cex=NULL,nvar=64,...) {
+  if (is.logical(pca$scale)) {
+    df=t(t(pca$x %*% t(pca$rotation)) + pca$center)
+  } else {
+    df=t(t(pca$x %*% t(pca$rotation)) * pca$scale + pca$center)  
+  }
+  xlab=paste(pcs[1]," (", round(summary(pca)$importance[2,pcs[1]]*100,1),"%)",sep="")
+  ylab=paste(pcs[2]," (", round(summary(pca)$importance[2,pcs[2]]*100,1),"%)",sep="")    
+  getMainLoadings = function (pca,PC="PC1",n=10) {
+    return(rownames(head(pca$rotation[rev(order(abs(pca$rotation[,PC]))),],n)))
+  }
+  #this=dpca
+  plot(1,xlim=c(-1.1,1.1),ylim=c(-1.1,1.1),pch="",
+       xlab=xlab,
+       ylab=ylab,
+       asp=1,main=main,...)
+  # library plotrix       
+  draw.circle =  function (x, y, radius, nv = 100, border = NULL, col = NA, lty = 1, 
+                           lwd = 1) 
+  {
+    xylim <- par("usr")
+    plotdim <- par("pin")
+    ymult <- (xylim[4] - xylim[3])/(xylim[2] - xylim[1]) * plotdim[1]/plotdim[2]
+    angle.inc <- 2 * pi/nv
+    angles <- seq(0, 2 * pi - angle.inc, by = angle.inc)
+    if (length(col) < length(radius)) 
+      col <- rep(col, length.out = length(radius))
+    for (circle in 1:length(radius)) {
+      xv <- cos(angles) * radius[circle] + x
+      yv <- sin(angles) * radius[circle] * ymult + y
+      polygon(xv, yv, border = border, col = col[circle], lty = lty, 
+              lwd = lwd)
+    }
+    invisible(list(x = xv, y = yv))
+  }
+  draw.circle(0,0,1,lty=2)
+  lines(c(0,0),c(1.1,-1.1),lwd=2)
+  lines(c(1.1,-1.1),c(0,0),lwd=2)
+  x=1
+  if (length(colnames(df)>nvar)) {
+    cnames=getMainLoadings(pca,pcs[1],nvar)
+    cnames2=getMainLoadings(pca,pcs[2],nvar)
+    cnames=unique(cnames,cnames2)
+  } else {
+    cnames =colnames(df)
+  }
+  if (is.null(cex)) {
+    text.cex=0.4+4/length(cnames)
+    if (text.cex > 1.2) {
+      text.cex=1.2
+    }
+  } else {
+    text.cex=cex
+  }
+  mcor1=c()
+  mcor2=c()
+  for (cname in cnames) {
+    mcor1=c(mcor1,cor.test(df[,cname],pca$x[,pcs[1]])$estimate)
+    mcor2=c(mcor2,cor.test(df[,cname],pca$x[,pcs[2]])$estimate)
+  }
+  text(mcor1,mcor2,labels=cnames,cex=text.cex)
+}
+
+sbi_pca_corplot = sbi$pca_corplot
+
+#' FILE: sbi/man/sbi_pca_oncor.Rd
+#' \name{sbi$pca_oncor}
+#' \alias{sbi$pca_oncor}
+#' \alias{sbi_pca_oncor}
+#' \title{Perform a PCA on a correlation matrix.}
+#' \description{
+#' The function `sbi$pca_oncor` does a PCA using eigenvector eigenvalue decomposition
+#'   on a correlation matrix. PCA usually performs Pearson correlation internally what
+#'   leads to a highly outlier sensitive analysis. If the user decides
+#'   to use a method like Spearman or even bi-seriell, polychoric or for nominal data
+#'   effect size measures like Cohen's W this method here can be used. Note that this
+#'   does not return new coordinates for the sample as the sample contribution is lost in the
+#'   correlation matrix. The method might however be used to check if the results between
+#'   Pearson and Spearman PCA are similar or does  outliers lead to a completly different result.
+#' }
+#' \usage{ sbi_pca_oncor(x) }
+#' \arguments{
+#' \item{x}{a symmetric matrix usually with pairwise correlations}
+#' }
+#' \value{PCA like list object with components sd and rotation}
+#' \examples{
+#' data(USArrests)
+#' C=cor(USArrests)
+#' sbi$pca_oncor(C)
+#' D=cor(USArrests,method="spearman") 
+#' sbi$pca_oncor(D)
+#' }
+#' 
+#' FILE: sbi/R/pca_oncor.R
+sbi$pca_oncor <- function (x) {
+    ev=eigen(x)
+    res=list(rotation=ev$vectors,sdev=sqrt(ev$values))
+    colnames(res$rotation)=paste("PC",1:ncol(x),sep="")
+    rownames(res$rotation)=rownames(x)
+    return(res)
+             
+}
+sbi_pca_oncor = sbi$pca_oncor
+#' FILE: sbi/man/sbi_pca_pairs.Rd
+#' \name{sbi$pca_pairs}
+#' \alias{sbi$pca_pairs}
+#' \alias{sbi_pca_pairs}
+#' \title{Improved pairs plot for pca objects.}
+#' \description{
+#'   The function `sbi$pca_pairs` provides an improved pairs plot for
+#'   visualizing the pairwise scores of the individual components of an analyses 
+#'   using the function `prcomp`. In contrast to the default `pairs` function 
+#'   this plot visualizes in the diagonal as well the variances and 
+#'   a density line for the component scores.
+#' }
+#' \usage{ sbi_pca_pairs(pca,n=10,groups=NULL, col='black',pch=19,legend=FALSE,...) }
+#' \arguments{
+#' \item{pca}{pca object which was created using the function `prcomp`.}
+#' \item{n}{maximal number of components to visualize, default: 10}
+#' \item{groups}{vector with classes having the same length than the inout matrix for prcomp has rows, default: NULL}
+#' \item{col}{colors for the plotting, character, default: 'black'}
+#' \item{pch}{plotting, symbol, default: 19}
+#' \item{legend}{should the legend be displayed on top, default: FALSE}
+#' \item{\ldots}{additional arguments delegated to the standard `pairs` function}
+#' }
+#' \value{NULL}
+#' \examples{
+#' data(iris)
+#' pci=prcomp(iris[,1:4],scale=TRUE)
+#' sbi$pca_pairs(pci,pch=15,groups=iris[,5],
+#'  legend=TRUE,oma=c(5,4,4,4),col=as.numeric(iris[,5])+1)
+#' }
+#' 
+
+#' FILE: sbi/R/pca_pairs.R
+
+sbi$pca_pairs <- function (pca,n=10,groups=NULL, col='black',pch=19,legend=FALSE,...) {
+    sbi$N = 1
+    if (n>ncol(pca$x)) {
+        n=ncol(pca$x)
+    }
+    pst=FALSE
+    if (class(groups) != "NULL" & length(col) != length(groups)) {
+        coln=length(levels(as.factor(groups)))
+        cols=sbi$pastel(coln)
+        col=cols[as.numeric(as.factor(as.character(groups)))]
+        pst=TRUE
+    }
+    panel.text =function (x,...) {
+        usr <- par("usr"); on.exit(par(usr=usr))
+        par(usr = c(0, 1, 0, 1))
+        text(0.5,0.5,
+             paste(sprintf("%.1f",summary(pca)$importance[2,sbi$N]*100),"%",
+                   sep=""),cex=1.5)
+        ds=density(pca$x[,sbi$N],na.rm=TRUE)
+        ds$x=ds$x-min(ds$x)
+        ds$x=ds$x/max(ds$x)
+        ds$y=(ds$y/max(ds$y)*0.3)
+        polygon(ds,col='grey80')
+        sbi$N = sbi$N + 1
+    }
+    pairs(pca$x[,1:n],diag.panel=panel.text,col=col,pch=pch,...)
+    if (legend && class(groups) != "NULL") {
+        opar=par()
+        options(warn=-1)
+        par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+        plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+        if (pst) {
+            leg.cols=sbi$pastel(coln)[as.numeric(as.factor((levels(as.factor(groups)))))]
+        } else {
+            cols=col
+            names(cols)=as.character(groups)
+            lcol=cols[unique(names(cols))]
+            leg.cols=as.numeric(lcol)
+        }
+        legend('bottom', levels(as.factor(groups)), xpd = TRUE, 
+               horiz = TRUE, inset = c(0,0), 
+               bty = "n", pch = pch, col = leg.cols, cex = 1.2)
+        
+        par(opar)
+    }
+}
+sbi_pca_pairs = sbi$pca_pairs
+#' FILE: sbi/man/sbi_pca_plot.Rd
+#' \name{sbi$pca_plot}
+#' \alias{sbi$pca_plot}
+#' \alias{sbi_pca_plot}
+#' \title{Improved bar or screeplot for pca objects.}
+#' \description{
+#' The function `sbi$pca_plot` provides an improved bar- or screeplot for
+#' visualizing the variances of the individual components of an analyses 
+#' using the function _prcomp_. In contrast to the default plot function 
+#' this plot visualize cumulative and individual variances in percent.
+#' }
+#' \usage{ sbi_pca_plot(pca,n=10,type="bar", cex=1.5, 
+#'                      legend=TRUE,xlab="Components",ylab="Variance (\%)",
+#'                      pc.col=c("light blue","grey"),...)}
+#' \arguments{
+#' \item{pca}{pca object which was created using the function `prcomp`}
+#' \item{n}{maximal number of components to visualize, default: 10}
+#' \item{type}{plotting type either "bar" or "scree", default: "bar"}
+#' \item{cex}{character expansion for the legend and the screeplot plotting characters, default: 1.5}
+#' \item{legend}{should the legend be displayed on top, default: TRUE}
+#' \item{xlab}{label for the x-axis, default "Components"}
+#' \item{ylab}{label for the y-axis, default "Variances(\%)"}
+#' \item{pc.col}{colors for the PC variances, first individual, second color for the cumulative variance, default: c("light blue","grey")}
+#' \item{\ldots}{additional arguments delegated to the standard plot function}
+#' }
+#' \value{NULL}
+#' \examples{ %options: fig.width=10,fig.height=5
+#' data(iris)
+#' par(mfrow=c(1,2))
+#' pcai=prcomp(iris[,1:4],scale=TRUE)
+#' sbi$pca_plot(pcai)
+#' sbi$pca_plot(pcai,type="scree",legend=FALSE)
+#' }
+#' 
+#' FILE: sbi/R/pca_plot.R
+sbi$pca_plot <- function (pca,n=10,type="bar", cex=1.5, 
+                     legend=TRUE,xlab="Components",ylab="Variance (%)",
+                     pc.col=c("light blue","grey"),...) {
+    if (n>ncol(pca$x)) {
+        n=ncol(pca$x)
+    }
+    if (legend) {
+        ylim=c(0,120)
+    } else {
+        ylim=c(0,105)
+    }
+    if (type=="bar") {
+        barplot(summary(pca)$importance[3,1:n]*100,
+                ylim=ylim,col='white',
+                xlab=xlab,ylab=ylab,axes=FALSE,...)
+    } else {
+        plot(summary(pca)$importance[3,1:n]*100,type="b",
+                ylim=ylim,cex.axis=1.2,lwd=2,cex=cex,
+                xlab=xlab,ylab=ylab,axes=FALSE,
+                pch=15,col=pc.col[2],...)
+        points(summary(pca)$importance[2,1:n]*100,type="b",cex=cex,
+                lwd=2,xlab="", pch=15,col=pc.col[1],...)
+
+        axis(1,at=1:n,labels=paste("PC",1:n,sep=""))
+    }
+    axis(2,at=c(20,40,60,80,100),labels=c(20,40,60,80,100))
+    if (type == "bar") {
+        barplot(summary(pca)$importance[3,1:n]*100,add=TRUE,col=pc.col[2],axes=FALSE)
+        barplot(summary(pca)$importance[2,1:n]*100,add=TRUE,col=pc.col[1],axes=FALSE)        
+    }
+    abline(h=5,lty=2,lwd=0.5)
+    abline(h=10,lty=2,lwd=0.5)
+    abline(h=90,lty=2,lwd=0.5)
+    abline(h=95,lty=2,lwd=0.5)    
+    abline(h=100,lty=1,lwd=0.5)    
+    if (legend) {
+        legend("topleft",c("Component","Cumulative"),col=pc.col,pch=15,cex=1.5,box.lwd=0,ncol=2)
+    }
+    box()
+}
+sbi_pca_plot = sbi$pca_plot
 #' FILE: sbi/man/sbi_pastel.Rd
 #' \name{sbi$pastel}
 #' \alias{sbi$pastel}
@@ -3402,7 +3822,7 @@ sbi_skewness <- sbi$skewness
 #' }
 #' \examples{ %options eval=FALSE
 #' \dontrun{
-#' ## The resulting png file can be embedded using standard Markdown syntax
+#' ### The resulting png file can be embedded using standard Markdown syntax
 #' sbi$shell("#!/usr/bin/env -S dot -Tpng -odot.png
 #' digraph G {
 #' rankdir=LR;
@@ -3613,12 +4033,12 @@ sbi_untab <- sbi$untab
 #' FILE: sbi/R/venn.R
 
 sbi$venn = function (x,y=NULL,z=NULL,vars=NULL,col=c("#cc888899","#8888cc99","#88cc8899"),cex=1.6,...) {
-    circle = function (x,y, radius=1,length=100) {
+    circle = function(x,y, radius=1,length=100) {
         theta = seq(0, 2 * pi, length = 100) 
         return(list(x=radius*cos(theta)+x,
                     y=radius*sin(theta)+y))
     }
-    venn2D = function (x,col=c("#cc888899","#8888cc99"),cex=1.6,...) {
+    venn2D = function(x,col=c("#cc888899","#8888cc99"),cex=1.6,...) {
         if (!is.data.frame(x) & !is.matrix(x)) {
             stop("Error: Not a two column matrix or data frame!")
         }
@@ -3759,6 +4179,7 @@ sbi_venn <- sbi$venn
 #' mean(rn1)
 #' mean(rn2)
 #' sbi$wilcoxR(rn1,rn2) # two numerical vectors
+#' cor(rn1,rn2)
 #' wt=wilcox.test(rn1,rn2,exact=FALSE) 
 #' sbi$wilcoxR(wt,n=200) # a test object
 #' cat = as.factor(c(rep('A',100),rep('B',100)))
@@ -3784,6 +4205,76 @@ sbi$wilcoxR <- function (x,y=NULL,n=NULL) {
 }
 
 sbi_wilcoxR <- sbi$wilcoxR
+
+#' FILE: sbi/man/sbi_ni.Rd
+#' \name{sbi$ni}
+#' \alias{sbi$ni}
+#' \alias{sbi_ni}
+#' \alias{\%ni\%}
+#' \title{not-in operator}
+#' \usage{lhs \%ni\% rhs}
+#' \description{
+#'   The `\%ni\%` operator is the inverse of the `\%in\%` operator.
+#' }
+#' \arguments{
+#'   \item{lhs}{input vector to be matched}
+#'   \item{rhs}{vector with matching values}
+#' }
+#' \value{vector of the same length as `lhs` with TRUE and FALSE values}
+#' \examples{
+#' data(mtcars)
+#' v1=1:5
+#' v2=3:7
+#' v1 \%ni\% v2
+#' v1 \%in\% v2
+#' v2 \%ni\% v1
+#' v2 \%in\% v1
+#' }
+#' \keyword{operator}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_pipe]{\%>\%}.}
+#' FILE: sbi/R/ni.R
+
+'%ni%' <- function (lhs, rhs) {
+    return(!(lhs %in% rhs))
+}
+
+#' FILE: sbi/man/sbi_pipe.Rd
+#' \name{sbi$pipe}
+#' \alias{sbi$pipe}
+#' \alias{sbi_pipe}
+#' \alias{\%>\%}
+#' \title{forward pipe operator (Nathan Eastwood and Antoine Fabri 2020)}
+#' \usage{lhs \%>\% rhs}
+#' \description{
+#'   Pipe a data structure using a R expression.
+#'   Unlike the `magrittr` pipe, you must supply an actual function 
+#'   instead of just a function name. For example
+#'   `mtcars %>% head` will not work, but `mtcars %>% head()` will. 
+#'   Furthermore note that since R 4.1 standard R has its own pipe operator, 
+#'   the `|>` operator. The operator is part of Nathan Eastwoods poorman package
+#'   \url{https://github.com/nathaneastwood/poorman} and taken from this package
+#'   for illustrative purposes.
+#' }
+#' \arguments{
+#'   \item{lhs}{the input data, usually vector, matrix or data frame}
+#'   \item{rhs}{the expression, condition used to filter the data}
+#' }
+#' \value{same data structure as `lhs` but filtered by `rhs` expression}
+#' \examples{
+#' data(mtcars)
+#' mtcars %>% head()
+#' mtcars %>% subset(select=c(mpg,cyl,disp,drat)) %>% head()
+#' }
+#' \author{Nathan Eastwood, Etienne Bacher}
+#' \keyword{pipe}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_ni]{\%ni\%}.}
+#' FILE: sbi/R/pipe.R
+
+'%>%' <- function (lhs, rhs) {
+  lhs <- substitute(lhs)
+  rhs <- substitute(rhs)
+  eval(as.call(c(rhs[[1L]], lhs, as.list(rhs[-1L]))), envir = parent.frame())
+}
 
 #' FILE: EOF
 
