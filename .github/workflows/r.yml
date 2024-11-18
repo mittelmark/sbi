@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Process and Create Package Structure
         run: |
-            #sudo apt install r-cran-knitr
+            sudo apt install r-cran-knitr
             make build pkg=sbi
             export VRS=`grep Version: sbi/DESCRIPTION | grep -oE '[.0-9]+'`
             echo "VRS=$VRS" >> $GITHUB_ENV
