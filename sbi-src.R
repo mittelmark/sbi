@@ -108,7 +108,7 @@
 #' FILE: sbi/man/sbi-package.Rd
 #' \name{sbi-package}
 #' \alias{sbi-package}
-#' \title{sbi-package - methods for Statistical Bioinformatics}
+#' \title{The sbi-package - methods for Statistical Bioinformatics}
 #' \description{The sbi package contains methods used in the course
 #'    Statistical Bioinformatics at the University of Potsdam
 #'    as well as othe rusefule methods useful in statistical analysis.
@@ -301,8 +301,8 @@ sbi=new.env()
 #' \alias{sbi$aggregate2}
 #' \alias{sbi_aggregate2}
 #' \title{Aggregate two variables against one factor variable}
-#' \usage{sbi_aggregate2(x, y, z, FUN = cor, ...)}
 #' \description{Aggregate two variables (usually numerical) against one factor variable using the given function.}
+#' \usage{sbi_aggregate2(x, y, z, FUN = cor, ...)}
 #' \arguments{
 #'   \item{x}{a numeric vector}
 #'   \item{y}{a numeric vector}
@@ -311,13 +311,16 @@ sbi=new.env()
 #'   \item{...}{additional arguments to pass to \code{FUN}}
 #' }
 #' \details{
-#' This function splits the data by the factor \code{z} and applies the function \code{FUN} to the two numeric vectors \code{x} and \code{y}. The result is a named numerical vector where names correspond to the levels of \code{z}.
+#' This function splits the data by the factor \code{z} and applies the function \code{FUN}
+#' to the two numeric vectors \code{x} and \code{y}. The result is a named numerical vector
+#' where names correspond to the levels of \code{z}.
 #' }
 #' \value{A named numerical vector with results of applying \code{FUN} to each split group.}
 #' \examples{
 #' data(iris)
 #' sbi$aggregate2(iris$Sepal.Length, iris$Sepal.Width, iris$Species)
 #' sbi$aggregate2(iris$Sepal.Length, iris$Sepal.Width, iris$Species, FUN = cov)
+#' sbi$aggregate2(iris$Sepal.Length, iris$Sepal.Width, iris$Species, FUN = sbi$mi)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/aggregate2.R
@@ -332,8 +335,8 @@ sbi_aggregate2 = sbi$aggregate2
 #' \alias{sbi$angle}
 #' \alias{sbi_angle}
 #' \title{determine the angle between two vectors}
-#' \usage{sbi_angle(x, y, degree=FALSE)}
 #' \description{Determine the angle between two vectors either in rad (default) or degrees}
+#' \usage{sbi_angle(x, y, degree=FALSE)}
 #' \arguments{
 #'   \item{x}{numeric vector with x and y positions}
 #'   \item{y}{numeric vector with x and y positions}
@@ -378,8 +381,8 @@ sbi_angle = sbi$agngle
 #' \alias{sbi$corr}
 #' \alias{sbi_corr}
 #' \title{Calculate pairwise correlations for a given data frame or matrix}
-#' \usage{sbi_corr(data, method = "pearson", use = "pairwise.complete.obs")}
 #' \description{Calculate pairwise correlations for a given data frame or matrix.}
+#' \usage{sbi_corr(data, method = "pearson", use = "pairwise.complete.obs")}
 #' \arguments{
 #'   \item{data}{A matrix or data frame where the variables are in the columns, NA's are allowed.}
 #'   \item{method}{The type of correlation to be determined, either 'pearson', 'spearman', or 'kendall'. Default: 'pearson'.}
@@ -425,10 +428,11 @@ sbi_corr = sbi$corr
 #' \alias{sbi$assoc}
 #' \alias{sbi_assoc}
 #' \title{Create assocplots with residual coloring}
-#' \usage{sbi_assoc(..., shade = TRUE)}
 #' \description{
-#'   Create assocplots with residual coloring. This function updates the standard \code{assocplot} function from the \code{graphics} package with the ability to display residual colors.
+#'   Create assocplots with residual coloring. This function updates the standard \code{assocplot}
+#'   function from the \code{graphics} package with the ability to display residual colors.
 #' }
+#' \usage{sbi_assoc(..., shade = TRUE)}
 #' \arguments{
 #'   \item{...}{Arguments delegated to the standard \code{assocplot} function.}
 #'   \item{shade}{Logical; should the residuals be shown, default: \code{TRUE}.}
@@ -447,7 +451,7 @@ sbi_corr = sbi$corr
 #' FILE: sbi/R/assoc.R
 sbi$assoc <- function (..., shade = TRUE) {
   # https://stackoverflow.com/questions/38732663/how-to-insert-expression-into-the-body-of-a-function-in-r
-  funins <- function(f, expr = expression(x <- 2 * x), after = 1) {
+  funins = function(f, expr = expression(x <- 2 * x), after = 1) {
     body(f) <- as.call(append(as.list(body(f)), expr, after = after))
     f
   }
@@ -482,13 +486,13 @@ sbi_assoc = sbi$assoc
 #' \alias{sbi_bezier}
 #' \alias{sbi$bezier}
 #' \title{create bezier lines using three coordinates}
-#' \usage{sbi_bezier(p1,p2,p3,plot=FALSE, arrow=FALSE,
-#'                      arrow.pos=0.55,lwd=2,lty=1,...)}
 #' \description{
 #'   This function creates bezier lines based on three coordinates.
 #'   For more background information consult this discussion on
 #'   [stats.stackexchange](https://stats.stackexchange.com/questions/294824/r-understanding-bezier-curves).
 #' }
+#' \usage{sbi_bezier(p1,p2,p3,plot=FALSE, arrow=FALSE,
+#'                      arrow.pos=0.55,lwd=2,lty=1,...)}
 #' \arguments{
 #'   \item{p1}{starting point as vector of x and y}
 #'   \item{p2}{curve point as vector of x and y}
@@ -514,7 +518,7 @@ sbi_assoc = sbi$assoc
 
 #' FILE: sbi/R/bezier.R
 sbi$bezier <- function (p1,p2,p3,plot=FALSE, arrow=FALSE, arrow.pos=0.55,lwd=2,lty=1,...) {
-    B <- function( t, P0, P1, P2 ) {
+    B = function( t, P0, P1, P2 ) {
         (1 - t) * ( (1 - t)*P0 + t*P1 ) +
         t       * ( (1 - t)*P1 + t*P2 ) 
     }
@@ -550,11 +554,12 @@ sbi_bezier = sbi$bezier
 #' \name{sbi$bootstrap}
 #' \alias{sbi$bootstrap}
 #' \alias{sbi_bootstrap}
-#' \title{perform a resampling for the given data set and function}
-#' \usage{sbi_bootstrap(x,FUN=NULL,n=1000,...)}
-#' \description{The function allows you to perform a resampling method without replacement to perform
+#' \title{Perform a resampling for the given data set and function}
+#' \description{
+#'  The function allows you to perform a resampling method without replacement to perform
 #'   a boostrap analysis for instance to cmpute a p-value or a confidence interval.
 #' }
+#' \usage{sbi_bootstrap(x,FUN=NULL,n=1000,...)}
 #' \arguments{
 #'   \item{x}{a vector, a data frame or a matrix}
 #'   \item{FUN}{function handling the given data set type but performing before executing  FUN a sampling with replacement, please note that the function must return a scalar value, default=NULL}
@@ -602,8 +607,8 @@ sbi_bootstrap = sbi$bootstrap
 #' \alias{sbi$cache_image}
 #' \alias{sbi_cache_image}
 #' \title{Create a crc32 image for a downloaded image from the internet if not yet there}
-#' \usage{sbi_cache_image(url,extension="png")}
 #' \description{The function allows you to cache image files from the internet.}
+#' \usage{sbi_cache_image(url,extension="png")}
 #' \arguments{
 #'   \item{url}{image web url}
 #'   \item{extension}{image type, default: "png"}
@@ -628,7 +633,6 @@ sbi$cache_image <- function (url,extension="png") {
     filename=paste(digest::digest(url,"crc32"),".",extension,sep="")
     imgname=file.path("img",filename)
     if (!file.exists(imgname)) {
-        print("downloading ...")
         utils::download.file(url,imgname)
     }
     return(imgname)
@@ -662,7 +666,7 @@ sbi_cache_image = sbi$cache_image
 #'
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/chr2ord.R
-sbi$chr2ord = function (x,map) {
+sbi$chr2ord <- function (x,map) {
     return(unlist(
                   lapply(as.character(x),
                   function(x) {
@@ -811,12 +815,13 @@ sbi_coa = sbi$coa
 #' \alias{sbi$cohensD}
 #' \alias{sbi_cohensD}
 #' \title{Effect size for the difference between two means}
-#' \usage{sbi_cohensD(x, y,paired=FALSE)}
-#' \description{The function cohensD calculates the effect size for the difference between two means.
+#' \description{
+#'   The function cohensD calculates the effect size for the difference between two means.
 #'   Due to Cohen's rule of thumb values of around 0.2 are considered to stand 
 #'   for small effects, values of around 0.5 represent medium effects and values of around 0.8 
 #'   and larger represent large effects. 
 #' }
+#' \usage{sbi_cohensD(x, y,paired=FALSE)}
 #' \arguments{
 #' \item{x}{vector with numercial values}
 #' \item{y}{vector with two grouping variables, having the same length as x}
@@ -876,12 +881,13 @@ sbi_cohensD = sbi$cohensD
 #' \alias{sbi$cohensF}
 #' \alias{sbi_cohensF}
 #' \title{Effect size for the difference between three or more means and for a ANOVA}
-#' \usage{sbi_cohensF(x, y)}
-#' \description{The function cohensF calculates the effect size for two variables in an Anova.
+#' \description{
+#'   The function cohensF calculates the effect size for two variables in an Anova.
 #'   Due to Cohen's rule of thumb values of around 0.1 are considered to stand 
 #'   for small effects, values of around 0.25 represent medium effects and values 
 #'   of around 0.4 and above represent large effects. 
 #' }
+#' \usage{sbi_cohensF(x, y)}
 #' \arguments{
 #' \item{x}{vector with numercial values}
 #' \item{y}{vector with grouping variable, at least three levels, having the same length as x}
@@ -914,11 +920,13 @@ sbi_cohensF = sbi$cohensF
 #' \alias{sbi$cohensH}
 #' \alias{sbi_cohensH}
 #' \title{Effect size for 2x2  contingency tables}
-#' \usage{sbi_cohensH(x)}
-#' \description{The function `sbi$cohensH` calculates the effect size for contingency tables. 
+#' \description{
+#'   The function `sbi$cohensH` calculates the effect size for contingency tables. 
 #'   Due to Cohen's rule of thumb values of around 0.2 are considered to stand 
 #'   for small effects, values of around 0.5 represent medium effects and values 
-#'   around 0.8 or higher represent large effects.}
+#'   around 0.8 or higher represent large effects.
+#' }
+#' \usage{sbi_cohensH(x)}
 #' \arguments{
 #' \item{x}{2x2 contingency table with counts, usually created using the table 
 #'           command for two variables}
@@ -940,7 +948,7 @@ sbi_cohensF = sbi$cohensF
 #' FILE: sbi/R/cohensH.R
 
 
-sbi$cohensH = function (x) {
+sbi$cohensH <- function (x) {
     pt=prop.test(x)
     h=2*abs(asin(sqrt(pt$estimate[1]))-
         asin(sqrt(pt$estimate[2])))
@@ -955,11 +963,13 @@ sbi_cohensH = sbi$cohensH
 #' \alias{sbi$cohensW}
 #' \alias{sbi_cohensW}
 #' \title{Effect size for 2x2 and larger contingency tables as well as for single variables}
-#' \usage{sbi_cohensW(x, p=NULL)}
-#' \description{The function `sbi$cohensW` calculates the effect size for contingency tables. 
+#' \description{
+#'   The function `sbi$cohensW` calculates the effect size for contingency tables. 
 #'   Due to Cohen's rule of thumb values of around 0.1 are considered to stand 
 #'   for small effects, values of around 0.3 represent medium effects and values 
-#'   above 0.5 or higher represent large effects.}
+#'   above 0.5 or higher represent large effects.
+#' }
+#' \usage{sbi_cohensW(x, p=NULL)}
 #' \arguments{
 #' \item{x}{contingency table with counts, usually created using the table 
 #'           command for two variables  or vector with counts with observations
@@ -995,7 +1005,7 @@ sbi_cohensH = sbi$cohensH
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensW]{sbi$cohensW}}
 #' FILE: sbi/R/cohensW.R
 
-sbi$cohensW = function (x,p=NULL) {
+sbi$cohensW <- function (x,p=NULL) {
     if (is.table(x) | is.matrix(x)) {
         tab=x
         pe=prop.table(chisq.test(tab)$expected)
@@ -1026,11 +1036,11 @@ sbi_cohensW = sbi$cohensW
 
 #' FILE: sbi/man/sbi_corplot.Rd
 #' \name{sbi$corplot}
-#' \title{correlation plot with a regression line}
+#' \title{Correlation plot with a Regression line}
 #' \alias{sbi$corplot}
 #' \alias{sbi_corplot}
+#' \description{Visualize a correlation with a regression line using the abline function.}
 #' \usage{sbi_corplot(x, y, col = 'red', pch = 19, cex=2, method = "pearson", ...)}
-#' \description{Visualize a correlation with abline.}
 #' \arguments{
 #'   \item{x}{numerical vector}
 #'   \item{y}{numerical vector}
@@ -1066,9 +1076,12 @@ sbi_corplot = sbi$corplot
 #' \name{sbi$corrplot}
 #' \alias{sbi$corrplot}
 #' \alias{sbi_corrplot}
-#' \title{Visualize a correlation matrix}
-#' \usage{sbi_corrplot(mt, text.lower = TRUE, text.upper = FALSE, pch = 19, p.mat = NULL, alpha = 0.05, cex.sym = 5, cex.r = 1, cex.lab = 1.4, ...)}
+#' \title{Visualize a Correlation matrix}
 #' \description{Visualize a correlation matrix.}
+#' \usage{sbi_corrplot(mt, text.lower = TRUE, text.upper = FALSE, 
+#'          pch = 19, p.mat = NULL, alpha = 0.05, cex.sym = 5, 
+#'          cex.r = 1, cex.lab = 1.4, ...)
+#' }
 #' \arguments{
 #'   \item{mt}{matrix with pairwise correlations}
 #'   \item{text.lower}{should the correlation coefficient be shown in the lower diagonal, default: TRUE}
@@ -1147,11 +1160,12 @@ sbi_corrplot = sbi$corrplot
 #' \name{sbi$corvar}
 #' \alias{sbi$corvar}
 #' \alias{sbi_corvar}
-#' \title{create a vector with a given correlation to another vector}
-#' \usage{sbi_corvar(x,r,mean=0,sd=1)}
-#' \description{The function `sbi$corvar` can be used to create sample data following a certain
+#' \title{Create a Vector with a given Correlation to an other Vector}
+#' \description{
+#'   The function `sbi$corvar` can be used to create sample data following a certain
 #'   correlation structure. This might be helpful for illustration purposes or to evaluate
 #' }
+#' \usage{sbi_corvar(x,r,mean=0,sd=1)}
 #' \arguments{
 #'   \item{x}{vector with numerical values}
 #'   \item{r}{correlation value , must between -1 and 1}
@@ -1173,7 +1187,7 @@ sbi_corrplot = sbi$corrplot
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_corvars]{sbi$corvars}}
 #' FILE: sbi/R/corvar.R
 
-sbi$corvar = function (x,r,mean=0,sd=1) {
+sbi$corvar <- function (x,r,mean=0,sd=1) {
     mu2=mean
     y = stats::rnorm(length(x),mean=mu2,sd=sd)
     d <- data.frame(x = x, y = y)   
@@ -1200,11 +1214,12 @@ sbi_corvar = sbi$corvar
 #' \name{sbi$corvars}
 #' \alias{sbi$corvars}
 #' \alias{sbi_corvars}
-#' \title{create a data frame with a given correlation structure}
-#' \usage{sbi_corvars(n,r.matrix,mu.vec)}
-#' \description{The function `sbi$corvars` can be used to create sample data following a certain
+#' \title{Create a Data frame with a given Correlation structure}
+#' \description{
+#'   The function `sbi$corvars` can be used to create sample data following a certain
 #'   correlation structure. This might be helpful for illustration purposes or to evaluate
 #' }
+#' \usage{sbi_corvars(n,r.matrix,mu.vec)}
 #' \arguments{
 #'   \item{n}{number of values for each variable}
 #'   \item{r.matrix}{matrix of correlation values, must be symmetric}
@@ -1237,13 +1252,13 @@ sbi_corvars = sbi$corvars
 #' \alias{sbi$cramersV}
 #' \alias{sbi_cramersV}
 #' \title{Effect size for 2x2 and larger contingency tables}
-#' \usage{sbi_cramersV(tab, correct = TRUE)}
 #' \description{
 #'   Calculate the effect size for contingency tables. 
 #'   For 2x2 tables (df = 1), values of around 0.1 represent small effects, 0.3 medium effects, 
 #'   and 0.5 or higher large effects. For tables with more categories (e.g., 3x3), 
 #'   the thresholds are 0.07, 0.21, and 0.35.
 #' }
+#' \usage{sbi_cramersV(tab, correct = TRUE)}
 #' \arguments{
 #'   \item{tab}{A contingency table with counts, typically created using the \code{table} command for two variables.}
 #'   \item{correct}{should Yates correction being applied, default: TRUE}
@@ -1275,8 +1290,11 @@ sbi_cramersV = sbi$cramersV
 #' \alias{sbi$cv}
 #' \alias{sbi_cv}
 #' \title{Calculate the coefficient of variation}
+#' \description{
+#'   Calculate the coefficient of variation, which is the ratio of the standard
+#'   deviation to the mean.
+#' }
 #' \usage{sbi_cv(x, na.rm = FALSE)}
-#' \description{Calculate the coefficient of variation, which is the ratio of the standard deviation to the mean.}
 #' \arguments{
 #'   \item{x}{A numeric vector with positive values.}
 #'   \item{na.rm}{Logical; if TRUE, NA values will be removed. Default is FALSE.}
@@ -1302,16 +1320,18 @@ sbi_cv = sbi$cv
 #' \name{sbi$df2md}
 #' \alias{sbi$df2md}
 #' \alias{sbi_df2md}
-#' \title{Convert a data frame or a matrix into a Markdown table}
-#' \usage{sbi_df2md(x, caption = '', rownames = TRUE)}
+#' \title{Convert a Data frame or a Matrix into a Markdown table}
 #' \description{Converts a data frame or a matrix into a Markdown table.}
+#' \usage{sbi_df2md(x, caption = '', rownames = TRUE)}
 #' \arguments{
 #'   \item{x}{matrix or data frame to convert.}
 #'   \item{rownames}{logical; should the row names be included in the output, default: TRUE.}
 #'   \item{caption}{optional character string for the table caption.}
 #' }
 #' \details{
-#' This function is used to convert a data frame or matrix into a Markdown table, which can be directly rendered in RMarkdown documents. For more advanced usage, consider using packages like \code{kable} from the knitr package.
+#' This function is used to convert a data frame or matrix into a Markdown table, 
+#' which can be directly rendered in RMarkdown documents. For more advanced usage, 
+#' consider using packages like \code{kable} from the knitr package.
 #' }
 #' \value{The function outputs a Markdown table to stdout.}
 #' \examples{ %options: results="asis"
@@ -1363,9 +1383,9 @@ sbi_df2md = sbi$df2md
 #' \name{sbi$dict}
 #' \alias{sbi$dict}
 #' \alias{sbi_dict}
-#' \title{Create list with keys and values, ensuring unique keys (dictionary)}
-#' \usage{sbi_dict(...)}
+#' \title{Create list with unique Keys and Values - a Dictionary}
 #' \description{Creates a key-value list, ensuring the keys are unique.}
+#' \usage{sbi_dict(...)}
 #' \arguments{
 #'   \item{...}{key-value pairs to create a dictionary.}
 #' }
@@ -1405,21 +1425,27 @@ sbi_dict = sbi$dict
 #' \name{sbi$dpairs}
 #' \alias{sbi$dpairs}
 #' \alias{sbi_dpairs}
-#' \title{Improved pairs plot considering the data types}
-#' \usage{sbi_dpairs(data,col.box='grey80', col.xy="grey60", cex.diag=2.5, order=TRUE,pch=19)}
-#' \description{The function `dpairs` provides an improved pairs plot which accounts
+#' \title{Improved Pairs plot considering the Data types}
+#' \description{
+#'   The function `dpairs` provides an improved pairs plot which accounts
 #'   for the data type of the actual variables. It will plot in the 
 #'   lower diagonal xy-plots, box-plots or assoc-plots depending on the 
 #'   two data types. In the upper diagonal effect sizes and stars for the p-values
 #'   for the tests (anova, t.test, chisq.test or cor.test will be shown. In the diagonal 
-#'   the data distribution will be outlined. This plot is usually an useful visualization for 3-8 variables.
+#'   the data distribution will be outlined. This plot is usually an useful visualization
+#'   for 3-8 variables.
 #' }
+#' \usage{sbi_dpairs(data,col.box='grey80', col.xy="grey60", 
+#'     cex.diag=2.5, order=TRUE,pch=19)}
 #' \arguments{
 #'   \item{data}{data frame with columns of class factor, numeric or integer}
-#'   \item{col.box}{colors for the boxplots, either a single value or a vector of colors for each level of a factor variable, default: 'grey80'}
-#'   \item{col.xy}{colors for the xy-plots, either a single value of a vector which is as long as the number of data points, default: 'grey60'}
+#'   \item{col.box}{colors for the boxplots, either a single value or a vector of colors for each
+#'      level of a factor variable, default: 'grey80'}
+#'   \item{col.xy}{colors for the xy-plots, either a single value of a vector which is as long as
+#'      the number of data points, default: 'grey60'}
 #'   \item{cex.diag}{character expansion for the diagonal texts}
-#'   \item{order}{should the variables be ordered by data type and name, this is recommended as it orders the plots, starting with assocplots, then boxplots and finally xyplots, default: TRUE}
+#'   \item{order}{should the variables be ordered by data type and name, this is recommended
+#'      as it orders the plots, starting with assocplots, then boxplots and finally xyplots, default: TRUE}
 #'   \item{pch}{plotting character for xy-plots, default 19 (round circle)}
 #' }
 #' \examples{ %options: fig.width=12,fig.height=12
@@ -1588,9 +1614,10 @@ sbi_dpairs = sbi$dpairs
 #' \alias{sbi$dpairs_legend}
 #' \alias{sbi_dpairs_legend}
 #' \title{Adding legend top or bottom to a `sbi$dpairs` or the standard `pairs` plot}
-#' \usage{sbi_dpairs_legend(labels,col='grey80',pch=15,side="bottom",cex=2)}
-#' \description{The function `sbi$dpairs_legend` allows the user to place a legend outside of a 
+#' \description{
+#'   The function `sbi$dpairs_legend` allows the user to place a legend outside of a 
 #'   pairs or dpairs plot.}
+#' \usage{sbi_dpairs_legend(labels,col='grey80',pch=15,side="bottom",cex=2)}
 #' \arguments{
 #'   \item{labels}{txt labels to be plotted}
 #'   \item{col}{colors for the plotting characters}
@@ -1624,11 +1651,13 @@ sbi_dpairs_legend = sbi$dpairs_legend
 #' \name{sbi$drop_na}
 #' \alias{sbi$drop_na}
 #' \alias{sbi_drop_na}
-#' \title{Removes all rows where any of the columns contain a NA}
-#' \usage{sbi_drop_na(x,cols)}
-#' \description{More sophisticated then `na.omit`. In contrast to this method, `sbi$drop_na` just
+#' \title{Removes all Rows where any of the given columns contain a NA}
+#' \description{
+#'    More sophisticated then `na.omit`. In contrast to this method, `sbi$drop_na` just
 #'    checks the given columns to delete rows which have any NA in these two columns in the given rows. 
-#'    This mimics the `tidyr::drop_na` function.}
+#'    This mimics the `tidyr::drop_na` function.
+#' }
+#' \usage{sbi_drop_na(x,cols)}
 #' \arguments{
 #'   \item{x}{data frame or matrix}
 #'   \item{cols}{columns to check for NA's}
@@ -1655,9 +1684,9 @@ sbi_drop_na = sbi$drop_na
 #' \name{sbi$epsilonSquared}
 #' \alias{sbi$epsilonSquared}
 #' \alias{sbi_epsilonSquared}
-#' \title{Calculate the effect size epsilon-squared for variables of a kruskal.test}
-#' \usage{sbi_epsilonSquared(x, y = NULL)}
+#' \title{Calculate the Effect size Epsilon-squared for Variables of a Kruskal test}
 #' \description{Calculate the epsilon-squared effect size for Kruskal-Wallis tests.}
+#' \usage{sbi_epsilonSquared(x, y = NULL)}
 #' \arguments{
 #'   \item{x}{a vector with numerical values or a linear model or an aov object.}
 #'   \item{y}{a vector with factor values or a second numerical variable, or NULL if \code{x} is a model.}
@@ -1694,9 +1723,9 @@ sbi_epsilonSquared = sbi$epsilonSquared
 #' \name{sbi$etaSquared}
 #' \alias{sbi$etaSquared}
 #' \alias{sbi_etaSquared}
-#' \title{Calculate the effect size eta-squared for an Anova or a linear model}
-#' \usage{sbi_etaSquared(x, y = NULL)}
+#' \title{Calculate the Effect size Eta-squared for an Anova or a Linear model}
 #' \description{Calculate the eta-squared effect size for ANOVA or linear models.}
+#' \usage{sbi_etaSquared(x, y = NULL)}
 #' \arguments{
 #'   \item{x}{a vector with numerical values or a linear model or an aov object.}
 #'   \item{y}{either a factor or NULL if \code{x} is given as a model.}
@@ -1743,9 +1772,9 @@ sbi_etaSquared = sbi$etaSquared
 #' \name{sbi$deg2rad}
 #' \alias{sbi$deg2rad}
 #' \alias{sbi_deg2rad}
-#' \title{Convert angle in degrees to radians}
-#' \usage{sbi_deg2rad(x)}
+#' \title{Convert Angle in Degrees to Radians}
 #' \description{Convert an angle from degrees to radians.}
+#' \usage{sbi_deg2rad(x)}
 #' \arguments{
 #'   \item{x}{Angle in degrees.}
 #' }
@@ -1767,9 +1796,9 @@ sbi_deg2rad = sbi$deg2rad
 #' \name{sbi$file.cat}
 #' \alias{sbi$file.cat}
 #' \alias{sbi_file.cat}
-#' \title{Displays a file to the terminal}
-#' \usage{sbi_file.cat(filename)}
+#' \title{Displays a File to the Terminal}
 #' \description{This function reads a text file and displays it in the terminal.}
+#' \usage{sbi_file.cat(filename)}
 #' \arguments{
 #'   \item{filename}{The name of the text file to display.}
 #' }
@@ -1796,9 +1825,9 @@ sbi_file.cat = sbi$file.cat
 #' \name{sbi$file.head}
 #' \alias{sbi$file.head}
 #' \alias{sbi_file.head}
-#' \title{Displays the first lines of a file}
-#' \usage{sbi_file.head(filename, n=6)}
+#' \title{Displays the first Lines of a File}
 #' \description{This function displays the first \code{n} lines of a text file.}
+#' \usage{sbi_file.head(filename, n=6)}
 #' \arguments{
 #'   \item{filename}{The name of the text file to read.}
 #'   \item{n}{The number of lines to display from the beginning of the file, default is 6.}
@@ -1837,21 +1866,21 @@ sbi_file.head = sbi$file.head
 #' \alias{sbi_flow}
 #' \title{Create simple flowcharts with different shapes and arrows}
 #' \description{
-#' The \code{sbi$flow} function allows you to create simple flowcharts with various shapes 
-#' (rectangles, circles, diamonds, etc.) and arrows or lines between them. You can specify 
-#' coordinates using chessboard notation (e.g., 'A1', 'C3') for placing shapes and drawing 
-#' connections.
-#' }
-#' \details{
-#' This function provides an easy-to-use tool for creating simple flowcharts in R. You can 
-#' customize the shapes, lines, arrows, labels, colors, and more to create flowcharts that 
-#' fit your specific needs. For more advanced diagrams, consider using packages such as \code{diagram}.
+#'   The \code{sbi$flow} function allows you to create simple flowcharts with various shapes 
+#'   (rectangles, circles, diamonds, etc.) and arrows or lines between them. You can specify 
+#'   coordinates using chessboard notation (e.g., 'A1', 'C3') for placing shapes and drawing 
+#'   connections.
 #' }
 #' \usage{
 #' sbi_flow(x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, 
 #'          lab = "", family = "Arial", type = "arrow", axes = FALSE, lwd = 2, 
 #'          width = 1, height = 0.5, cex = 1, col = "skyblue", border = "black", 
 #'          arrow.col = "black", cut = 0.6, shadow = TRUE, shadow.col = "#bbbbbb99", ...)
+#' }
+#' \details{
+#' This function provides an easy-to-use tool for creating simple flowcharts in R. You can 
+#' customize the shapes, lines, arrows, labels, colors, and more to create flowcharts that 
+#' fit your specific needs. For more advanced diagrams, consider using packages such as \code{diagram}.
 #' }
 #' \arguments{
 #'   \item{x}{Coordinate(s) in chessboard notation like 'A1', 'C3', etc.}
@@ -1999,10 +2028,10 @@ sbi_flow = sbi$flow
 #' \alias{sbi$fmt}
 #' \alias{sbi_fmt}
 #' \title{Python like string formatting)}
-#' \usage{sbi_fmt(str,...)}
 #' \description{
 #' This function implements Python like string formatting using curly braces as placeholder.
 #' }
+#' \usage{sbi_fmt(str,...)}
 #' \arguments{
 #'   \item{str}{string with curly brace place holders, either empty or with numbers}
 #'   \item{...}{variables or values used to replace the curly brace placeholders}
@@ -2040,10 +2069,10 @@ sbi_fmt= sbi$fmt
 #' \alias{sbi$gmean}
 #' \alias{sbi_gmean}
 #' \title{geometric mean of a numercial vector}
-#' \usage{sbi_gmean(x, na.rm=FALSE)}
 #' \description{
 #' Calculate the geometric mean of a numerical vector. All values in `x` should be above zero.
 #' }
+#' \usage{sbi_gmean(x, na.rm=FALSE)}
 #' \arguments{
 #'   \item{x}{vector with positive numerical values}
 #'  \item{na.rm}{should NA's be removed, default: FALSE}
@@ -2084,10 +2113,10 @@ sbi_gmean = sbi$gmean
 #' \alias{sbi$hmean}
 #' \alias{sbi_hmean}
 #' \title{harmonic mean of a numercial vector}
-#' \usage{sbi_hmean(x, na.rm=FALSE)}
 #' \description{
 #' Calculate the harmonic mean of a numerical vector. All values in `x` should be above zero.
 #' }
+#' \usage{sbi_hmean(x, na.rm=FALSE)}
 #' \arguments{
 #'   \item{x}{vector with positive numerical values}
 #'  \item{na.rm}{should NA's be removed, default: FALSE}
@@ -2124,10 +2153,10 @@ sbi_hmean = sbi$hmean
 #' \alias{sbi$import}
 #' \alias{sbi_import}
 #' \title{Load other R files relative to the current R file}
-#' \usage{sbi_import(basename)}
 #' \description{
 #' This function loads other R files relative to the current Rscript file.
 #' }
+#' \usage{sbi_import(basename)}
 #' \arguments{
 #'   \item{basename}{The filename of the R file without an extension.}
 #' }
@@ -2176,11 +2205,11 @@ sbi_import = sbi$import
 #' \alias{sbi$input}
 #' \alias{sbi_input}
 #' \title{Get input strings from the user as well from with R script files}
-#' \usage{sbi_input(prompt)}
 #' \description{
-#'  Replacement for the readline function in non-interactive scripts. 
+#'   Replacement for the readline function in non-interactive scripts. 
 #'   As the readline function does only works in interactive mode we need an alternative.
 #' }
+#' \usage{sbi_input(prompt)}
 #' \arguments{
 #'   \item{prompt}{text displayed to ask for input of the user}
 #' }
@@ -2212,10 +2241,10 @@ sbi_input = sbi$input
 #' \alias{sbi$is.dict}
 #' \alias{sbi_is.dict}
 #' \title{Check if a list has unique keys (dictionary check)}
-#' \usage{sbi_is.dict(obj)}
 #' \description{
 #' This function checks if a list has unique names (keys), ensuring that no key is duplicated.
 #' }
+#' \usage{sbi_is.dict(obj)}
 #' \arguments{
 #'   \item{obj}{A list-like object to check.}
 #' }
@@ -2251,10 +2280,10 @@ sbi_is.dict = sbi$is.dict
 #' \alias{sbi$is.outlier}
 #' \alias{sbi_is.outlier}
 #' \title{check if a given value within a vector is an outlier}
-#' \usage{sbi_is.outlier(x)}
 #' \description{
 #' Check if a given value within a vector is an outlier based on the 3xSD criteria.
 #' }
+#' \usage{sbi_is.outlier(x)}
 #' \arguments{
 #'   \item{x}{A vector with numerical values.}
 #' }
@@ -2281,13 +2310,13 @@ sbi_is.outlier = sbi$is.outlier
 #' \name{sbi$kroki}
 #' \alias{sbi$kroki}
 #' \alias{sbi_kroki}
-#' \title{Create diagrams using the online tool https://kroki.io}
-#' \usage{sbi_kroki(text="A --> B",filename=NULL,type="ditaa",ext="png",cache=TRUE,plot=FALSE)}
+#' \title{Create Diagrams using the Online tool https://kroki.io}
 #' \description{
 #'   This function is creates a URL which can be easily embedded into Markdown code for displaying
 #'   diagrams supported by the online tool https://kroki.io.
 #'   There is as well an online diagram editor, see here: https://niolesk.top/.
 #' }
+#' \usage{sbi_kroki(text="A --> B",filename=NULL,type="ditaa",ext="png",cache=TRUE,plot=FALSE)}
 #' \arguments{
 #'  \item{text}{some diagram code, default: "A --> B"}
 #'  \item{filename}{some input file, either _text_ or _file_ must be given, default: NULL}
@@ -2318,8 +2347,8 @@ sbi_is.outlier = sbi$is.outlier
 #'  |    AcEEF+--->+   BcFEE+
 #'  +---------+    +--------+
 #'  ")
-#'  print(url1)
-#'  print(url2)
+#'  url1
+#'  url2
 #'  sbi$kroki("digraph { node[shape=box,style=filled,fillcolor=beige]; plot -> kroki; }",type="graphviz",plot=TRUE)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
@@ -2362,7 +2391,6 @@ sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache
         filename=paste(digest::digest(url,"crc32"),".",ext,sep="")
         imgname=file.path("img",filename)
         if (!file.exists(imgname)) {
-            print("downloading ...")
             utils::download.file(url,imgname,mode="wb")
         }
         if (plot) {
@@ -2388,7 +2416,6 @@ sbi_kroki = sbi$kroki
 #' \alias{sbi$kurtosis}
 #' \alias{sbi_kurtosis}
 #' \title{fourth central moment of a distribution}
-#' \usage{sbi_kurtosis(x, na.rm=FALSE)}
 #' \description{
 #'   Calculate the fourth central moment of a distribution. Values higher than 0
 #'   indicate heavy-tailed distributions, values of lower than zero means 
@@ -2397,6 +2424,7 @@ sbi_kroki = sbi$kroki
 #'   a value of three, usually the excess kurtosis as in this implementation is 
 #'   used which involves substraction of 3.
 #' }
+#' \usage{sbi_kurtosis(x, na.rm=FALSE)}
 #' \arguments{
 #'   \item{x}{vector with positive numerical values}
 #'   \item{na.rm}{should NA's be removed, default: FALSE}
@@ -2432,8 +2460,15 @@ sbi_kurtosis <- sbi$kurtosis
 #' \alias{sbi$lmplot}
 #' \alias{sbi_lmplot}
 #' \title{XY-plot with linear model and the confidence intervals}
-#' \description{This method can be used to visualize the confidence intervals for 
-#'   the predictions and the linear model.}
+#' \description{
+#'   This method can be used to visualize the confidence intervals for 
+#'   the predictions and the linear model.
+#' }
+#' \usage{sbi_lmplot(x,y=NULL, data=NULL,col="blue",pch=19,
+#'               col.lm="red",col.plm="red",col.pi="blue",
+#'               grid=TRUE,polygon=TRUE,col.polygon="#cccccc33",
+#'               xlab=NULL,ylab=NULL,...)
+#' }
 #' \arguments{
 #'   \item{x}{numerical vector or formula}
 #'   \item{y}{numerical vector}
@@ -2543,11 +2578,11 @@ sbi_lmplot = sbi$lmplot
 #' \alias{sbi$mhist}
 #' \alias{sbi_mhist}
 #' \title{Lattice like histogram but base graphics compatible}
-#' \usage{sbi_mhist(x,y,breaks=10,cols='grey80',...)}
 #' \description{
 #'   This function creates for 2-4 groups histograms with a stripe on top
 #'   using the same y-scales for all groups.
 #' }
+#' \usage{sbi_mhist(x,y,breaks=10,cols='grey80',...)}
 #' \arguments{
 #'   \item{x}{numerical vector}
 #'   \item{y}{categorical variable 2-4 levels}
@@ -2641,9 +2676,11 @@ sbi_mhist <- sbi$mhist
 #' \alias{sbi$mi}
 #' \alias{sbi_mi}
 #' \title{Mutual Information for two numerical variables or for a binned table}
+#' \description{
+#'   Return the mutual information, the non-linear strength of a relationship between two 
+#'   numerical or of a binned table.
+#' }
 #' \usage{sbi_mi(x,y=NULL,breaks=4,norm=FALSE)}
-#' \description{Return the mutual information, the non-linear strength of a relationship between two 
-#'   numerical or of a binned table}
 #' \arguments{
 #'   \item{x}{either a binned table, a matrix or data.frame or a numerical vector}
 #'   \item{y}{a numerical vector if x is not a binned table or matrix or data.frame}
@@ -2712,12 +2749,12 @@ sbi_mi = sbi$mi
 #' \name{sbi$mkdoc}
 #' \alias{sbi$mkdoc}
 #' \alias{sbi_mkdoc}
-#' \title{extract embedded Markdown documentation and code chunks within}
-#' \usage{sbi_mkdoc(infile,cssfile="mini.css",eval=FALSE)}
+#' \title{Extract embedded Markdown documentation and Code chunks}
 #' \description{
 #'   Extract embedded Markdown documentation after `#'` and convert it into HTML. 
 #'   Further include constructs like '## include "header.md" are supported.
 #' }
+#' \usage{sbi_mkdoc(infile,cssfile="mini.css",eval=FALSE)}
 #' \arguments{
 #'   \item{infile}{R file with embedded Markdown code (after #' comments)}
 #'   \item{cssfile}{css stylesheet file, if not there a minimal css file will be created, you can modify the file later, default: mini.css}
@@ -2778,9 +2815,9 @@ sbi_mkdoc = sbi$mkdoc
 #' \name{sbi$modus}
 #' \alias{sbi$modus}
 #' \alias{sbi_modus}
-#' \title{Return the most often level in a categorical variable}
-#' \usage{sbi_modus(catvar)}
+#' \title{Return the most often Level in a Categorical variable}
 #' \description{Return the most often apparent level in the categorical variable.}
+#' \usage{sbi_modus(catvar)}
 #' \arguments{
 #'   \item{catvar}{a vector with elements of class factor or character.}
 #' }
@@ -2805,9 +2842,9 @@ sbi_modus = sbi$modus
 #' \name{sbi$pcor}
 #' \alias{sbi$pcor}
 #' \alias{sbi_pcor}
-#' \title{partial correlation}
-#' \usage{sbi_pcor(x,y,z, method="pearson")}
+#' \title{Partial Correlation}
 #' \description{Partial correlation between two variables after control for other variables.}
+#' \usage{sbi_pcor(x,y,z, method="pearson")}
 #' \arguments{
 #'   \item{x}{numeric vector, missing values are allowed}
 #'   \item{y}{numeric vector, missing values are allowed}
@@ -2844,9 +2881,9 @@ sbi_pcor = sbi$pcor
 #' \name{sbi$pcor.test}
 #' \alias{sbi$pcor.test}
 #' \alias{sbi_pcor.test}
-#' \title{partial correlation test}
-#' \usage{sbi_pcor.test(x,y,z,method="pearson")}
+#' \title{Partial Correlation test}
 #' \description{Partial correlation test between two variables after control for other variables.}
+#' \usage{sbi_pcor.test(x,y,z,method="pearson")}
 #' \arguments{
 #'   \item{x}{numeric vector, missing values are allowed}
 #'   \item{y}{numeric vector, missing values are allowed}
@@ -2920,9 +2957,9 @@ sbi_pcor.test = sbi$pcor.test
 #' \name{sbi$rad2deg}
 #' \alias{sbi$rad2deg}
 #' \alias{sbi_rad2deg}
-#' \title{Convert angle from radians to degrees}
-#' \usage{sbi_rad2deg(x)}
+#' \title{Convert Angle from Radians to Degrees}
 #' \description{Convert an angle from radians to degrees.}
+#' \usage{sbi_rad2deg(x)}
 #' \arguments{
 #'   \item{x}{Angle in radians}
 #' }
@@ -2946,12 +2983,12 @@ sbi_rad2deg = sbi$rad2deg
 #' \alias{sbi$packageDpendencies}
 #' \alias{sbi_packageDependencies}
 #' \title{display packages dependencies}
-#' \usage{sbi_packageDependencies(pkgName, mode='all', cran="https://ftp.belnet.be/mirror/CRAN/")}
 #' \description{
 #'   Please use only the packages you really need. 
 #'   If there is just a simple functionality try to code this yourself, for instance the [sbi$drop_na](#drop_na) functionality. So, before you install a package check what other 
 #'   packages you get. If you give your script to other users, they must install all these packages as well.
 #' }
+#' \usage{sbi_packageDependencies(pkgName, mode='all', cran="https://ftp.belnet.be/mirror/CRAN/")}
 #' \arguments{
 #'   \item{pkgName}{package name given as text string}
 #'   \item{mode}{which package names to return, the following modes are available:
@@ -2966,6 +3003,7 @@ sbi_rad2deg = sbi$rad2deg
 #' sbi$packageDependencies('igraph',mode='all')
 #' sbi$packageDependencies('tidyr',mode='nonbase')  # quite a lot!
 #' sbi$packageDependencies('devtools',mode='nonbase')  # even more !
+#' sbi$packageDependencies('sbi')  # myself ... should be zero!
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/packageDependencies.R
@@ -3002,7 +3040,7 @@ sbi_packageDependencies = sbi$packageDependencies
 #' \name{sbi$pca_biplot}
 #' \alias{sbi$pca_biplot}
 #' \alias{sbi_pca_biplot}
-#' \title{ Improved biplot for pca objects. }
+#' \title{Improved Biplot for PCA Objects}
 #' \description{
 #' The function `sbi$pca_biplot` provides an improved biplot for
 #' visualizing the pairwise scores of individual principal components of 
@@ -3037,12 +3075,12 @@ sbi_packageDependencies = sbi$packageDependencies
 #' legend('topright',pch=19,col=2:4,levels(iris$Species))
 #' # standard score plot
 #' sbi$pca_biplot(pci,col=rep(2:4,each=50),ellipse=FALSE,
-#'  arrow.fac=2.3,arrows=FALSE,main="scoreplot")
+#'  arrows=FALSE,main="scoreplot")
 #' }
 #' 
 #' FILE: sbi/R/pca_biplot.R
 
-sbi$pca_biplot = function (pca,pcs=c("PC1","PC2"),
+sbi$pca_biplot <- function (pca,pcs=c("PC1","PC2"),
                        pch=19,col='black',
                        arrows=TRUE,arrow.fac=1,
                        ellipse=FALSE,ell.fill=FALSE,xlab=NULL,ylab=NULL,...) {
@@ -3094,7 +3132,7 @@ sbi_pca_biplot = sbi$pca_biplot
 #' \name{sbi$pca_corplot}
 #' \alias{sbi_pca_corplot}
 #' \alias{sbi$pca_corplot}
-#' \title{PCA correlation plot}
+#' \title{PCA Correlation plot}
 #' \description{
 #'   The function provides a PCA correlation plot to show associations 
 #'   between PCs and variables. The closer a variable to the PC coordinate 
@@ -3141,7 +3179,7 @@ sbi_pca_biplot = sbi$pca_biplot
 #' \code{\link[sbi:sbi_pca_plot]{sbi_pca_plot}}
 #' }
 #' FILE: sbi/R/pca_corplot.R
-sbi$pca_corplot = function (pca,pcs=c("PC1","PC2"), main="Correlation plot",cex=NULL,nvar=64,...) {
+sbi$pca_corplot <- function (pca,pcs=c("PC1","PC2"), main="Correlation plot",cex=NULL,nvar=64,...) {
   if (is.logical(pca$scale)) {
     df=t(t(pca$x %*% t(pca$rotation)) + pca$center)
   } else {
@@ -3210,9 +3248,9 @@ sbi_pca_corplot = sbi$pca_corplot
 #' \name{sbi$pca_oncor}
 #' \alias{sbi$pca_oncor}
 #' \alias{sbi_pca_oncor}
-#' \title{Perform a PCA on a correlation matrix.}
+#' \title{Perform a PCA on a Correlation matrix}
 #' \description{
-#' The function `sbi$pca_oncor` does a PCA using eigenvector eigenvalue decomposition
+#'   The function `sbi$pca_oncor` does a PCA using eigenvector eigenvalue decomposition
 #'   on a correlation matrix. PCA usually performs Pearson correlation internally what
 #'   leads to a highly outlier sensitive analysis. If the user decides
 #'   to use a method like Spearman or even bi-seriell, polychoric or for nominal data
@@ -3248,7 +3286,7 @@ sbi_pca_oncor = sbi$pca_oncor
 #' \name{sbi$pca_pairs}
 #' \alias{sbi$pca_pairs}
 #' \alias{sbi_pca_pairs}
-#' \title{Improved pairs plot for pca objects.}
+#' \title{Improved Pairs plot for PCA objects}
 #' \description{
 #'   The function `sbi$pca_pairs` provides an improved pairs plot for
 #'   visualizing the pairwise scores of the individual components of an analyses 
@@ -3256,7 +3294,7 @@ sbi_pca_oncor = sbi$pca_oncor
 #'   this plot visualizes in the diagonal as well the variances and 
 #'   a density line for the component scores.
 #' }
-#' \usage{ sbi_pca_pairs(pca,n=10,groups=NULL, col='black',pch=19,legend=FALSE,...) }
+#' \usage{ sbi_pca_pairs(pca,n=10,groups=NULL, col='black', pch=19, legend=FALSE, ...) }
 #' \arguments{
 #' \item{pca}{pca object which was created using the function `prcomp`.}
 #' \item{n}{maximal number of components to visualize, default: 10}
@@ -3328,12 +3366,12 @@ sbi_pca_pairs = sbi$pca_pairs
 #' \name{sbi$pca_plot}
 #' \alias{sbi$pca_plot}
 #' \alias{sbi_pca_plot}
-#' \title{Improved bar or screeplot for pca objects.}
+#' \title{Improved Bar- or Screeplot for PCA Objects}
 #' \description{
-#' The function `sbi$pca_plot` provides an improved bar- or screeplot for
-#' visualizing the variances of the individual components of an analyses 
-#' using the function _prcomp_. In contrast to the default plot function 
-#' this plot visualize cumulative and individual variances in percent.
+#'   The function `sbi$pca_plot` provides an improved bar- or screeplot for
+#'   visualizing the variances of the individual components of an analyses 
+#'   using the function _prcomp_. In contrast to the default plot function 
+#'   this plot visualize cumulative and individual variances in percent.
 #' }
 #' \usage{ sbi_pca_plot(pca,n=10,type="bar", cex=1.5, 
 #'                      legend=TRUE,xlab="Components",ylab="Variance (\%)",
@@ -3405,7 +3443,7 @@ sbi_pca_plot = sbi$pca_plot
 #' \name{sbi$pca_to_data}
 #' \alias{sbi$pca_to_data}
 #' \alias{sbi_pca_to_data}
-#' \title{Transform prcomp PCA objects  back to data}
+#' \title{Transform prcomp PCA Objects  back to Data}
 #' \description{
 #'   The method allows you transform PCA data back to original data. 
 #'   This can be as well used to eliminate some components and then create
@@ -3452,7 +3490,7 @@ sbi_pca_to_data = sbi$pca_to_data
 #' \name{sbi_pca_variances}
 #' \alias{sbi$pca_variances}
 #' \alias{sbi_pca_variances}
-#' \title{Absolute variance contributions of variables to PC's}
+#' \title{Absolute Variance contributions of Variables to PC's}
 #' \description{
 #'   The function returns the absolute variance contributions for each variable to each component.
 #'   Every squared loading value for each component and variable  is multiplied
@@ -3480,22 +3518,22 @@ sbi_pca_to_data = sbi$pca_to_data
 #' \code{\link[sbi:sbi_pca_varplot]{sbi$pca_varplot}}
 #' }
 #' FILE: sbi/R/pca_variances.R
-sbi_pca_variances = function (pca) {
+sbi$pca_variances = function (pca) {
   imp=summary(pca)$importance[2,]
   var= summary(pca)$rotation[,]^2
   for (i in 1:ncol(var)) { var[,i]=var[,i]*imp[i] }
   return(var)
 }
 
-sbi$pca_variances = sbi$pca_variances
+sbi_pca_variances = sbi$pca_variances
 
 #' FILE: sbi/man/sbi_pca_varplot.Rd
 #' \name{sbi_pca_varplot}
 #' \alias{sbi$pca_varplot}
 #' \alias{sbi_pca_varplot}
-#' \title{PCA variance plot}
+#' \title{PCA Variance plot}
 #' \description{
-#'     The function provides a PCA matrix plot to show associations 
+#'   The function provides a PCA matrix plot to show associations 
 #'   between PCs and variables. Shown are the squared values, but retaining the 
 #'   original sign of the the variances. So the abolute sum of all values should be one.
 #' }
@@ -3586,8 +3624,8 @@ sbi_pca_varplot = sbi$pca_varplot
 #' \alias{sbi$pastel}
 #' \alias{sbi_pastel}
 #' \title{Create up to 20 pastel colors}
-#' \usage{sbi_pastel(n)}
 #' \description{Create a vector of pastel colors.}
+#' \usage{sbi_pastel(n)}
 #' \arguments{
 #'   \item{n}{Number of colors requested, must be between 1 and 20.}
 #' }
@@ -3623,9 +3661,9 @@ sbi_pastel = sbi$pastel
 #' \name{sbi$report_pval}
 #' \alias{sbi$report_pval}
 #' \alias{sbi_report_pval}
-#' \title{Report p-value with significance stars}
-#' \usage{sbi_report_pval(p, star=TRUE)}
+#' \title{Report P-value with Significance stars}
 #' \description{Convert p-value into a string with significance stars.}
+#' \usage{sbi_report_pval(p, star=TRUE)}
 #' \arguments{
 #'   \item{p}{numeric; p-value.}
 #'   \item{star}{logical; should stars be shown for significance levels, default: TRUE.}
@@ -3664,10 +3702,12 @@ sbi_report_pval = sbi$report_pval
 #' \alias{sbi$sdata}
 #' \alias{sbi_sdata}
 #' \title{Retrieve small data sets}
-#' \usage{sbi_sdata(name)}
 #' \description{Retrieve small data sets for analysis.}
+#' \usage{sbi_sdata(name)}
 #' \arguments{
-#'   \item{name}{The name of the data set. Currently supported: 'c20' (relation between unsaturated fatty acids and insulin sensitivity) and 'azt' (treatment data for HIV patients).}
+#'   \item{name}{The name of the data set. Currently supported: 'c20' (relation between
+#'     unsaturated fatty acids and insulin sensitivity) and 'azt' (treatment data for HIV patients).
+#'   }
 #' }
 #' \details{
 #' The following data sets are supported:
@@ -3723,12 +3763,13 @@ sbi_sdata = sbi$sdata
 #' \name{sbi$sem}
 #' \alias{sbi$sem}
 #' \alias{sbi_sem}
-#' \title{calculate the standard error of the mean for a given numerical vector}
-#' \usage{sbi_sem(x, na.rm=FALSE)}
+#' \title{Calculate the Standard Error of the Mean for a numerical Vector}
 #' \description{
-#'   The function calculates the standard error of the mean which shows how close we are to the population mean.
-#'   The formula of the SEM is: sd/sqrt(n).
+#'   The function calculates the standard error of the mean which shows how close
+#'    we are to the population mean.
+#'    The formula of the SEM is: sd/sqrt(n).
 #' }
+#' \usage{sbi_sem(x, na.rm=FALSE)}
 #' \arguments{
 #'   \item{x}{numeric vector}
 #'   \item{na.rm}{remove missing values, default: FALSE}
@@ -3750,12 +3791,12 @@ sbi_sem = sbi$sem
 
 #' FILE: sbi/man/sbi_shape.Rd
 #' \name{sbi$shape}
-#' \title{create polygon shapes centered at given x and y coordinates}
+#' \title{Create Polygon shapes centered at given x and y Coordinates}
 #' \alias{sbi$shape}
 #' \alias{sbi_shape}
+#' \description{Function which returns random polygon shapes.}
 #' \usage{sbi_shape(x=0,y=0,width=1,height=1,type="circle", 
 #'                  seed=17, dir="left", arrow=FALSE, ...)}
-#' \description{Function which returns random polygon shapes}
 #' \arguments{
 #'   \item{x}{horizontal center of shape, default: 0}
 #'   \item{y}{vertical center of shape, default: 0}
@@ -3876,7 +3917,7 @@ sbi$shape <- function (x=0,y=0,width=1,height=1,type="circle",
     #
     #   Returns an array of points. 
     # 
-    spline.poly <- function(xy, vertices=100, k=3, ...) {
+    spline.poly = function(xy, vertices=100, k=3, ...) {
         # Assert: xy is an n by 2 matrix with n >= k.
         
         # Wrap k vertices around each end.
@@ -3950,12 +3991,13 @@ sbi_shape = sbi$shape
 #' \alias{sbi$skewness}
 #' \alias{sbi_skewness}
 #' \title{third central moment of a distribution}
-#' \usage{sbi_skewness(x, na.rm=FALSE)}
-#' \description{Calculate the third central moment of a distribution. Values higher than zero
+#' \description{
+#'   Calculate the third central moment of a distribution. Values higher than zero
 #'   indicate right-tailed distributions, values of lower than zero mean 
 #'   left-tailed distributions. Values around zero mean normal value
 #'   like distribution. 
 #' }
+#' \usage{sbi_skewness(x, na.rm=FALSE)}
 #' \arguments{
 #'   \item{x}{vector with positive numerical values}
 #'   \item{na.rm}{should NA's be removed, default: FALSE}
@@ -3989,11 +4031,11 @@ sbi_skewness <- sbi$skewness
 #' \alias{sbi$shell}
 #' \alias{sbi_shell}
 #' \title{executes a given shell script in text format (Unix only)}
-#' \usage{sbi_shell(script,filename="shell-script.sh")}
 #' \description{
 #'   This function can be used to execute shell script text and embed the output in the
 #'   current document.
 #' }
+#' \usage{sbi_shell(script,filename="shell-script.sh")}
 #' \arguments{
 #'   \item{script}{text of a shell script}
 #'   \item{filename}{the script filename, default: "shell-script.sh"}
@@ -4041,9 +4083,9 @@ sbi_shell <- sbi$shell
 #' \name{sbi$smartbind}
 #' \alias{sbi$smartbind}
 #' \alias{sbi_smartbind}
-#' \title{Bind two data frames by matching column names}
-#' \usage{sbi_smartbind(x, y)}
+#' \title{Bind two Data frames by matching Column names}
 #' \description{Bind two data frames by matching column names, filling in missing columns with NAs.}
+#' \usage{sbi_smartbind(x, y)}
 #' \arguments{
 #'   \item{x}{A data frame or matrix.}
 #'   \item{y}{A data frame or matrix.}
@@ -4080,9 +4122,9 @@ sbi_smartbind <- sbi$smartbind
 #' \name{sbi$textplot}
 #' \alias{sbi$textplot}
 #' \alias{sbi_textplot}
-#' \title{Display a data frame or matrix in a plot}
-#' \usage{sbi_textplot(x, cex=1, caption=NULL, ...)}
+#' \title{Display a Data frame or a Matrix in a Plot}
 #' \description{Write the data for a data frame or matrix into a plot.}
+#' \usage{sbi_textplot(x, cex=1, caption=NULL, ...)}
 #' \arguments{
 #'   \item{x}{A data frame or matrix.}
 #'   \item{cex}{Character expansion factor for text size, default: \code{1}.}
@@ -4129,14 +4171,14 @@ sbi_textplot <- sbi$textplot
 #' \name{sbi$untab}
 #' \alias{sbi$untab}
 #' \alias{sbi_untab}
-#' \title{convert a contingency table to a data frame one item per row}
-#' \usage{sbi_untab(x)}
+#' \title{Convert a Contingency table to a Data frame one Item per Row}
 #' \description{
 #'   This function takes a contingency table and expands it two a data frame
 #'   where every level combination is created according to the number of entries in the
 #'   contingency table. You can reverse the process using the table command. The procedure is useful for
 #'   instance for performing sample bootstrapping.
 #' }
+#' \usage{sbi_untab(x)}
 #' \arguments{
 #'   \item{x}{a contingency table or a matrix}
 #' }
@@ -4186,14 +4228,14 @@ sbi_untab <- sbi$untab
 #' \name{sbi$venn}
 #' \alias{sbi$venn}
 #' \alias{sbi_venn}
-#' \title{plot Venn diagram for logical relations between two or three sets}
-#' \usage{sbi_venn(x,y=NULL,z=NULL,vars=NULL,col=c("#cc888899","#8888cc99","#88cc8899"),cex=1.6,...)}
+#' \title{Plot Venn diagram for logical Relations between two or three Sets}
 #' \description{
 #'   This function takes a contingency table and expands it two a data frame
 #'   where every level combination is created according to the number of entries in the
 #'   contingency table. You can reverse the process using the table command. The procedure is useful for
 #'   instance for performing sample bootstrapping.
 #' }
+#' \usage{sbi_venn(x,y=NULL,z=NULL,vars=NULL,col=c("#cc888899","#8888cc99","#88cc8899"),cex=1.6,...)}
 #' \arguments{
 #'   \item{x}{data frame or matrix or vector, in the latter case y and for 3 sets as well z must be given}
 #'   \item{y}{vector if x is vector, default: NULL}
@@ -4219,7 +4261,7 @@ sbi_untab <- sbi$untab
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/venn.R
 
-sbi$venn = function (x,y=NULL,z=NULL,vars=NULL,col=c("#cc888899","#8888cc99","#88cc8899"),cex=1.6,...) {
+sbi$venn <- function (x,y=NULL,z=NULL,vars=NULL,col=c("#cc888899","#8888cc99","#88cc8899"),cex=1.6,...) {
     circle = function(x,y, radius=1,length=100) {
         theta = seq(0, 2 * pi, length = 100) 
         return(list(x=radius*cos(theta)+x,
@@ -4345,13 +4387,12 @@ sbi_venn <- sbi$venn
 #' \name{sbi$wilcoxR}
 #' \alias{sbi$wilcoxR}
 #' \alias{sbi_wilcoxR}
-#' \title{calculate the effect size for a wilcox test (Rosenthal 1991)}
-#' \usage{sbi_wilcoxR(x,y=NULL,n=NULL)}
+#' \title{Calculate the Effect size for a Wilcox test (Rosenthal 1991)}
 #' \description{
 #'   Calculate the effect size for a wilcox test due to Rosenthal (1991).
 #'   Cohen's rule of thumb for interpretation is: approx 0.1 small, 0.3 medium and 0.5 and above is a large effect. 
-#' 
 #' }
+#' \usage{sbi_wilcoxR(x,y=NULL,n=NULL)}
 #' \arguments{
 #'   \item{x}{either a wilcox test object or a vector with numerical values}
 #'   \item{y}{if x is numerical vector either a vector with numerical values or a vector with cvategorical data having the same length as x}
@@ -4398,11 +4439,11 @@ sbi_wilcoxR <- sbi$wilcoxR
 #' \alias{sbi$ni}
 #' \alias{sbi_ni}
 #' \alias{\%ni\%}
-#' \title{not-in operator}
-#' \usage{lhs \%ni\% rhs}
+#' \title{NOT-IN Operator}
 #' \description{
 #'   The `\%ni\%` operator is the inverse of the `\%in\%` operator.
 #' }
+#' \usage{lhs \%ni\% rhs}
 #' \arguments{
 #'   \item{lhs}{input vector to be matched}
 #'   \item{rhs}{vector with matching values}
@@ -4430,8 +4471,7 @@ sbi_wilcoxR <- sbi$wilcoxR
 #' \alias{sbi$pipe}
 #' \alias{sbi_pipe}
 #' \alias{\%>\%}
-#' \title{forward pipe operator (Nathan Eastwood and Antoine Fabri 2020)}
-#' \usage{lhs \%>\% rhs}
+#' \title{Forward Pipe Operator}
 #' \description{
 #'   Pipe a data structure using a R expression.
 #'   Unlike the `magrittr` pipe, you must supply an actual function 
@@ -4442,6 +4482,7 @@ sbi_wilcoxR <- sbi$wilcoxR
 #'   \url{https://github.com/nathaneastwood/poorman} and taken from this package
 #'   for illustrative purposes.
 #' }
+#' \usage{lhs \%>\% rhs}
 #' \arguments{
 #'   \item{lhs}{the input data, usually vector, matrix or data frame}
 #'   \item{rhs}{the expression, condition used to filter the data}
@@ -4593,7 +4634,11 @@ ExtractEx <- function (srcfile) {
     dr = FALSE
     lastindent = 0;
     usage=FALSE
+    descr=FALSE
     while(length((line = readLines(fin,n=1)))>0) {
+        if (descr) {
+            line=gsub("\\\\code\\{(.+)\\}","`\\1`",line)
+        }
         if (grepl("^#' Package:",line)) {
             pkg = gsub("#' Package: +","",line)
             rmdfile=paste(pkg,"-examples.Rmd",sep="")
@@ -4604,7 +4649,7 @@ ExtractEx <- function (srcfile) {
              cat(paste("### ",gsub(".+\\{(.+)\\}","\\1",line),"\n"),file=fout)
              name=gsub("[^A-Za-z0-9]","_",gsub(".+\\{(.+)\\}.*","\\1",line))
         } else if (grepl("^#' \\\\title",line)) {
-            cat(paste("\n\n",gsub(".+\\{(.+)\\}","\\1",line),"\n",sep=""),file=fout)
+            cat(paste("\n\n",gsub(".+\\{(.+)\\}","\\1",line),".\n",sep=""),file=fout)
             ex = FALSE
         } else if (grepl("^#' \\\\usage",line)) {
             if (grepl("^#' \\\\usage\\{.+\\}",line)) {
@@ -4616,10 +4661,25 @@ ExtractEx <- function (srcfile) {
                cat(paste("\n\n__Usage:__\n\n```{r eval=FALSE}\n",sep=""),file=fout)
                usage=TRUE    
             }
-        } else if (usage & grepl("^#' .*\\}",line)) {
-            cat("```\n",file=fout)                     
-            usage = FALSE
-        } else if (usage) {
+        } else if (grepl("^#' \\\\description",line)) {
+            if (grepl("^#' \\\\description\\{.+\\}",line)) {
+               line=gsub("\\\\code\\{(.+)\\}","`\\1`",line)                                   
+               cat(paste("\n\n",gsub(".+\\{(.+)\\}","\\1",line),"\n",sep=""),file=fout)
+            } else if (grepl("^#' \\\\description\\{.+",line)) {
+               cat(paste("\n\n",gsub(".+\\{(.+)","\\1",line),"\n",sep=""),file=fout)
+               descr=TRUE    
+            } else if (grepl("^#' \\\\description\\{",line)) {
+               cat(paste("\n\n",sep=""),file=fout)
+               descr=TRUE    
+            }
+        } else if ( (usage | descr)  & grepl("^#' .*\\}",line)) {
+            if (usage) {                                 
+                cat("```\n",file=fout)                     
+                usage = FALSE
+            } else {
+                descr = FALSE
+            }
+        } else if (usage | descr) {
             cat(gsub("#' ","",line),"\n",file=fout)
         } else if (grepl("^#' \\\\examples",line)) {
             opt=""             
