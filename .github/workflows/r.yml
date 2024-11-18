@@ -33,5 +33,5 @@ jobs:
       - name: Upload Package Release files
         uses: actions/upload-artifact@v4
         with: 
-          name: sbi_${{ env.VRS }}
-          path: sbi_${{ env.VRS }}
+          name: sbi_${{ env.VRS }}.tar.gz
+          path: sbi_${{ env.VRS }}.tar.gz
