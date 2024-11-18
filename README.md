@@ -25,22 +25,33 @@ every Winter semester.
 
 ## Installation
 
-The  package  comes as a single  file R script. You can  install  the  package
-either as the latest relases like this from a Unix Terminal:
+The  package  comes as a single  file R script.  You can  either  just  source
+the latest version of that script directly from Github like this:
+
 
 ```
-wget https://github.com/mittelmark/sbi/releases/download/v0.0.1/sbi_0.0.1.tar.gz
-R CMD INSTALL sbi_0.0.1.tar.gz
+$ R    # starting R
+> source("https://raw.githubusercontent.com/mittelmark/sbi/refs/heads/main/sbi-src.R")
+> ls(sbi)
+```
+
+Or you can  install  it as a normal R package using the latest relases like this from a Unix Terminal:
+
+```
+wget https://github.com/mittelmark/sbi/releases/download/v0.0.3/sbi_0.0.3.tar.gz
+R CMD INSTALL sbi_0.0.3.tar.gz
 ```
 
 Or from within a R console
 
 ```
 $ R
-> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.0.1/sbi_0.0.1.tar.gz",repos=NULL)
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.0.3/sbi_0.0.3.tar.gz",repos=NULL)
+> library(sbi)
+> ls(sbi)
 ```
 
-Or you can install the latest development version dirctly from Github like this:
+Or you can install the latest development version directly from Github like this:
 
 - fetch the package code from github
 - extract  all  individual  files from the master  file  _sbi-src.R_  into the

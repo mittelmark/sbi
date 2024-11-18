@@ -26,10 +26,12 @@ jobs:
       - name: Process and Create Package Structure
         run: |
             sudo apt install r-cran-knitr
+            export VRS=`grep Version: DESCRIPTION | grep -oE '[.0-9]+'`
+            echo "VRS=$VRS" >> $GITHUB_ENV
             make build pkg=sbi
 
       - name: Upload Package Release files
         uses: actions/upload-artifact@v4
         with: 
-          name: sbi_0.0.2
-          path: sbi_0.0.2.tar.gz
+          name: sbi_${{ env.VRS }}
+          path: sbi_${{ env.VRS }}
