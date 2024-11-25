@@ -3,7 +3,7 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.0.3
+#' Version: 0.0.4
 #' Date: 2024-10-12
 #' Author: Detlef Groth
 #' Authors@R:c(
@@ -34,6 +34,7 @@
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
 #'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
 #'     kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
+#'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
 #'     rad2deg.R report_pval.R shell.R sdata.R sem.R shape.R skewness.R smartbind.R
@@ -44,6 +45,8 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2024-11-07: Version 0.0.4 - adding function for pairwise effect sizes
+#'
 #' 2024-10-07: Version 0.0.3 - many new functions sbi.R from beeproject
 #'
 #' 2024-09-12: Version 0.0.2 - 4 new functions
@@ -161,6 +164,7 @@
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{Return the most often level in a categorical variable.}
 #' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{create up to 20 pastel colors}
 #' \item{\link[sbi:sbi_packageDependencies]{sbi$packageDependencies(pkgname)}}{return the dependencies of the given package}
+#' \item{\link[sbi:sbi_pairwise.effect_size]{sbi$pairwise.effect_size(x,y=NULL)}}{pairwise effect size measures for more than two factors}
 #' \item{\link[sbi:sbi_pca_biplot]{sbi$pca_biplot(x)}}{improved biplot for pca objects (plot)}
 #' \item{\link[sbi:sbi_pca_corplot]{sbi$pca_corplot(x)}}{correlation plot for original variables and PCs}
 #' \item{\link[sbi:sbi_pca_oncor]{sbi$pca_oncor(x)}}{perform a PCA on a squared (correlation) matrix (stats)}
@@ -255,9 +259,10 @@
 #' \item \code{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}} lattice like histogram
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
 #' \item \code{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}} convert mkdoc documentation to HTML
-#' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} Return the most often level in a categorical variable.
-#' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} Create up to 20 pastel colors.
+#' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} return the most often level in a categorical variable
+#' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} create up to 20 pastel colors
 #' \item \code{\link[sbi:sbi_packageDependencies]{sbi$packageDependencies(pkgname)}} return the dependencies of the given package
+#' \item \code{\link[sbi:sbi_pairwise.effect_size]{sbi$pairwise.effect_size(x,y=NULL)}} pairwise effect size measures for more than two factors
 #' \item \code{\link[sbi:sbi_pca_biplot]{sbi$pca_biplot(x)}} improved biplot for pca objects (plot)
 #' \item \code{\link[sbi:sbi_pca_corplot]{sbi$pca_corplot(x)}} correlation plot for original variables and PCs (plot)
 #' \item \code{\link[sbi:sbi_pca_oncor]{sbi$pca_oncor(x)}} perform a PCA on a squared (correlation) matrix (stats)
@@ -3035,6 +3040,87 @@ sbi$packageDependencies <- function(pkgName, mode='all', cran="https://ftp.belne
 
 }
 sbi_packageDependencies = sbi$packageDependencies
+
+#' FILE: sbi/man/pairwise.effect_size.Rd
+#' \name{sbi$pairwise.effect_size}
+#' \alias{sbi$pairwise.effect_size}
+#' \alias{sbi_pairwise.effect_size}
+#' \title{Pairwise effect size for larger contingency tables or for numeric vs more than two factor problems }
+#' \description{
+#'   The function `sbi$pairwise.effect_size` calculates the effect size for contingency tables larger. 
+#'   than 2x2 returning all pairwise effect size measures btween the factor levels.
+#'   The default is to use Cohen's w for contingency tables and
+#'   Cohen's d for number vs factor problems with more than two factor levels.
+#' }
+#' \usage{sbi_pairwise.effect_size(x, y=NULL,FUN=NULL,...)}
+#' \arguments{
+#'   \item{x}{wither a contingency table or a numberical vector. 
+#'     In the latter case y must be given.
+#'   }
+#'   \item{y}{in case that x is numerich, the factor variable, default: NULL}
+#'   \item{FUN}{the method to be used for effect size calculation, if not given the following defaults are
+#'     chosen, in case of a contingency table, Cohen's W is returned,
+#'     in case of a numeric vs factor problem, the default is Cohen's d, d
+#'   }
+#'   \item{...}{Arguments delegated to the effect size function}
+#' }
+#' \value{Effect size measure}
+#' \examples{ %options: fig.width=6,fig.height=4
+#' # data from New Eng. J. Med. 329:297-303, 1993
+#' azt=as.table(matrix(c(76,399,129,332,44,29), byrow=TRUE,ncol=2))
+#' rownames(azt)=c("AZT","Placebo","Dummy")
+#' colnames(azt)=c("DiseaseProgress", "NoDiseaseProgress")
+#' azt
+#' sbi$cohensW(t(azt[1:2,]))
+#' sbi$pairwise.effect_size(t(azt))
+#' sbi$pairwise.effect_size(t(azt),FUN=sbi$cohensH)
+#' x=rnorm(100)
+#' y=as.factor(rep(LETTERS[1:4],each=25))
+#' x[1:25]=x[1:25]+1.5
+#' x[26:50]=x[26:50]+0.5
+#' x[50:75]=x[50:75]+0.25
+#' boxplot(x~y,col="grey70")
+#' sbi$cohensD(x[1:50],y=as.factor(as.character(y[1:50])))
+#' sbi$pairwise.effect_size(x,y)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensW]{sbi$cohensW}}
+#' FILE: sbi/R/pairwise.effect_size.R
+
+
+sbi$pairwise.effect_size <- function (x, y=NULL,FUN=NULL,...) {
+    if (is.table(x)) {
+        if (is.null(FUN)) {
+            FUN=sbi$cohensW
+        } 
+        tab=x
+        res=matrix(0,nrow=ncol(tab),ncol=ncol(tab))
+        rownames(res)=colnames(res)=colnames(tab)
+        for (i in 1:(ncol(tab)-1)) {
+            for (j in i:ncol(tab)) {
+                res[i,j]=res[j,i]=FUN(tab[,c(i,j)])
+            }
+        }
+        return(res)
+    } else if (is.numeric(x) & is.factor(y)) {
+        if (is.null(FUN)) {
+            FUN=sbi$cohensD
+        } 
+        res=matrix(0,nrow=length(levels(y)),ncol=length(levels(y)))
+        nms=rownames(res)=colnames(res)=levels(y)
+        for (i in 1:(ncol(res)-1)) {
+            for (j in (i+1):ncol(res)) {
+                dx=x[y %in% nms[c(i,j)]]
+                dy=as.factor(as.character(y[y %in% nms[c(i,j)]]))
+                res[i,j]=res[j,i]=FUN(dx,dy,...)
+            }
+        }
+        return(res)
+    } else {
+        stop("Error: Either x is a contingency table or x is numeric and y is factor!")
+    }
+}
+
+sbi_pairwise.effect_size = sbi$pairwise.effect_size
 
 #' FILE: sbi/man/sbi_pca_biplot.Rd
 #' \name{sbi$pca_biplot}
