@@ -38,15 +38,15 @@ $ R    # starting R
 Or you can  install  it as a normal R package using the latest relases like this from a Unix Terminal:
 
 ```
-wget https://github.com/mittelmark/sbi/releases/download/v0.0.3/sbi_0.0.3.tar.gz
-R CMD INSTALL sbi_0.0.3.tar.gz
+wget https://github.com/mittelmark/sbi/releases/download/v0.0.4/sbi_0.0.4ar.gz
+R CMD INSTALL sbi_0.0.4.tar.gz
 ```
 
 Or from within a R console
 
 ```
 $ R
-> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.0.3/sbi_0.0.3.tar.gz",repos=NULL)
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.0.4/sbi_0.0.4.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
 ```
@@ -67,8 +67,8 @@ wget -O sbi-src.R https://github.com/mittelmark/sbi/raw/main/sbi-src.R
 Rscript sbi-src.R --process    sbi-src.R         # extract all files
 Rscript sbi-src.R --vignettex  sbi-src.R         # extract examples as vignette
 Rscript sbi-src.R --build      sbi               # build package tar-gz file
-Rscript sbi-src.R --check      sbi_0.0.1.tar.gz  # check package tar-gz file
-Rscript sbi-src.R --install    sbi_0.0.1.tar.gz  # install from local tar-gz file
+Rscript sbi-src.R --check      sbi_0.0.4.tar.gz  # check package tar-gz file
+Rscript sbi-src.R --install    sbi_0.0.4.tar.gz  # install from local tar-gz file
 ```
 
 
