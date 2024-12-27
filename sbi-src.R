@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.0.4
-#' Date: 2024-10-12
+#' Version: 0.0.5
+#' Date: 2024-12-27
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -32,8 +32,8 @@
 #'     cache_image.R chr2ord.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R 
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
-#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R kroki.R
-#'     kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
+#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R itemchart.R 
+#'     kroki.R kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
@@ -45,6 +45,7 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2024-12-27: Version 0.0.5 - adding itemchart function
 #' 2024-11-07: Version 0.0.4 - adding function for pairwise effect sizes
 #'
 #' 2024-10-07: Version 0.0.3 - many new functions sbi.R from beeproject
@@ -155,6 +156,7 @@
 #' \item{\link[sbi:sbi_input]{sbi$input(prompt)}}{get input from the user, as well in Rscript files}
 #' \item{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}}{Check if the given object is a dictionary (list with unique keys)}
 #' \item{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}}{check if a given value within a vector is an outlier}
+#' \item{\link[sbi:sbi_itemchart]{sbi$itemchart(labels)}}{visualization of short item lists with 3 to four items}
 #' \item{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}}{create flowcharts using the kroki online tool}
 #' \item{\link[sbi:sbi_kurtosis]{sbi$kurtosis(x)}}{fourth central moment of a distribution}
 #' \item{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}}{XY-plot with linear model and the confidence intervals}
@@ -254,6 +256,7 @@
 #' \item \code{\link[sbi:sbi_input]{sbi$input(prompt)}} get input from the user, as well in Rscript files
 #' \item \code{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}} check if an object is a dictionary (list with unique keys)
 #' \item \code{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}} check if a given value within a vector is an outlier
+#' \item \code{\link[sbi:sbi_itemchart]{sbi$itemchart(labels)}} visualization of short item lists with 3 to four items
 #' \item \code{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}} create flowcharts using the kroki online tool
 #' \item \code{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}} XY-plot with linear model and the confidence intervals.
 #' \item \code{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}} lattice like histogram
@@ -2310,6 +2313,65 @@ sbi$is.outlier = function (x) {
 }
 
 sbi_is.outlier = sbi$is.outlier
+
+#' FILE: sbi/man/sbi_itemchart.Rd
+#' \name{sbi$itemchart}
+#' \alias{sbi$itemchart}
+#' \alias{sbi_itemchart}
+#' \title{graphical chart for a short item list with three or four items}
+#' \description{
+#' This graphs allows the visual display of a short item list which are somehow opposing or complementary
+#' to each other.
+#' }
+#' \usage{sbi_itemchart(labels,cex=1.2,col=c("#bbddff","#ffcccc","#ccffcc","#ffffbb"),...)}
+#' \arguments{
+#'   \item{labels}{list of three or four labels, longer strings should be splitted by using newline chars.}
+#'   \item{cex}{character expansion for the text, default: 1.2}
+#'   \item{col}{color vector for the items, default: c("#bbddff","#ffcccc","#ccffcc","#ffffbb")}
+#'   \item{\ldots}{other arguments delegated to the plot function}
+#' }
+#' \details{
+#'  This function is used to illustrate important points which are opposig each other on the 
+#'  three sided f a triangle or on the four sides of a 45 degree rotated rectangle.
+#' }
+#' \examples{
+#' opar=par(mai=c(0.2,0.2,0.2,0.2))
+#' sbi$itemchart(c("Randomness\np-value","Uncertainty\nConfidence\nInterval",
+#'    "Importance\nEffect Size","Dummy\nTest"))
+#' sbi$itemchart(c("Surveys and\nQuestionaires","Experiments",
+#'   "Observational\nStudies","Existing\nData Analysis"))
+#' par(opar)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/itemchart.R
+
+
+sbi$itemchart <- function (labels,cex=1.2,col=c("#bbddff","#ffcccc","#ccffcc","#ffffbb"),...) {
+    if (length(labels) == 3) {
+        plot(1,type="n",xlim=c(0,0.6),ylim=c(-0.05,0.7),xlab="",ylab="",axes=FALSE,...)
+        polygon(x=c(0.1,0.2,0.3,0.3,0.1),y=c(0.1,0.2,0.5,0.7,0.1),col=col[1])
+        polygon(x=c(0.5,0.4,0.3,0.3,0.5),y=c(0.1,0.2,0.5,0.7,0.1),col=col[2])
+        polygon(x=c(0.1,0.2,0.4,0.5,0.1),y=c(0.1,0.2,0.2,0.1,0.1),col=col[3])
+        text(0.1,0.5,labels[1],cex=cex,font=2)
+        text(0.5,0.5,labels[2],cex=cex,font=2)    
+        text(0.3,0.025,labels[3],cex=cex,font=2)        
+    } else if (length(labels) == 4) {
+        plot(1,type="n",xlim=c(0.1,0.9),ylim=c(0.1,0.9),xlab="",ylab="",axes=FALSE) 
+        polygon(x=c(0.2,0.3,0.5,0.5,0.2),y=c(0.5,0.5,0.8,0.9,0.5),col=col[1])
+        text(0.2,0.75,labels[1],cex=cex,font=2)  
+        polygon(x=c(0.8,0.7,0.5,0.5,0.8),y=c(0.5,0.5,0.8,0.9,0.5),col=col[2])
+        text(0.8,0.75,labels[2],cex=cex,font=2)  
+        polygon(x=c(0.8,0.7,0.5,0.5,0.8),y=c(0.5,0.5,0.2,0.1,0.5),col=col[3])
+        text(0.8,0.25,labels[3],cex=cex,font=2)  
+        polygon(x=c(0.2,0.3,0.5,0.5,0.2),y=c(0.5,0.5,0.2,0.1,0.5),col=col[4])
+        text(0.2,0.25,labels[4],cex=cex,font=2)  
+        
+    } else {
+        stop("Error: Currently only three our four labels are supported")
+    }   
+}
+
+sbi_itemchart = sbi$itemchart
 
 #' FILE: sbi/man/sbi_kroki.Rd
 #' \name{sbi$kroki}
