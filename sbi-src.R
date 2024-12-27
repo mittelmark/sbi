@@ -2334,10 +2334,10 @@ sbi_is.outlier = sbi$is.outlier
 #'  This function is used to illustrate important points which are opposig each other on the 
 #'  three sided f a triangle or on the four sides of a 45 degree rotated rectangle.
 #' }
-#' \examples{
-#' opar=par(mai=c(0.2,0.2,0.2,0.2))
+#' \examples{ %options: fig.width=10,fig.height=5
+#' opar=par(mai=c(0.2,0.2,0.2,0.2),mfrow=c(1,2))
 #' sbi$itemchart(c("Randomness\np-value","Uncertainty\nConfidence\nInterval",
-#'    "Importance\nEffect Size","Dummy\nTest"))
+#'    "Importance\nEffect Size"))
 #' sbi$itemchart(c("Surveys and\nQuestionaires","Experiments",
 #'   "Observational\nStudies","Existing\nData Analysis"))
 #' par(opar)
