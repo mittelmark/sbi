@@ -75,7 +75,7 @@ Rscript sbi-src.R --install    sbi_0.0.5.tar.gz  # install from local tar-gz fil
 ## Background
 
 The   single   file  R   package   approach   is   described   in  the
-[rzfp project](https://github.com/mittelmark/rzfp).
+[rsfp project](https://github.com/mittelmark/rsfp).
 
 ## Authors
 
