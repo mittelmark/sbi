@@ -38,20 +38,20 @@ $ R    # starting R
 > ls(sbi)
 ```
 
-Or you can  install  it as a normal R package using the latest relases like this from a Unix Terminal:
-
-```
-wget https://github.com/mittelmark/sbi/releases/download/v0.0.6/sbi_0.0.6.tar.gz
-R CMD INSTALL sbi_0.0.6.tar.gz
-```
-
-Or from within a R console
+Or you install the latest release as a normal package:
 
 ```
 $ R
 > install.packages("https://github.com/mittelmark/sbi/releases/download/v0.0.6/sbi_0.0.6.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
+```
+
+Or you install the latest release from a Unix Terminal like this:
+
+```
+wget https://github.com/mittelmark/sbi/releases/download/v0.0.6/sbi_0.0.6.tar.gz
+R CMD INSTALL sbi_0.0.6.tar.gz
 ```
 
 Installation  as a package has the advantage  that you have the  documentation
