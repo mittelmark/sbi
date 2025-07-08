@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.0.5
-#' Date: 2024-12-27
+#' Version: 0.0.6
+#' Date: 2025-07-07
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -21,7 +21,7 @@
 #'    useful functions helpful for in general statistical analysis.
 #' URL:  https://github.com/mittelmark/sbi
 #' BugReports: https://github.com/mittelmark/sbi/issues
-#' Imports: cluster
+#' Imports: cluster, rpart
 #' Suggests: knitr, rmarkdown, extrafont, MASS, digest, tcltk, png, tools
 #' VignetteBuilder: knitr
 #' License: MIT + file LICENSE
@@ -31,9 +31,10 @@
 #' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
 #'     cache_image.R chr2ord.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R 
-#'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilonSquared.R etaSquared.R 
-#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R import.R input.R is.dict.R is.outlier.R itemchart.R 
-#'     kroki.R kurtosis.R lmplot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
+#'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
+#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R 
+#'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R 
+#'     kroki.R kurtosis.R lmplot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
@@ -41,10 +42,15 @@
 #'     textplot.R untab.R venn.R wilcoxR.R
 #'     ni.R pipe.R
 #' FILE: sbi/LICENSE
-#' YEAR: 2024
+#' YEAR: 2025
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-07-07: Version 0.0.6 
+#'    - adding mds_plot function
+#'    - improving pca_biplot with automatic 5 percent margin
+#'    - renaming etaSquared and epsilonSquared to eta_squared and epsilon_squared
+#'    - adding method impute and intro_NA
 #' 2024-12-27: Version 0.0.5 - adding itemchart function
 #' 2024-11-07: Version 0.0.4 - adding function for pairwise effect sizes
 #'
@@ -62,12 +68,12 @@
 #' exportPattern("^[[:lower:]]+")
 #' export("%>%")
 #' export("%ni%")
-#' importFrom("stats", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
+#' importFrom("stats", "dist", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
 #'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals",
 #'            "qnorm", "wilcox.test","cov", "qchisq")
-#' importFrom("graphics", "axTicks","barplot","boxplot", "hist","legend","pairs", "par","polygon", 
-#'             "arrows", "lines", "text", "rect", "plot", "axis", "box",
+#' importFrom("graphics", "axTicks","barplot","boxplot", "grid","hist","legend","pairs", "par","polygon", 
+#'             "arrows", "lines", "text", "title", "rect", "plot", "axis", "box",
 #'            "abline","points")
 #' importFrom("grDevices", "col2rgb", "rgb")
 #' importFrom("utils","head","read.table","installed.packages")
@@ -144,8 +150,8 @@
 #' \item{\link[sbi:sbi_dpairs]{sbi$dpairs(...)}}{Improved pairs plot with xyplot, boxplot or assocplot depending on the variable types}
 #' \item{\link[sbi:sbi_dpairs_legend]{sbi$dpairs_legend(...)}}{adding legends to pairs and dpairs plots}
 #' \item{\link[sbi:sbi_drop_na]{sbi$drop_na(...)}}{remove all rows where any of the given columns contain a NA - so missing values}
-#' \item{\link[sbi:sbi_epsilonSquared]{sbi$epsilonSquared(x, y=NULL)}}{Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.}
-#' \item{\link[sbi:sbi_etaSquared]{sbi$etaSquared(x, y=NULL)}}{Calculate the effect size eta-squared for an Anova or a linear model.}
+#' \item{\link[sbi:sbi_epsilon_squared]{sbi$epsilon_squared(x, y=NULL)}}{Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.}
+#' \item{\link[sbi:sbi_eta_squared]{sbi$eta_squared(x, y=NULL)}}{Calculate the effect size eta-squared for an Anova or a linear model.}
 #' \item{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}}{Displays a file to the terminal, not to stdout.}
 #' \item{\link[sbi:sbi_file.head]{sbi$file.head(filename,n=6)}}{Displays the first n lines of a file to the terminal.}
 #' \item{\link[sbi:sbi_flow]{sbi$flow(x, y=NULL, z=NULL, ...)}}{Very simple flowcharter to create flow diagrams}
@@ -153,13 +159,16 @@
 #' \item{\link[sbi:sbi_gmean]{sbi$gmean(x)}}{geometric mean}
 #' \item{\link[sbi:sbi_hmean]{sbi$hmean(x)}}{harmonic mean}
 #' \item{\link[sbi:sbi_import]{sbi$import(basename)}}{load other R files, relative to the current script file}
+#' \item{\link[sbi:sbi_impute]{sbi$impute(x,method="rpart",k=5,cor.method="spearman")}}{impute missing values}
 #' \item{\link[sbi:sbi_input]{sbi$input(prompt)}}{get input from the user, as well in Rscript files}
+#' \item{\link[sbi:sbi_intro_NA]{sbi$intro_NA(x,prop="0.05")}}{introduce missing values into data frames or matrices}
 #' \item{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}}{Check if the given object is a dictionary (list with unique keys)}
 #' \item{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}}{check if a given value within a vector is an outlier}
 #' \item{\link[sbi:sbi_itemchart]{sbi$itemchart(labels)}}{visualization of short item lists with 3 to four items}
 #' \item{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}}{create flowcharts using the kroki online tool}
 #' \item{\link[sbi:sbi_kurtosis]{sbi$kurtosis(x)}}{fourth central moment of a distribution}
 #' \item{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}}{XY-plot with linear model and the confidence intervals}
+#' \item{\link[sbi:sbi_mds_plot]{sbi$mds_plot(x,method="euclidean",...)}}{plot a multidimensional scaling (plot)}
 #' \item{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}}{lattice like histogram}
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}}{convert mkdoc documentation to HTML}
@@ -244,8 +253,8 @@
 #' \item \code{\link[sbi:sbi_dpairs]{sbi$dpairs(...)}} Improved pairs plot with xyplot, boxplot or assocplot depending on the variable types
 #' \item \code{\link[sbi:sbi_dpairs_legend]{sbi$dpairs_legend(...)}} adding legends to pairs and dpairs plots
 #' \item \code{\link[sbi:sbi_drop_na]{sbi$drop_na(...)}} remove all rows where any of the given columns contain a NA - so missing values
-#' \item \code{\link[sbi:sbi_epsilonSquared]{sbi$epsilonSquared(x, y=NULL)}} Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.
-#' \item \code{\link[sbi:sbi_etaSquared]{sbi$etaSquared(x, y=NULL)}} Calculate the effect size eta-squared for an Anova or a linear model.
+#' \item \code{\link[sbi:sbi_epsilon_squared]{sbi$epsilon_squared(x, y=NULL)}} Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.
+#' \item \code{\link[sbi:sbi_eta_squared]{sbi$eta_squared(x, y=NULL)}} Calculate the effect size eta-squared for an Anova or a linear model.
 #' \item \code{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}} Displays a file to the terminal, not to stdout.
 #' \item \code{\link[sbi:sbi_file.head]{sbi$file.head(filename, n=6)}} Displays the first n lines of a file to the terminal.
 #' \item \code{\link[sbi:sbi_flow]{sbi$flow(x, y=NULL, z=NULL, ...)}} Create flowcharts with rectangles, arrows, and lines
@@ -253,12 +262,15 @@
 #' \item \code{\link[sbi:sbi_gmean]{sbi$gmean(x)}} geometric mean
 #' \item \code{\link[sbi:sbi_hmean]{sbi$hmean(x)}} harmonic mean
 #' \item \code{\link[sbi:sbi_import]{sbi$import(basename)}} load other R files, relative to the current script file
+#' \item \code{\link[sbi:sbi_impute]{sbi$impute(x,method="rpart",k=5,cor.method="spearman")}} impute missing values
 #' \item \code{\link[sbi:sbi_input]{sbi$input(prompt)}} get input from the user, as well in Rscript files
+#' \item \code{\link[sbi:sbi_intro_NA]{sbi$intro_NA(x,prop="0.05")}} introduce missing values into data frames or matrices
 #' \item \code{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}} check if an object is a dictionary (list with unique keys)
 #' \item \code{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}} check if a given value within a vector is an outlier
 #' \item \code{\link[sbi:sbi_itemchart]{sbi$itemchart(labels)}} visualization of short item lists with 3 to four items
 #' \item \code{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}} create flowcharts using the kroki online tool
 #' \item \code{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}} XY-plot with linear model and the confidence intervals.
+#' \item \code{\link[sbi:sbi_mds_plot]{sbi$mds_plot(x,method="euclidean",...)}} plot a multidimensional scaling.
 #' \item \code{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}} lattice like histogram
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
 #' \item \code{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}} convert mkdoc documentation to HTML
@@ -917,7 +929,7 @@ sbi_cohensD = sbi$cohensD
 
 sbi$cohensF <- function (x,y) {
     mod=aov(x~y)
-    esq=sbi$etaSquared(mod)
+    esq=sbi$eta_squared(mod)
     cf=sqrt(esq/(1-esq))
     return(cf[[1]])
 }
@@ -1584,7 +1596,7 @@ sbi$dpairs <- function (data,col.box='grey80',col.xy="grey60",cex.diag=2.5,
                     } else {
                         raov=aov(data[,i] ~ data[,j]) 
                         #recover()
-                        rs=sbi$etaSquared(raov)
+                        rs=sbi$eta_squared(raov)
                         pval=sbi$report_pval(summary(raov)[[1]][1,5],star=TRUE)
                         plot(1,type='n',xlab='',ylab='',axes=FALSE,xlim=c(0,1),ylim=c(0,1))
                         text(0.5,0.5,bquote(eta~2~sprintf(" = %.2f %s",rs,pval)),cex=1.5)
@@ -1597,7 +1609,7 @@ sbi$dpairs <- function (data,col.box='grey80',col.xy="grey60",cex.diag=2.5,
                         text(0.5,0.5,sprintf("Cohen's d =\n%.2f %s",cd,sbi$report_pval(tt$p.value,star=TRUE)),cex=1.5)
                     } else {
                         raov=aov(data[,j] ~ data[,i]) 
-                        rs=sbi$etaSquared(raov)
+                        rs=sbi$eta_squared(raov)
                         pval=sbi$report_pval(summary(raov)[[1]][1,5],star=TRUE)
                         plot(1,type='n',xlab='',ylab='',axes=FALSE,xlim=c(0,1),ylim=c(0,1))
                         val=sprintf("%.2f %s",rs,pval)
@@ -1625,13 +1637,14 @@ sbi_dpairs = sbi$dpairs
 #' \description{
 #'   The function `sbi$dpairs_legend` allows the user to place a legend outside of a 
 #'   pairs or dpairs plot.}
-#' \usage{sbi_dpairs_legend(labels,col='grey80',pch=15,side="bottom",cex=2)}
+#' \usage{sbi_dpairs_legend(labels,col='grey80',pch=15,side="bottom",cex=2,...)}
 #' \arguments{
 #'   \item{labels}{txt labels to be plotted}
 #'   \item{col}{colors for the plotting characters}
 #'   \item{pch}{plotting symbol, default: 15}
 #'   \item{side}{where to place the legend, 'top' or 'bottom', default: 'bottom'}
 #'   \item{cex}{the character expansion for the legend, default: 2}
+#'   \item{\ldots}{other arguments delegated to the legend command}
 #' }
 #' \examples{
 #' data(iris)
@@ -1639,17 +1652,21 @@ sbi_dpairs = sbi$dpairs
 #' sbi$dpairs(iris,col.box=2:4,col.xy=rep(c(2:4),each=50))
 #' sbi$dpairs_legend(levels(iris$Species),col=2:4)
 #' mtext('Iris Data',side=3,outer=TRUE,cex=2,line=1)
+#' # simple example with outer legend on a single plot
+#' par(omi = c(0.5, 0.3,0.3,0.1))
+#' plot(c(1:3),pch=15,col=2:4,cex=2,ylim=c(0,4))
+#' sbi$dpairs_legend(label=LETTERS[1:3],col=2:4)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_dpairs]{sbi$spairs}}
 #' FILE: sbi/R/dpairs_legend.R
 
-sbi$dpairs_legend <- function (labels,col='grey80',pch=15,side="bottom",cex=2) {
+sbi$dpairs_legend <- function (labels,col='grey80',pch=15,side="bottom",cex=2,...) {
     opar=par()
     options(warn=-1)
     par(fig = c(0, 1, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
     plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
     legend(side, labels, xpd = TRUE, horiz = TRUE, inset = c(0,0), 
-           bty = "n", pch = pch, col = col, cex = cex)
+           bty = "n", pch = pch, col = col, cex = cex,...)
     par(opar)
 }
 sbi_dpairs_legend = sbi$dpairs_legend
@@ -1688,13 +1705,13 @@ sbi$drop_na <- function (x,cols) {
 } 
 sbi_drop_na = sbi$drop_na
 
-#' FILE: sbi/man/sbi_epsilonSquared.Rd
-#' \name{sbi$epsilonSquared}
-#' \alias{sbi$epsilonSquared}
-#' \alias{sbi_epsilonSquared}
+#' FILE: sbi/man/sbi_epsilon_squared.Rd
+#' \name{sbi$epsilon_squared}
+#' \alias{sbi$epsilon_squared}
+#' \alias{sbi_epsilon_squared}
 #' \title{Calculate the Effect size Epsilon-squared for Variables of a Kruskal test}
 #' \description{Calculate the epsilon-squared effect size for Kruskal-Wallis tests.}
-#' \usage{sbi_epsilonSquared(x, y = NULL)}
+#' \usage{sbi_epsilon_squared(x, y = NULL)}
 #' \arguments{
 #'   \item{x}{a vector with numerical values or a linear model or an aov object.}
 #'   \item{y}{a vector with factor values or a second numerical variable, or NULL if \code{x} is a model.}
@@ -1706,14 +1723,14 @@ sbi_drop_na = sbi$drop_na
 #' \value{Returns the epsilon-squared value for the given variables.}
 #' \examples{
 #' data(iris)
-#' sbi$epsilonSquared(iris$Sepal.Length, iris$Species)
+#' sbi$epsilon_squared(iris$Sepal.Length, iris$Species)
 #' data(ToothGrowth)
-#' sbi$epsilonSquared(ToothGrowth$len, as.factor(ToothGrowth$dose))
+#' sbi$epsilon_squared(ToothGrowth$len, as.factor(ToothGrowth$dose))
 #' cor(ToothGrowth$len, ToothGrowth$dose, method="spearman")^2
 #' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_etaSquared]{sbi$etaSquared}}
-#' FILE: sbi/R/epsilonSquared.R
-sbi$epsilonSquared <- function (x, y = NULL) {
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_eta_squared]{sbi$eta_squared}}
+#' FILE: sbi/R/epsilon_squared.R
+sbi$epsilon_squared <- function (x, y = NULL) {
   if (class(y) %in% c("numeric", "integer")) {
     H = unname(kruskal.test(list(x, y))$statistic)
     n = length(x[which(!is.na(x) & !is.na(y))])
@@ -1725,15 +1742,15 @@ sbi$epsilonSquared <- function (x, y = NULL) {
   return(unlist(es))
 }
 
-sbi_epsilonSquared = sbi$epsilonSquared
+sbi_epsilon_squared = sbi$epsilon_squared
 
-#' FILE: sbi/man/sbi_etaSquared.Rd
-#' \name{sbi$etaSquared}
-#' \alias{sbi$etaSquared}
-#' \alias{sbi_etaSquared}
+#' FILE: sbi/man/sbi_eta_squared.Rd
+#' \name{sbi$eta_squared}
+#' \alias{sbi$eta__Squared}
+#' \alias{sbi_eta_squared}
 #' \title{Calculate the Effect size Eta-squared for an Anova or a Linear model}
 #' \description{Calculate the eta-squared effect size for ANOVA or linear models.}
-#' \usage{sbi_etaSquared(x, y = NULL)}
+#' \usage{sbi_eta_squared(x, y = NULL)}
 #' \arguments{
 #'   \item{x}{a vector with numerical values or a linear model or an aov object.}
 #'   \item{y}{either a factor or NULL if \code{x} is given as a model.}
@@ -1744,20 +1761,20 @@ sbi_epsilonSquared = sbi$epsilonSquared
 #' \value{Returns the eta-squared value for the given variables or model.}
 #' \examples{
 #' data(iris)
-#' sbi$etaSquared(iris$Sepal.Length, iris$Species)
-#' sbi$etaSquared(lm(iris$Sepal.Length ~ iris$Species))
-#' sbi$etaSquared(aov(iris$Sepal.Length ~ iris$Species))
+#' sbi$eta_squared(iris$Sepal.Length, iris$Species)
+#' sbi$eta_squared(lm(iris$Sepal.Length ~ iris$Species))
+#' sbi$eta_squared(aov(iris$Sepal.Length ~ iris$Species))
 #' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_epsilonSquared]{sbi$epsilonSquared}}
-#' FILE: sbi/R/etaSquared.R
-sbi$etaSquared <- function (x, y = NULL) {
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_epsilon_squared]{sbi$epsilon_squared}}
+#' FILE: sbi/R/eta_squared.R
+sbi$eta_squared <- function (x, y = NULL) {
   if (class(x)[1] == "lm") {
     mod = x
     if (length(attr(mod$terms, "dataClasses")) == 2) {
       return(summary(mod)$r.squared)
     } else {
       class(x) = "aov"
-      return(sbi$etaSquared(x))
+      return(sbi$eta_squared(x))
     }
   } else if (class(x)[1] == "aov") {
     mod = x
@@ -1768,13 +1785,13 @@ sbi$etaSquared <- function (x, y = NULL) {
     return(sq)
   } else if (class(x)[1] == "numeric" & class(y)[1] == "factor") {
     mod = aov(x ~ y)
-    return(as.vector((sbi$etaSquared(mod))))
+    return(as.vector((sbi$eta_squared(mod))))
   } else {
-    stop("Error: wrong call of 'etaSquared'! Call either 'sbi$etaSquared(num, factor)' or with 'sbi$etaSquared(lm(num ~ factor))'!")
+    stop("Error: wrong call of 'eta_squared'! Call either 'sbi$eta_squared(num, factor)' or with 'sbi$eta_squared(lm(num ~ factor))'!")
   }
 }
 
-sbi_etaSquared = sbi$etaSquared
+sbi_eta_squared = sbi$eta_squared
 
 #' FILE: sbi/man/sbi_deg2rad.Rd
 #' \name{sbi$deg2rad}
@@ -2174,12 +2191,12 @@ sbi_hmean = sbi$hmean
 #' }
 #' \examples{ %options: eval=FALSE
 #' \dontrun{
-#'  fout = file("test.R",'w')
-#'  cat("test = function(msg) { return(paste('testing',msg)) }\n",file=fout)
-#'  close(fout)
-#'  sbi$import('test')
-#'  test("Hello from test!")
-#'  }
+#' fout = file("test.R",'w')
+#' cat("test = function(msg) { return(paste('testing',msg)) }\n",file=fout)
+#' close(fout)
+#' sbi$import('test')
+#' test("Hello from test!")
+#' }
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/import.R
@@ -2207,6 +2224,132 @@ sbi$import <- function (basename) {
 }
 
 sbi_import = sbi$import
+
+#' FILE: sbi/man/sbi_impute.Rd
+#' \name{sbi$impute}
+#' \alias{sbi$impute}
+#' \alias{sbi_impute}
+#' \title{ impute missing values }
+#' \description{
+#'   Replaces missing values with a reasonable guess by different imputation methods.
+#' }
+#' \usage{ sbi_impute(x,method="rpart",k=5,cor.method="spearman") }
+#' \arguments{
+#'   \item{x}{
+#'     either a matrix or data frame
+#'   }
+#'   \item{method}{
+#'     character string, the method used for replacing missing values, either 'mean', 
+#'      'median', 'rpart' or 'knn', default: 'rpart'
+#'   }
+#'   \item{k}{
+#'     for method 'knn' number of nearest neighbors to use, default: 5
+#'   } 
+#'   \item{cor.method}{
+#'     method to use in 'knn' imputation for using to create distance matrix
+#'   }
+#' }
+#' \details{
+#'   This method aids in replacing missing values with a reasonable guess by different imputation methods such as 
+#'   the simple and not recommended methods mean and median, where NA's are replaced with the 
+#'   mean or median for this variable or the more recommended methods using rpart decision trees
+#'   or knn using a correlation distance based k-nearest neighbor approach. 
+#'   The rpart method can be as well used to replace missing values for categorical variables.
+#'   In case of median and mean imputations for categorical variables the modus is used, 
+#'   so missing values are replaced with the most often category. This is rarely reasonable.
+#' }
+#' \value{depending on the input either a data frame or matrix with NA's replaced by imputed values}
+#' \examples{
+#' library(rpart)
+#' data(iris)
+#' ir=sbi$intro_NA(iris[,1:4],prop=0.1)
+#' summary(ir)
+#' ir=sbi$impute(ir)
+#' summary(ir)
+#' ir=iris
+#' ir[1,3]=NA; ir[2,4]=NA; ir[c(1,3),5]=NA
+#' head(ir)
+#' head(sbi$impute(ir,method="rpart"))
+#' }
+#' 
+
+#' FILE: sbi/R/impute.R
+sbi$impute <- function (x,method="rpart",k=5,cor.method="spearman")  {   
+    if (method %in% c("mean","median")) {
+        for (i in 1:ncol(x)) {
+            # integer is as well numeric :) so 
+            if (is.numeric(x[,i])) {
+                idx=which(is.na(x[,i]))
+                if (method == "mean") {
+                    x[idx,i]=mean(x[,i],na.rm=TRUE)
+                } else if (method == "median") {
+                    x[idx,i]=stats::median(x[,i],na.rm=TRUE)
+                }  
+            } else {
+                # TODO: modus (?)
+                warning(paste("Only numerical columns can be imputed with mean and median! Column",colnames(x)[i], "is however non-numeric!"))
+            }
+        }
+    } else if (method == "rpart") {
+        mt=FALSE
+        if (is.matrix(x)) {
+            mt=TRUE
+            x=as.data.frame(x)
+        }
+        # TODO: refinement for many variables, 
+        # take only variables with high absolute correlation
+        # into account if more than 10 variables take top 10
+        data=x
+        idata=data
+        for (i in 1:ncol(data)) {
+            requireNamespace("rpart",quietly=TRUE)
+            idx = which(!is.na(data[,i]))
+            if (length(idx) == nrow(data)) {
+                next
+            }
+            if (is.factor(data[,i])) { 
+                model=rpart::rpart(formula(paste(colnames(data)[i],"~.")), 
+                            data=as.data.frame(data[idx,]),
+                            method="class")
+                x2 = predict(model,newdata=as.data.frame(data[-idx,]),
+                             type="class")
+            } else {
+                model=rpart::rpart(formula(paste(colnames(data)[i],"~.")), 
+                            data=as.data.frame(data[idx,]))
+                x2 = predict(model,newdata=as.data.frame(data[-idx,]))
+            }
+
+            idata[-idx,i]=x2
+        }
+        if (mt) {
+            idata=as.matrix(idata)
+        }
+        return(idata)
+    } else if (method == "knn") {
+        if (ncol(x) < 4) {
+            stop("knn needs at least 4 variables / columns")
+        }
+        data.imp=x
+        D=as.matrix(1-((cor(t(data.imp),use="pairwise.complete.obs")+1)/2))
+        #D=as.matrix(1-cor(t(data.imp),use="pairwise.complete.obs"method=cor.method))
+        for (i in 1:ncol(x)) {
+            idx=which(is.na(x[,i]))
+            idxd=which(!is.na(x[,i]))
+            for (j in idx) {
+                idxo=order(D[j,])
+                idxo=intersect(idxo,idxd)
+                mn=mean(x[idxo[1:k],i])
+                data.imp[j,i]=mn
+            }
+        }
+        return(data.imp)
+    } else {
+        stop("Unknown method, choose either mean, median, knn or rpart")
+    } 
+    return(x)
+}
+
+sbi_impute = sbi$impute
 
 #' FILE: sbi/man/sbi_input.Rd
 #' \name{sbi$input}
@@ -2243,6 +2386,64 @@ sbi$input = function (prompt="Enter: ") {
 }
 sbi_input = sbi$input
 
+#' FILE: sbi/man/sbi_intro_NA.Rd
+#' \name{sbi$intro_NA}
+#' \alias{sbi$intro_NA}
+#' \alias{sbi_intro_NA}
+#' \title{ introduce missing values into data frames or matrices }
+#' \description{
+#'   Introduces NA's into the given data frame or matrix with a specified proportion.
+#' }
+#' \usage{ sbi_intro_NA(x,prop=0.05) }
+#' \arguments{
+#'   \item{x}{
+#'     either a matrix or data frame
+#'   }
+#'   \item{prop}{
+#'     proportion of data where NA's should be introduced randomly, default: 0.05 (5 percent)
+#'   }
+#' }
+#' \value{depending on the input either a data frame or matrix some NA's}
+#' \examples{
+#' data(iris)
+#' ir=sbi$intro_NA(iris[,1:4],prop=0.1)
+#' summary(ir)
+#' dim(ir)
+#' apply(ir,2,function (x) { length(which(is.na(x))) })
+#' }
+#' 
+
+#' FILE: sbi/R/intro_NA.R
+sbi$intro_NA <- function (x,prop=0.05) {
+    df=FALSE
+    # changed class(x)[1] == "data.frame" to is.data.frame(x)
+    if (is.data.frame(x)) {
+         # TODO: deal with different datatypes in 
+         # different columns with data frames
+         dts=c()
+        for (i in 1:ncol(x)) {
+          dts=c(dts,class(x[,i]))
+        }
+        x=as.matrix(x)
+        df=TRUE
+    }
+    n=as.integer(nrow(x)*ncol(x)*prop)
+    idx=sample(1:(nrow(x)*ncol(x)),n)
+    x[idx]=NA
+    if (df) {
+        x=as.data.frame(x)
+        for (i in 1:ncol(x)) {
+            if (dts[i]=="factor") {
+                x[,i]=as.factor(x[,i])
+            } else {
+                class(x[,i])=dts[i]
+            }
+        }
+    }
+    return(x)
+}    
+
+sbi_intro_NA = sbi$intro_NA
 
 #' FILE: sbi/man/sbi_is.dict.Rd
 #' \name{sbi$is.dict}
@@ -2639,6 +2840,98 @@ sbi$lmplot = function (x,y=NULL, data=NULL,col="blue",pch=19,col.lm="red",col.pl
 }
 
 sbi_lmplot = sbi$lmplot
+#' FILE: sbi/man/sbi_mds_plot.Rd
+#' \name{sbi$mds_plot}
+#' \alias{sbi$mds_plot}
+#' \alias{sbi_mds_plot}
+#' \title{ Plot a data matrix or frame using Multidimensional Scaling }
+#' \description{
+#'     This is a convinience method to plot a data set using MDS.
+#' }
+#' \usage{ sbi_mds_plot(x,method="euclidean",p=0.5,row.labels=TRUE,points=FALSE,
+#'         col.labels='black',cex.labels=1, pch=19, grid=TRUE,...) }
+#' \arguments{
+#'   \item{x}{
+#'     data frame or matrix 
+#'   }
+#'   \item{method}{
+#'     distance measure 'euclidean', 'manhattan' or any other method supported by the dist method
+#'     or 'correlation' for Pearson correlation or 'spe' or 'spearman' for Spearman correlation,
+#'     default: 'euclidean'
+#'   }
+#'   \item{p}{
+#'     exponent if distance measure is minkowski, default: 0.5
+#'   }
+#'   \item{row.labels}{should be row labels computed, if FALSE or if row.names are not existing, plotting characters are displayed, default: TRUE}
+#'   \item{points}{should with row labels as well points be ploted, default: FALSE} 
+#'   \item{col.labels}{color for text labels, default: 'black'}
+#'   \item{cex.labels}{size of labels, default: 1}
+#'   \item{pch}{default plotting character, default: 19}
+#'   \item{grid}{should a grid being show, default: TRUE}
+#'   \item{\ldots}{delegating all remaining arguments to plot, points and text calls}
+#' }
+#' \value{NULL}
+#' \examples{
+#' data(iris)
+#' # single plots
+#' par(mfrow=c(1,2))
+#' sbi$mds_plot(iris[,1:4],method="manhattan")
+#' sbi$mds_plot(iris[,1:4],method="manhattan",row.labels=FALSE)
+#' # multiplot
+#' opar=par(mai=c(0.1,0.1,0.5,0.1))
+#' sbi$mds_plot(iris[,1:4],
+#'    method=c("cor","euclidean","canberra","mink","max","man"),
+#'    p=0.2,row.labels=FALSE,pch=15,
+#'   col=as.numeric(as.factor(iris$Species))+1)
+#' par(opar)
+#' }
+#' \seealso{
+#'    \link[sbi:sbi-class]{sbi-class} 
+#' }
+#'
+#' FILE: sbi/R/mds_plot.R
+sbi$mds_plot = function (x,method="euclidean",p=0.5,row.labels=TRUE,
+                          points=FALSE,col.labels='black', cex.labels=1,pch=19,
+                          grid=TRUE,...) {
+    if (length(method)>1) {
+        opar=par(mfrow=c(2,ceiling(length(method)/2)))
+    }
+    for (m in method) {
+        if (m %in% c("cor","correlation","per","pearson")) {
+            # negative cor: low sim, -> high -> dissim
+            d.obj=(1-stats::cor(t(x),use="pairwise.complete.obs")+1)/2
+        } else if (m %in% c("spe","spearman")) {
+            # negative cor: low sim, -> high -> dissim
+            d.obj=(1-stats::cor(t(x),method="spearman",use="pairwise.complete.obs")+1)/2
+        } else {
+            d.obj=dist(x, method = m,p=p)
+        }
+        cmd=stats::cmdscale(d.obj)
+        limits = range(cmd)
+        diff=diff(limits)*0.05
+        xlim=c(limits[1]-diff,limits[2]+diff)
+        ylim=xlim
+        plot(cmd,type="n",xlim=xlim,ylim=ylim,xlab="Dim 1",ylab="Dim 2", ...)
+        if (grid) {
+            grid(col=1,lty=2,lwd=0.5)
+        }
+        if (row.labels & length(rownames(x))== nrow(x)) {
+            if (points) {
+                points(cmd, pch=pch, ...)
+            }
+            text(cmd,labels=rownames(x),col=col.labels,cex=cex.labels)
+        } else {
+            points(cmd,pch=pch,...)
+        }
+        if (length(method)>1) {
+            title(m)
+        }
+    }
+    if (length(method)>1) {
+        par(opar)
+    }
+}
+sbi_mds_plot <- sbi$mds_plot
 
 #' FILE: sbi/man/sbi_mhist.Rd
 #' \name{sbi$mhist}
@@ -3199,7 +3492,7 @@ sbi_pairwise.effect_size = sbi$pairwise.effect_size
 #' \usage{ sbi_pca_biplot(pca,pcs=c("PC1","PC2"),
 #'                        pch=19,col='black',
 #'                        arrows=TRUE,arrow.fac=1,
-#'                        ellipse=FALSE,ell.fill=FALSE,xlab=NULL,ylab=NULL,...) }
+#'                        ellipse=FALSE,ell.fill=FALSE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,...) }
 #' \arguments{
 #' \item{pca}{pca object of class `prcomp`, created using the function `prcomp`}
 #' \item{pcs}{the components to plot, default: c('PC1','PC2')}
@@ -3211,6 +3504,8 @@ sbi_pairwise.effect_size = sbi$pairwise.effect_size
 #' \item{ell.fill}{should a filled 85 percent confidence interval be shown, colors will be used from the plotting color with opacity, default: FALSE}
 #' \item{xlab}{custom xlab, if not given the PC name with variance in percent is shown, default: NULL}
 #' \item{ylab}{custom ylab, if not given the PC name with variance in percent is shown, default: NULL}
+#' \item{xlim}{custom xlim, if not given the range of the PC is used and 5 percent space it added, default: NULL}
+#' \item{ylim}{custom ylim, if not given the range of the PC is used and 5 percent space it added, default: NULL}
 #' \item{\ldots}{additional arguments delegated to the standard plot function}
 #' }
 #' \value{NULL}
@@ -3231,14 +3526,25 @@ sbi_pairwise.effect_size = sbi$pairwise.effect_size
 sbi$pca_biplot <- function (pca,pcs=c("PC1","PC2"),
                        pch=19,col='black',
                        arrows=TRUE,arrow.fac=1,
-                       ellipse=FALSE,ell.fill=FALSE,xlab=NULL,ylab=NULL,...) {
+                       ellipse=FALSE,ell.fill=FALSE,xlab=NULL,ylab=NULL,xlim=NULL,ylim=NULL,...) {
     if (missing("xlab")) {
         xlab=paste(pcs[1]," (", round(summary(pca)$importance[2,pcs[1]]*100,1),"%)",sep="")
     } 
     if (missing("ylab")) {
         ylab=paste(pcs[2]," (", round(summary(pca)$importance[2,pcs[2]]*100,1),"%)",sep="")
     } 
-    plot(pca$x[,pcs[1]],pca$x[,pcs[2]],pch=pch,col=col,type="n",xlab=xlab,ylab=ylab,...)
+    xlimits = range(pca$x[,pcs[1]])
+    ylimits  = range(pca$x[,pcs[2]])
+    if (missing(xlim)) {
+        diff=diff(xlimits)*0.05
+        xlim=c(xlimits[1]-diff,xlimits[2]+diff)
+    }   
+    if (missing(ylim)) {
+        diff=diff(ylimits)*0.05
+        ylim=c(ylimits[1]-diff,ylimits[2]+diff)
+    }   
+    plot(pca$x[,pcs[1]],pca$x[,pcs[2]],pch=pch,col=col,type="n",xlab=xlab,ylab=ylab,xlim=xlim,ylim=ylim,...)
+    grid(lty=3,col="#666666")
     abline(h=0,lty=2)
     abline(v=0,lty=2)    
     if (ellipse) {
