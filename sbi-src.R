@@ -3722,8 +3722,17 @@ sbi_pca_corplot = sbi$pca_corplot
 #' data(USArrests)
 #' C=cor(USArrests)
 #' sbi$pca_oncor(C)
+#' pcc=sbi$pca_oncor(C)
+#' # variances
+#' pcc$sdev^2/sum(pcc$sdev^2)
+#' cumsum(pcc$sdev^2/sum(pcc$sdev^2))
+#' pca=prcomp(scale(USArrests))
+#' summary(pca)
 #' D=cor(USArrests,method="spearman") 
-#' sbi$pca_oncor(D)
+#' pcc=sbi$pca_oncor(D)
+#' pcc
+#' 
+#' pcc$sdev^2/sum(pcc$sdev^2)
 #' }
 #' 
 #' FILE: sbi/R/pca_oncor.R
