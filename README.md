@@ -21,7 +21,10 @@ library(help="sbi")
 Package  with  functions  for the  course  Statistical  Bioinformatics  at the
 University  of Potsdam.  The course  takes place as a mandatory course for the
 [Master Bioinformatics program](https://www.uni-potsdam.de/de/studium/studienangebot/masterstudium/master-a-z/bioinformatics-master)
-every Winter semester.
+every Winter  semester. There are as well some functions  added which are used
+in the  Summer school  
+[Human  Biology and Public  Health](https://www.human-biology-and-public-health.org/index.php/hbph/summerschool) of the  University  of
+Potsdam.
 
 ## Installation
 
@@ -38,18 +41,21 @@ $ R    # starting R
 Or you can  install  it as a normal R package using the latest relases like this from a Unix Terminal:
 
 ```
-wget https://github.com/mittelmark/sbi/releases/download/v0.0.5/sbi_0.0.5.tar.gz
-R CMD INSTALL sbi_0.0.5.tar.gz
+wget https://github.com/mittelmark/sbi/releases/download/v0.0.6/sbi_0.0.6.tar.gz
+R CMD INSTALL sbi_0.0.6.tar.gz
 ```
 
 Or from within a R console
 
 ```
 $ R
-> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.0.5/sbi_0.0.5.tar.gz",repos=NULL)
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.0.6/sbi_0.0.6.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
 ```
+
+Installation  as a package has the advantage  that you have the  documentation
+and the package vignette available as usually for R packages.
 
 Or you can install the latest development version directly from Github like this:
 
@@ -67,8 +73,8 @@ wget -O sbi-src.R https://github.com/mittelmark/sbi/raw/main/sbi-src.R
 Rscript sbi-src.R --process    sbi-src.R         # extract all files
 Rscript sbi-src.R --vignettex  sbi-src.R         # extract examples as vignette
 Rscript sbi-src.R --build      sbi               # build package tar-gz file
-Rscript sbi-src.R --check      sbi_0.0.5.tar.gz  # check package tar-gz file
-Rscript sbi-src.R --install    sbi_0.0.5.tar.gz  # install from local tar-gz file
+Rscript sbi-src.R --check      sbi_0.0.6.tar.gz  # check package tar-gz file
+Rscript sbi-src.R --install    sbi_0.0.6.tar.gz  # install from local tar-gz file
 ```
 
 
