@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.0.6
-#' Date: 2025-07-07
+#' Version: 0.0.7
+#' Date: 2025-07-08
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -32,7 +32,7 @@
 #'     cache_image.R chr2ord.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R 
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
-#'     file.cat.R file.head.R fmt.R flow.R gmean.R hmean.R 
+#'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R 
 #'     kroki.R kurtosis.R lmplot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     pairwise.effect_size.R
@@ -156,6 +156,7 @@
 #' \item{\link[sbi:sbi_file.head]{sbi$file.head(filename,n=6)}}{Displays the first n lines of a file to the terminal.}
 #' \item{\link[sbi:sbi_flow]{sbi$flow(x, y=NULL, z=NULL, ...)}}{Very simple flowcharter to create flow diagrams}
 #' \item{\link[sbi:sbi_fmt]{sbi$fmt(str,...)}}{Python like string formatting}
+#' \item{\link[sbi:sbi_fscale]{sbi$fscale(x,from=0,to=1)}}{Feature scaling into the given value range}
 #' \item{\link[sbi:sbi_gmean]{sbi$gmean(x)}}{geometric mean}
 #' \item{\link[sbi:sbi_hmean]{sbi$hmean(x)}}{harmonic mean}
 #' \item{\link[sbi:sbi_import]{sbi$import(basename)}}{load other R files, relative to the current script file}
@@ -259,6 +260,7 @@
 #' \item \code{\link[sbi:sbi_file.head]{sbi$file.head(filename, n=6)}} Displays the first n lines of a file to the terminal.
 #' \item \code{\link[sbi:sbi_flow]{sbi$flow(x, y=NULL, z=NULL, ...)}} Create flowcharts with rectangles, arrows, and lines
 #' \item \code{\link[sbi:sbi_fmt]{sbi$fmt(str,...)}} Python like string formatting
+#' \item \code{\link[sbi:sbi_fscale]{sbi$fscale(x,from=0,to=1)}} Feature scaling into the given value range
 #' \item \code{\link[sbi:sbi_gmean]{sbi$gmean(x)}} geometric mean
 #' \item \code{\link[sbi:sbi_hmean]{sbi$hmean(x)}} harmonic mean
 #' \item \code{\link[sbi:sbi_import]{sbi$import(basename)}} load other R files, relative to the current script file
@@ -844,7 +846,7 @@ sbi_coa = sbi$coa
 #' \usage{sbi_cohensD(x, y,paired=FALSE)}
 #' \arguments{
 #' \item{x}{vector with numercial values}
-#' \item{y}{vector with two grouping variables, having the same length as x}
+#' \item{y}{vector with two grouping variables, having the same length as x or another vector of numbers having then the same length as y}
 #' \item{paired}{are the data paired, default: FALSE}
 #' }
 #' \details{
@@ -854,7 +856,7 @@ sbi_coa = sbi$coa
 #' 
 #' Alternatively you could use the biserial correlation coefficient `r` as demonstrated in the example below.
 #' }
-#' \value{Cohen's d value}
+#' \value{Cohen's d value, either as scalar or as matrix returning all pairwise Cohen's d values}
 #' \examples{
 #' cohensD=sbi$cohensD
 #' set.seed(125)
@@ -869,11 +871,33 @@ sbi_coa = sbi$coa
 #' # biseriell correlation coefficient as alternative
 #' # value is as well large
 #' cor(c(x1,x2),as.numeric(as.factor(c(g1,g2))))
+#' # matrix of Cohen's d values:
+#' data(airquality)
+#' with(airquality,sbi$cohensD(Ozone,as.factor(Month)))
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensF]{sbi$cohensF}}
 #' FILE: sbi/R/cohensD.R
 
 sbi$cohensD <- function (x, y, paired=FALSE) {
+    if (is.factor(y) & length(levels(y))>2) {
+        M = matrix(0,nrow=length(levels(y)),ncol=length(levels(y)))
+        rownames(M)=colnames(M)=levels(y)
+        for (l1 in levels(y)) {
+            for (l2 in levels(y)) {
+                if (l2 != l1) {
+                   xf = x[y %in% c(l1,l2)] 
+                   yf = as.factor(as.character(y[y %in% c(l1,l2)])) 
+                   d=sbi$cohensD(xf,yf,paired=paired)
+                   if (which(levels(y) %in% l1) < which(levels(y) %in% l2)) {
+                       M[l1,l2]=d
+                   } else {
+                       M[l1,l2]=-d
+                   }
+               }
+           }
+       }
+       return(M)
+   }
     num=x
     cat=y
     if (paired) {
@@ -889,7 +913,7 @@ sbi$cohensD <- function (x, y, paired=FALSE) {
          n <- length(sq.devs)
         return(sqrt(sum(sq.devs)/(n - 2)))
     }
-    d=abs(tt.agg$x[1]-tt.agg$x[2])/pooledSD(
+    d=(tt.agg$x[1]-tt.agg$x[2])/pooledSD(
         num[cat==levels(cat)[1]],
         num[cat==levels(cat)[2]])
     return(d)
@@ -2088,6 +2112,47 @@ sbi$fmt <- function (str,...) {
 }
 
 sbi_fmt= sbi$fmt
+
+#' FILE: sbi/man/sbi_fscale.Rd
+#' \name{sbi$fscale}
+#' \alias{sbi$fscale}
+#' \alias{sbi_fscale}
+#' \title{feature scaling into a value range}
+#' \description{
+#' Linearly transforms all data into a specific range where the lowest value is per default 0 and the 
+#' highest value is 1.
+#' }
+#' \usage{sbi_fscale(x, from=0, to=1)}
+#' \arguments{
+#'   \item{x}{vector, matrix, or data frame with  numerical values, factor columns in data frames are ignored}
+#'   \item{from}{value of the minimum, default: 0}
+#'   \item{to}{value of the maximum, default: 1}
+#' }
+#' \value{
+#'  The given data structure with the values mapped into a from-to range.
+#' }
+#' \examples{
+#' data(iris)
+#' head(iris)
+#' head(sbi$fscale(iris,from=1,to=5))
+#' summary(sbi$fscale(iris,from=1,to=5))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}.}
+
+#' FILE: sbi/R/fscale.R
+sbi$fscale = function (x,from=0,to=1) {
+    if (is.matrix(x) | is.data.frame(x)) {
+        for (i in 1:ncol(x)) {
+            x[,i]=sbi$fscale(x[,i],from=from,to=to)
+        }
+    } else if (is.numeric(x)) {
+       x=(x-min(x,na.rm=TRUE))/(max(x,na.rm=TRUE)-min(x,na.rm=TRUE))
+       x=x*(to-from)+from
+    }
+    return(x)
+}
+
+sbi_fscale = sbi$fscale
 
 #' FILE: sbi/man/sbi_gmean.Rd
 #' \name{sbi$gmean}
