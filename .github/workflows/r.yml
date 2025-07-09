@@ -27,7 +27,7 @@ jobs:
         run: |
             sudo apt install r-cran-knitr
       - name: build package
-      - run: |
+        run: |
             make build pkg=sbi
             export VRS=`grep Version: sbi/DESCRIPTION | grep -oE '[.0-9]+'`
             echo "VRS=$VRS" >> $GITHUB_ENV
