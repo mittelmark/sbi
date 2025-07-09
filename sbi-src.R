@@ -28,7 +28,7 @@
 #' Language: en-US
 #' Encoding: UTF-8
 #' NeedsCompilation: no
-#' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
+#' Collate: sbi.R  assoc.R assoc_legend.R aggregate2.R angle.R bezier.R bootstrap.R
 #'     cache_image.R cdist.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R 
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
@@ -311,6 +311,7 @@
 #' \item{\link[sbi:sbi_aggregate2]{sbi$aggregate2(x,y,z,FUN=cor,...)}}{Aggregate two variables against one factor variable}
 #' \item{\link[sbi:sbi_angle]{sbi$angle(x,y,degree=FALSE)}}{determine the angle between two vectors}
 #' \item{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}}{Create assocplots with residual coloring}
+#' \item{\link[sbi:sbi_assoc_legend]{sbi$assoc_legend(pch=15,side="bottom",...)}}{Adds a legend with color codes for the residuals to a assocplot}
 #' \item{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}}{create bezier lines using three coordinates}
 #' \item{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}}{perform a resampling for the given data set and function}
 #' \item{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}}{create a crc32 image for a downloaded image from the internet if not yet there}
@@ -419,6 +420,7 @@
 #' \item \code{\link[sbi:sbi_aggregate2]{sbi$aggregate2(x,y,z,FUN=cor,...)}} aggregate two variables against one factor variable
 #' \item \code{\link[sbi:sbi_angle]{sbi$angle(x,y, degree=FALSE)}} determine the angle between two vectors
 #' \item \code{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}} Create assocplots with residual coloring
+#' \item \code{\link[sbi:sbi_assoc_legend]{sbi$assoc_legend(pch=15,side="bottom",...)}} Adds a legend with color codes for the residuals to a assocplot
 #' \item \code{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}} create bezier lines using three coordinates
 #' \item \code{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}} perform a resampling for the given data set and function
 #' \item \code{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}} create a crc32 image for a downloaded image from the internet if not yet there
@@ -689,9 +691,55 @@ sbi$assoc <- function (..., shade = TRUE) {
   } else {
     graphics::assocplot(...)
   }
+
 }
 
 sbi_assoc = sbi$assoc
+#' FILE: sbi/man/sbi_assoc_legend.Rd
+#' \name{sbi$assoc_legend}
+#' \alias{sbi$assoc_legend}
+#' \alias{sbi_assoc_legend}
+#' \title{Adds a legend with color codes for the residuals to a assocplot}
+#' \description{
+#'   The function adds a legend at the bottom of a sbi$assoc plot a legend which
+#'   displays the color codes for the Pearson residuals.
+#' }
+#' \usage{sbi_assoc_legend(pch=15,side="bottom",cex=1,pt.cex=cex*2,...)}
+#' \arguments{
+#'   \item{pch}{plotting character used for the residual colors, default: 15}
+#'   \item{side}{where to place the legend, default: "bottom"}
+#'   \item{cex}{character size of the residual ranges, default: 1}
+#'   \item{pt.cex}{character size for the plotting character, default: 2*cex}
+#'   \item{...}{Arguments delegated to the standard \code{legend} function}
+#' }
+#' \details{
+#'   In blue and red are shown groups with residuals above +4 or below -4; 
+#'   in lighter colors are shown residuals between +2 and +4, and -4 and -2, respectively.
+#' }
+#' \value{
+#'   Adds residual color codes for an existing association plot as legend.
+#' }
+#' \examples{
+#' x <- margin.table(HairEyeColor, c(1, 2))
+#' par(mai=c(1.2,0.8,0.8,0.2))
+#' sbi$assoc(x)
+#' sbi$assoc_legend()
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+
+#' FILE: sbi/R/assoc_legend.R
+
+sbi$assoc_legend <- function (pch=15,side="bottom",cex=1,pt.cex=cex*2,...) {
+    opar=par()
+    options(warn=-1)
+    cols = rev(c('#CF3761', '#E18E9E', '#E0E0E0', '#96A2DF', '#4267E0'))
+    par(fig = c(0.25, 0.75, 0, 1), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
+    plot(0, 0, type = "n", bty = "n", xaxt = "n", yaxt = "n")
+    legend(side, c("> 4","2..4","-2..2", "-2..-4","< -4"), xpd = TRUE, horiz = TRUE, inset = c(0,0), 
+           bty = "n", pch = pch, col = cols, cex = cex,...)
+    par(opar)
+}
+sbi_assoc_legend = sbi$assoc_legend
 
 #' FILE: sbi/man/sbi_bezier.Rd
 #' \name{sbi$bezier}
