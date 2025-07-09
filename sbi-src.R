@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.0.7
-#' Date: 2025-07-08
+#' Version: 0.0.8
+#' Date: 2025-07-09
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -29,16 +29,16 @@
 #' Encoding: UTF-8
 #' NeedsCompilation: no
 #' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
-#'     cache_image.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
+#'     cache_image.R cdist.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R 
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R 
-#'     kroki.R kurtosis.R lmplot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
+#'     kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
-#'     rad2deg.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
+#'     rad2deg.R ref_score.R ref_table.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
 #'     textplot.R untab.R venn.R wilcoxR.R
 #'     ni.R pipe.R
 #' FILE: sbi/LICENSE
@@ -119,7 +119,7 @@
 #' 31	31.4961	6.22	13.98	1.91	28.0976	24.937	46.18	4.6	57.84	18.3057
 #' 32	31.3862	6.43	12.33	1.94	28.6282	26.4	38.72	4	57.26	18.3849
 #' 33	31.115	7.19	10.27	1.91	28.3968	24.4444	34.36	4.1	54.94	20.0015
-#' File: sbi/inst/references/boys-bmi.tab
+#' FILE: sbi/inst/references/boys-bmi.tab
 #' Age	M	L	S
 #' 0	13.4069	-0.3053	0.0956
 #' 0.25	16.8987	0.0068	0.08495
@@ -144,8 +144,7 @@
 #' 16	20.5	-1.35	0.126
 #' 17	21.1	-1.20	0.127
 #' 18	21.7	-1.03	0.128
-#' 
-#' File: sbi/inst/references/boys-head.tab
+#' FILE: sbi/inst/references/boys-head.tab
 #' Age	M	L	S
 #' 0	34.4618	1	0.03686
 #' 0.25	40.5135	1	0.02918
@@ -158,8 +157,7 @@
 #' 4	50.2115	1	0.02912
 #' 5	50.7375	1	0.02946
 #' 6	51.2	1	0.03
-#' 
-#' File: sbi/inst/references/boys-height.tab
+#' FILE: sbi/inst/references/boys-height.tab
 #' Age	M	SD
 #' 0	49.8842	1.8931
 #' 0.25	61.4292	2.0444
@@ -184,8 +182,7 @@
 #' 16	172.9	7.8
 #' 17	175.2	7.6
 #' 18	176.1	7.5
-#' 
-#' File: sbi/inst/references/boys-muac.tab
+#' FILE: sbi/inst/references/boys-muac.tab
 #' Age	M	L	S
 #' 0			
 #' 0.25			
@@ -198,8 +195,7 @@
 #' 4	17.0558	-1.7238	0.0753
 #' 5	17.4935	-1.8471	0.0818
 #' 6	17.6969	-1.9179	0.0892
-#' 
-#' File: sbi/inst/references/boys-weight.tab
+#' FILE: sbi/inst/references/boys-weight.tab
 #' Age	M	L	S
 #' 0	3.3464	0.3487	0.14602
 #' 0.25	6.3762	0.1738	0.11727
@@ -212,8 +208,7 @@
 #' 4	16.3489	-0.1131	0.12759
 #' 5	18.3366	-0.1506	0.13517
 #' 6	20.5137	-0.318	0.13372
-#' 
-#' File: sbi/inst/references/girls-bmi.tab
+#' FILE: sbi/inst/references/girls-bmi.tab
 #' Age	M	L	S
 #' 0	13.3363	-0.0631	0.09272
 #' 0.25	16.3574	0.0643	0.09254
@@ -238,8 +233,7 @@
 #' 16	20.7	-1.04	0.141
 #' 17	21.0	-0.94	0.142
 #' 18	21.3	-0.85	0.143
-#' 
-#' File: sbi/inst/references/girls-head.tab
+#' FILE: sbi/inst/references/girls-head.tab
 #' Age	M	L	S
 #' 0	33.8787	1	0.03496
 #' 0.25	39.5328	1	0.0314
@@ -252,8 +246,7 @@
 #' 4	49.3321	1	0.02878
 #' 5	49.9229	1	0.0285
 #' 6	50.6	1	0.028
-#' 
-#' File: sbi/inst/references/girls-height.tab
+#' FILE: sbi/inst/references/girls-height.tab
 #' Age	M	SD
 #' 0	49.1477	1.8627
 #' 0.25	59.8029	2.1051
@@ -278,8 +271,7 @@
 #' 16	162.5	6.8
 #' 17	162.9	6.7
 #' 18	163.1	6.6
-#' 
-#' File: sbi/inst/references/girls-muac.tab
+#' FILE: sbi/inst/references/girls-muac.tab
 #' Age	M	L	S
 #' 0			
 #' 0.25			
@@ -292,8 +284,7 @@
 #' 4	16.988	-1.2719	0.0789
 #' 5	17.4733	-1.4039	0.0863
 #' 6	17.7761	-1.4566	0.0949
-#' 
-#' File: sbi/inst/references/girls-weight.tab
+#' FILE: sbi/inst/references/girls-weight.tab
 #' Age	M	L	S
 #' 0	3.2322	0.3809	0.14171
 #' 0.25	5.8458	0.0402	0.12619
@@ -323,6 +314,7 @@
 #' \item{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}}{create bezier lines using three coordinates}
 #' \item{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}}{perform a resampling for the given data set and function}
 #' \item{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}}{create a crc32 image for a downloaded image from the internet if not yet there}
+#' \item{\link[sbi:sbi_cdist]{sbi$cdist(x,method="spearman",type="abs")}}{calculate correlation distances}
 #' \item{\link[sbi:sbi_chr2ord]{sbi$chr2ord(x,map)}}{convert factors or characters to ordinal numbers}
 #' \item{\link[sbi:sbi_coa]{sbi$coa(x,map)}}{co-occurence analysis}
 #' \item{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}}{Effect size comparing two means}
@@ -359,7 +351,7 @@
 #' \item{\link[sbi:sbi_itemchart]{sbi$itemchart(labels)}}{visualization of short item lists with 3 to four items}
 #' \item{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}}{create flowcharts using the kroki online tool}
 #' \item{\link[sbi:sbi_kurtosis]{sbi$kurtosis(x)}}{fourth central moment of a distribution}
-#' \item{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}}{XY-plot with linear model and the confidence intervals}
+#' \item{\link[sbi:sbi_lm_plot]{sbi$lm_plot(x,y)}}{XY-plot with linear model and the confidence intervals}
 #' \item{\link[sbi:sbi_mds_plot]{sbi$mds_plot(x,method="euclidean",...)}}{plot a multidimensional scaling (plot)}
 #' \item{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}}{lattice like histogram}
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
@@ -430,6 +422,7 @@
 #' \item \code{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}} create bezier lines using three coordinates
 #' \item \code{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}} perform a resampling for the given data set and function
 #' \item \code{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}} create a crc32 image for a downloaded image from the internet if not yet there
+#' \item \code{\link[sbi:sbi_cdist]{sbi$cdist(x,method="spearman",type="abs")}} calculate correlation distances
 #' \item \code{\link[sbi:sbi_chr2ord]{sbi$chr2ord(x,map)}} convert factors or characters to ordinal numbers
 #' \item \code{\link[sbi:sbi_coa]{sbi$coa(x,map)}} co-occurence analysis 
 #' \item \code{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}} Effect size comparing two means
@@ -465,7 +458,7 @@
 #' \item \code{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}} check if a given value within a vector is an outlier
 #' \item \code{\link[sbi:sbi_itemchart]{sbi$itemchart(labels)}} visualization of short item lists with 3 to four items
 #' \item \code{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}} create flowcharts using the kroki online tool
-#' \item \code{\link[sbi:sbi_lmplot]{sbi$lmplot(x,y)}} XY-plot with linear model and the confidence intervals.
+#' \item \code{\link[sbi:sbi_lm_plot]{sbi$lm_plot(x,y)}} XY-plot with linear model and the confidence intervals.
 #' \item \code{\link[sbi:sbi_mds_plot]{sbi$mds_plot(x,method="euclidean",...)}} plot a multidimensional scaling.
 #' \item \code{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}} lattice like histogram
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
@@ -858,6 +851,52 @@ sbi$cache_image <- function (url,extension="png") {
 }
 
 sbi_cache_image = sbi$cache_image
+
+#' FILE: sbi/man/sbi_cdist.Rd
+#' \name{sbi$cdist}
+#' \alias{sbi$cdist}
+#' \alias{sbi_cdist}
+#' \title{ correlation distances }
+#' \description{
+#'     Calculate correlation distance.
+#' }
+#' \usage{ sbi_cdist(x,method="pearson",type="abs") }
+#' \arguments{
+#'   \item{x}{
+#'     data frame or matrix 
+#'   }
+#'   \item{method}{
+#'     correlation measure, either 'pearson', 'spearman','kendall', default: 'pearson'
+#'   }
+#'   \item{type}{
+#'     either absolute, squared or negative (negativly correlated items are far away, default: 'absolute'
+#'   }
+#' }
+#' \value{Object of class dist.}
+#' \examples{
+#' sbi$cdist(t(iris[,1:4]))
+#' sbi$cdist(t(iris[,1:4]),method="spearman",type="square")
+#' }
+#' \seealso{
+#' \link[sbi:sbi-package]{sbi-package} 
+#' }
+#'
+
+#' FILE: sbi/R/cdist.R
+sbi$cdist <- function (x,method="pearson",type="abs") {
+    D=cor(t(x),method=method,use="pairwise.complete.obs")
+    if (type=="abs") {
+        D=stats::as.dist(1-abs(D))
+    } else if (type == "square") {
+        D=stats::as.dist(1-D^2)
+    } else if (type == "negative") {
+        D = stats::as.dist(1-((D+1)/2))
+    } else {
+        stop("Error: Unknown cdist type, valid types are 'abs',  'square' or 'negative'!")
+    }
+    return(D)
+}
+sbi_cdist = sbi$cdist
 
 #' FILE: sbi/man/sbi_chr2ord.Rd
 #' \name{sbi$chr2ord}
@@ -3058,16 +3097,16 @@ sbi$kurtosis <- function (x,na.rm=FALSE) {
 sbi_kurtosis <- sbi$kurtosis
 
 
-#' FILE: sbi/man/sbi_lmplot.Rd
-#' \name{sbi$lmplot}
-#' \alias{sbi$lmplot}
-#' \alias{sbi_lmplot}
+#' FILE: sbi/man/sbi_lm_plot.Rd
+#' \name{sbi$lm_plot}
+#' \alias{sbi$lm_plot}
+#' \alias{sbi_lm_plot}
 #' \title{XY-plot with linear model and the confidence intervals}
 #' \description{
 #'   This method can be used to visualize the confidence intervals for 
 #'   the predictions and the linear model.
 #' }
-#' \usage{sbi_lmplot(x,y=NULL, data=NULL,col="blue",pch=19,
+#' \usage{sbi_lm_plot(x,y=NULL, data=NULL,col="blue",pch=19,
 #'               col.lm="red",col.plm="red",col.pi="blue",
 #'               grid=TRUE,polygon=TRUE,col.polygon="#cccccc33",
 #'               xlab=NULL,ylab=NULL,...)
@@ -3091,21 +3130,21 @@ sbi_kurtosis <- sbi$kurtosis
 #' \examples{ %options: fig.width=9,fig.height=6
 #' par(mfrow=c(1,2))
 #' data(iris) 
-#' sbi$lmplot(iris$Sepal.Width, iris$Sepal.Length,
+#' sbi$lm_plot(iris$Sepal.Width, iris$Sepal.Length,
 #'    col=as.numeric(iris$Species)+1,col.pi="bisque4",
 #'    col.lm="black",xlab="Sepal.Width",ylab="Sepal.Length")
 #' props=c(0.0441,0.0133,0.0183,0.0238,0.0389,
 #'         0.0648,0.0275,0.0704,0.0796,0.036,0.0132,
 #'         0.108,0.136,0.0383,0.1008)
 #' years=2005:2019
-#' sbi$lmplot(years,props,ylim=c(0,0.3),xlab="Year",ylab="Proportion",
+#' sbi$lm_plot(years,props,ylim=c(0,0.3),xlab="Year",ylab="Proportion",
 #'    col.pi=NULL,col.plm='#FFB0B066',col.polygon='#FFB0B066')
 #' 
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 
-#' FILE: sbi/R/lmplot.R
-sbi$lmplot = function (x,y=NULL, data=NULL,col="blue",pch=19,col.lm="red",col.plm="red",col.pi="blue",
+#' FILE: sbi/R/lm_plot.R
+sbi$lm_plot = function (x,y=NULL, data=NULL,col="blue",pch=19,col.lm="red",col.plm="red",col.pi="blue",
                        grid=TRUE,polygon=TRUE,col.polygon="#cccccc33",xlab=NULL,ylab=NULL,...) {
     cnames=c('x','y')
     if (class(x)[1]=="formula") {
@@ -3174,7 +3213,7 @@ sbi$lmplot = function (x,y=NULL, data=NULL,col="blue",pch=19,col.lm="red",col.pl
      }
 }
 
-sbi_lmplot = sbi$lmplot
+sbi_lm_plot = sbi$lm_plot
 #' FILE: sbi/man/sbi_mds_plot.Rd
 #' \name{sbi$mds_plot}
 #' \alias{sbi$mds_plot}
@@ -4453,45 +4492,6 @@ sbi$pastel <- function (n) {
 
 sbi_pastel = sbi$pastel
 
-#' FILE: sbi/man/sbi_ref_table.Rd
-#' \name{sbi$ref_table}
-#' \alias{sbi$ref_table}
-#' \alias{sbi_ref_table}
-#' \title{ reference tables }
-#' \description{
-#'     Function to retrieve reference tables.
-#' }
-#' \usage{ sbi_ref_table(sex,type) }
-#' \arguments{
-#'   \item{sex}{
-#'     character string, either "M" for male/boy of "F" for female 
-#'   }
-#'   \item{type}{
-#'     character string, either "height", "weight", "bmi", "muac" or "head"
-#'   }
-#' }
-#' \details{
-#'     Some more details ...
-#' }
-#' \value{data frame with the reference value}
-#' \examples{
-#'     sbi$ref_table(sex="M",type="height")
-#'     head(sbi$ref_table(sex="F",type="height"))
-#' }
-#' 
-
-#' FILE: sbi/R/ref_table.R
-sbi$ref_table <- function (sex,type) {
-    if (sex %in% c("M","male","Male","boy")) {
-        sex = "boys"
-    } else if (sex %in% c("F","female","Female","girl")) {
-        sex =  "girls"
-    }
-    tab=utils::read.table(base::file.path(base::system.file(package="sbi"),"references",
-                                          paste(sex,"-",type,".tab",sep="")),sep="\t",header=TRUE)
-    return(tab)
-}
-
 #' FILE: sbi/man/sbi_ref_score.Rd
 #' \name{sbi$ref_score}
 #' \alias{sbi$ref_score}
@@ -4520,9 +4520,9 @@ sbi$ref_table <- function (sex,type) {
 #' }
 #' \value{data frame with the reference value}
 #' \examples{
-#'     sbi$ref_score(100,age=4,sex="M",type="height")
-#'     sbi$ref_score(100,age=4,sex="F",type="height")
-#'     head(sbi$ref_table(sex="F",type="height"))
+#' sbi$ref_score(100,age=4,sex="M",type="height")
+#' sbi$ref_score(100,age=4,sex="F",type="height")
+#' head(sbi$ref_table(sex="F",type="height"))
 #' }
 #' 
 
@@ -4591,7 +4591,48 @@ sbi$ref_score <- function (x,age,sex,type) {
     }
     return(res)
 }
+sbi_ref_score = sbi$ref_score
 
+#' FILE: sbi/man/sbi_ref_table.Rd
+#' \name{sbi$ref_table}
+#' \alias{sbi$ref_table}
+#' \alias{sbi_ref_table}
+#' \title{ WHO reference tables }
+#' \description{
+#'     Function to retrieve reference tables.
+#' }
+#' \usage{ sbi_ref_table(sex,type) }
+#' \arguments{
+#'   \item{sex}{
+#'     character string, either "M" for male/boy of "F" for female 
+#'   }
+#'   \item{type}{
+#'     character string, either "height", "weight", "bmi", "muac" or "head"
+#'   }
+#' }
+#' \details{
+#'     Some more details ...
+#' }
+#' \value{data frame with the reference value}
+#' \examples{
+#' sbi$ref_table(sex="M",type="height")
+#' head(sbi$ref_table(sex="F",type="height"))
+#' }
+#' 
+
+#' FILE: sbi/R/ref_table.R
+sbi$ref_table <- function (sex,type) {
+    type=tolower(type)
+    if (sex %in% c("M","male","Male","boy")) {
+        sex = "boys"
+    } else if (sex %in% c("F","female","Female","girl")) {
+        sex =  "girls"
+    }
+    tab=utils::read.table(base::file.path(base::system.file(package="sbi"),"references",
+                                          paste(sex,"-",type,".tab",sep="")),sep="\t",header=TRUE)
+    return(tab)
+}
+sbi_ref_table = sbi$ref_table
 
 #' FILE: sbi/man/report_pval.Rd
 #' \name{sbi$report_pval}
@@ -4718,7 +4759,7 @@ sbi_sd_pooled = sbi$sd_pooled
 #' c20 <- sbi$sdata(name = "c20")
 #' head(c20)
 #' cor(c20[, 1], c20[, 2])
-#' sbi$lmplot(c20[, 1], c20[, 2], ylim = c(0, 600), xlim = c(17, 25))
+#' sbi$lm_plot(c20[, 1], c20[, 2], ylim = c(0, 600), xlim = c(17, 25))
 #' azt <- sbi$sdata(name = "azt")
 #' azt
 #' dec <- sbi$sdata(name = "decathlon")
