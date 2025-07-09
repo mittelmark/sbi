@@ -29,7 +29,7 @@
 #' Encoding: UTF-8
 #' NeedsCompilation: no
 #' Collate: sbi.R  assoc.R aggregate2.R angle.R bezier.R bootstrap.R
-#'     cache_image.R chr2ord.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
+#'     cache_image.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R 
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
@@ -46,6 +46,10 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-07-08: Version 0.0.7
+#'    - adding sd_pooled method
+#'    - adding ci_plot method
+#'    - extending cohensD to return matrices of pairwse groups
 #' 2025-07-07: Version 0.0.6 
 #'    - adding mds_plot function
 #'    - improving pca_biplot with automatic 5 percent margin
@@ -727,7 +731,7 @@ sbi_chr2ord = sbi$chr2ord
 #' df=data.frame(
 #' cil= c(-0.4,-0.2,0.2,-0.5,0.1,-0.8),
 #' mean=c(0.2,0.5,0.8,-0.1,0.1,-0.5),
-#' ciu =c(0.5,0.9,1.2,0.4,1.3))
+#' ciu =c(0.5,0.9,1.2,0.4,1.3,-0.2))
 #' rownames(df)=LETTERS[1:6]
 #' sbi$ci_plot(df,col="auto")
 #' box()
