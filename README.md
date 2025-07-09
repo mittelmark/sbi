@@ -6,14 +6,15 @@
 
 ## Name
 
-sbi - R functions for the course Statistical Bioinformatics
+__sbi__ - R functions for the course "Statistical Bioinformatics" and the
+Summer school of the University of Potsdam "Human Biology and Public Health"
 
 ## Synopsis
 
-```
-library(sbi)
-ls(sbi)
-library(help="sbi")
+```r
+library(sbi)        ### load the library into your session
+ls(sbi)             ### what methods are available
+library(help="sbi") ### lookup the package help
 ```
 
 ## Description
@@ -22,7 +23,7 @@ Package  with  functions  for the  course  Statistical  Bioinformatics  at the
 University  of Potsdam.  The course  takes place as a mandatory course for the
 [Master Bioinformatics program](https://www.uni-potsdam.de/de/studium/studienangebot/masterstudium/master-a-z/bioinformatics-master)
 every Winter  semester. There are as well some functions  added which are used
-in the  Summer school  
+in the  Summer school
 [Human  Biology and Public  Health](https://www.human-biology-and-public-health.org/index.php/hbph/summerschool) of the  University  of
 Potsdam.
 
@@ -31,11 +32,10 @@ Potsdam.
 The  package  comes as a single  file R script.  You can  either  just  source
 the latest version of that script directly from Github like this:
 
-
 ```
-$ R    # starting R
+$ R    # start R from a terminal or via start menu
 > source("https://raw.githubusercontent.com/mittelmark/sbi/refs/heads/main/sbi-src.R")
-> ls(sbi)
+> ls(sbi) 
 ```
 
 Or you install the latest release as a normal package:
