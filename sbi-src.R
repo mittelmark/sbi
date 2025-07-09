@@ -119,6 +119,193 @@
 #' 31	31.4961	6.22	13.98	1.91	28.0976	24.937	46.18	4.6	57.84	18.3057
 #' 32	31.3862	6.43	12.33	1.94	28.6282	26.4	38.72	4	57.26	18.3849
 #' 33	31.115	7.19	10.27	1.91	28.3968	24.4444	34.36	4.1	54.94	20.0015
+#' File: sbi/inst/references/boys-bmi.tab
+#' Age	M	L	S
+#' 0	13.4069	-0.3053	0.0956
+#' 0.25	16.8987	0.0068	0.08495
+#' 0.5	17.3422	-0.1913	0.08234
+#' 0.75	17.1662	-0.3176	0.08102
+#' 1	16.7981	-0.4115	0.08009
+#' 1.5	16.1392	-0.5484	0.07873
+#' 2	16.0189	-0.6187	0.07785
+#' 3	15.5988	-0.3101	0.07931
+#' 4	15.3326	-0.3622	0.08238
+#' 5	15.1916	-0.6892	0.087
+#' 6	15.3062	-0.9921	0.08682
+#' 7	15.5	-1.25	0.091
+#' 8	15.7	-1.46	0.095
+#' 9	16.0	-1.63	0.100
+#' 10	16.4	-1.74	0.106
+#' 11	16.9	-1.79	0.111
+#' 12	17.5	-1.78	0.115
+#' 13	18.2	-1.72	0.119
+#' 14	19.0	-1.62	0.122
+#' 15	19.8	-1.50	0.124
+#' 16	20.5	-1.35	0.126
+#' 17	21.1	-1.20	0.127
+#' 18	21.7	-1.03	0.128
+#' 
+#' File: sbi/inst/references/boys-head.tab
+#' Age	M	L	S
+#' 0	34.4618	1	0.03686
+#' 0.25	40.5135	1	0.02918
+#' 0.5	43.3306	1	0.02817
+#' 0.75	44.9998	1	0.02792
+#' 1	46.0661	1	0.02789
+#' 1.5	47.3711	1	0.028
+#' 2	48.2515	1	0.02821
+#' 3	49.4612	1	0.02871
+#' 4	50.2115	1	0.02912
+#' 5	50.7375	1	0.02946
+#' 6	51.2	1	0.03
+#' 
+#' File: sbi/inst/references/boys-height.tab
+#' Age	M	SD
+#' 0	49.8842	1.8931
+#' 0.25	61.4292	2.0444
+#' 0.5	67.6236	2.1403
+#' 0.75	71.9687	2.2433
+#' 1	75.7488	2.3762
+#' 1.5	82.2587	2.6973
+#' 2	87.1161	3.0551
+#' 3	96.0835	3.7069
+#' 4	103.3273	4.1941
+#' 5	109.9638	4.6339
+#' 6	115.9509	4.9268
+#' 7	121.7	5.3
+#' 8	127.3	5.6
+#' 9	132.6	6.0
+#' 10	137.8	6.4
+#' 11	143.1	6.7
+#' 12	149.1	7.1
+#' 13	156.0	7.4
+#' 14	163.2	7.7
+#' 15	169.0	7.8
+#' 16	172.9	7.8
+#' 17	175.2	7.6
+#' 18	176.1	7.5
+#' 
+#' File: sbi/inst/references/boys-muac.tab
+#' Age	M	L	S
+#' 0			
+#' 0.25			
+#' 0.5			
+#' 0.75			
+#' 1	15.828	-1.2654	0.0607
+#' 1.5	16.0192	-1.3434	0.0629
+#' 2	16.2009	-1.4215	0.0651
+#' 3	16.6307	-1.5768	0.0698
+#' 4	17.0558	-1.7238	0.0753
+#' 5	17.4935	-1.8471	0.0818
+#' 6	17.6969	-1.9179	0.0892
+#' 
+#' File: sbi/inst/references/boys-weight.tab
+#' Age	M	L	S
+#' 0	3.3464	0.3487	0.14602
+#' 0.25	6.3762	0.1738	0.11727
+#' 0.5	7.934	0.1257	0.10958
+#' 0.75	8.9014	0.0917	0.10881
+#' 1	9.6479	0.0644	0.10925
+#' 1.5	10.9385	0.0211	0.11119
+#' 2	12.1515	-0.0137	0.11426
+#' 3	14.3429	-0.0689	0.12116
+#' 4	16.3489	-0.1131	0.12759
+#' 5	18.3366	-0.1506	0.13517
+#' 6	20.5137	-0.318	0.13372
+#' 
+#' File: sbi/inst/references/girls-bmi.tab
+#' Age	M	L	S
+#' 0	13.3363	-0.0631	0.09272
+#' 0.25	16.3574	0.0643	0.09254
+#' 0.5	16.9083	-0.1429	0.09036
+#' 0.75	16.7406	-0.2725	0.08898
+#' 1	16.3568	-0.3667	0.08797
+#' 1.5	15.7263	-0.5017	0.0865
+#' 2	15.6881	-0.5684	0.08454
+#' 3	15.3968	-0.5684	0.08535
+#' 4	15.2602	-0.5684	0.09168
+#' 5	15.2747	-0.5684	0.09789
+#' 6	15.2697	-1.0794	0.10195
+#' 7	15.4	-1.26	0.107
+#' 8	15.7	-1.39	0.113
+#' 9	16.1	-1.47	0.118
+#' 10	16.6	-1.49	0.123
+#' 11	17.2	-1.46	0.127
+#' 12	18.0	-1.40	0.131
+#' 13	18.8	-1.32	0.134
+#' 14	19.6	-1.23	0.137
+#' 15	20.2	-1.13	0.139
+#' 16	20.7	-1.04	0.141
+#' 17	21.0	-0.94	0.142
+#' 18	21.3	-0.85	0.143
+#' 
+#' File: sbi/inst/references/girls-head.tab
+#' Age	M	L	S
+#' 0	33.8787	1	0.03496
+#' 0.25	39.5328	1	0.0314
+#' 0.5	42.1995	1	0.03087
+#' 0.75	43.83	1	0.03053
+#' 1	44.8965	1	0.03027
+#' 1.5	46.2424	1	0.02987
+#' 2	47.1822	1	0.02957
+#' 3	48.5099	1	0.02912
+#' 4	49.3321	1	0.02878
+#' 5	49.9229	1	0.0285
+#' 6	50.6	1	0.028
+#' 
+#' File: sbi/inst/references/girls-height.tab
+#' Age	M	SD
+#' 0	49.1477	1.8627
+#' 0.25	59.8029	2.1051
+#' 0.5	65.7311	2.2664
+#' 0.75	70.1435	2.4157
+#' 1	74.015	2.575
+#' 1.5	80.7079	2.9039
+#' 2	85.7153	3.2267
+#' 3	95.0515	3.8078
+#' 4	102.7312	4.3075
+#' 5	109.4233	4.7566
+#' 6	115.1244	5.1196
+#' 7	120.8	5.5
+#' 8	126.6	5.8
+#' 9	132.5	6.1
+#' 10	138.6	6.4
+#' 11	145.0	6.6
+#' 12	151.2	6.8
+#' 13	156.4	6.9
+#' 14	159.8	6.9
+#' 15	161.7	6.9
+#' 16	162.5	6.8
+#' 17	162.9	6.7
+#' 18	163.1	6.6
+#' 
+#' File: sbi/inst/references/girls-muac.tab
+#' Age	M	L	S
+#' 0			
+#' 0.25			
+#' 0.5			
+#' 0.75			
+#' 1	15.4888	-0.6662	0.0618
+#' 1.5	15.7878	-0.7745	0.0643
+#' 2	16.0462	-0.8818	0.0669
+#' 3	16.4756	-1.0889	0.0725
+#' 4	16.988	-1.2719	0.0789
+#' 5	17.4733	-1.4039	0.0863
+#' 6	17.7761	-1.4566	0.0949
+#' 
+#' File: sbi/inst/references/girls-weight.tab
+#' Age	M	L	S
+#' 0	3.2322	0.3809	0.14171
+#' 0.25	5.8458	0.0402	0.12619
+#' 0.5	7.297	-0.0756	0.12204
+#' 0.75	8.2254	-0.1507	0.12199
+#' 1	8.9481	-0.2024	0.12268
+#' 1.5	10.2315	-0.2637	0.12309
+#' 2	11.4775	-0.2941	0.1239
+#' 3	13.8503	-0.3201	0.12919
+#' 4	16.0697	-0.3361	0.13884
+#' 5	18.2193	-0.3518	0.14821
+#' 6	20.1639	-0.5013	0.149
 #' FILE: sbi/man/sbi-package.Rd
 #' \name{sbi-package}
 #' \alias{sbi-package}
@@ -192,6 +379,8 @@
 #' \item{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}}{partial correlation}
 #' \item{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}}{partial correlation test}
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree}
+#' \item{\link[sbi:sbi_ref_score]{sbi$ref_score(x,age,sex,type)}}{reference score for the given age, sex and type (data)}
+#' \item{\link[sbi:sbi_ref_table]{sbi$ref_table(sex,type)}}{reference table for WHO for the given sex and measure type (daa)}
 #' \item{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star=FALSE)}}{Report a p-value with optional stars based on significance thresholds}
 #' \item{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}}{pooled standard deviation for a numercial vector and two or more groups}
 #' \item{\link[sbi:sbi_sdata]{sbi$sdata(name)}}{Load small data sets like 'c20' or 'azt'.}
@@ -296,6 +485,8 @@
 #' \item \code{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}} partial correlation
 #' \item \code{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}} partial correlation test
 #' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} convert angle in radian into angle in degree
+#' \item \code{\link[sbi:sbi_ref_score]{sbi$ref_score(x,age,sex,type)}} reference score for the given age, sex and type
+#' \item \code{\link[sbi:sbi_ref_table]{sbi$ref_table(sex,type)}} reference table for WHO for the given sex and measure type
 #' \item \code{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star = FALSE)}} report a p-value with optional stars based on significance thresholds
 #' \item \code{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}} pooled standard deviation for a numercial vector and two or more groups
 #' \item \code{\link[sbi:sbi_sdata]{sbi$sdata(name)}} load small data sets like 'c20' or 'azt'.
@@ -4261,6 +4452,145 @@ sbi$pastel <- function (n) {
 }
 
 sbi_pastel = sbi$pastel
+
+#' FILE: sbi/man/sbi_ref_table.Rd
+#' \name{sbi$ref_table}
+#' \alias{sbi$ref_table}
+#' \alias{sbi_ref_table}
+#' \title{ reference tables }
+#' \description{
+#'     Function to retrieve reference tables.
+#' }
+#' \usage{ sbi_ref_table(sex,type) }
+#' \arguments{
+#'   \item{sex}{
+#'     character string, either "M" for male/boy of "F" for female 
+#'   }
+#'   \item{type}{
+#'     character string, either "height", "weight", "bmi", "muac" or "head"
+#'   }
+#' }
+#' \details{
+#'     Some more details ...
+#' }
+#' \value{data frame with the reference value}
+#' \examples{
+#'     sbi$ref_table(sex="M",type="height")
+#'     head(sbi$ref_table(sex="F",type="height"))
+#' }
+#' 
+
+#' FILE: sbi/R/ref_table.R
+sbi$ref_table <- function (sex,type) {
+    if (sex %in% c("M","male","Male","boy")) {
+        sex = "boys"
+    } else if (sex %in% c("F","female","Female","girl")) {
+        sex =  "girls"
+    }
+    tab=utils::read.table(base::file.path(base::system.file(package="sbi"),"references",
+                                          paste(sex,"-",type,".tab",sep="")),sep="\t",header=TRUE)
+    return(tab)
+}
+
+#' FILE: sbi/man/sbi_ref_score.Rd
+#' \name{sbi$ref_score}
+#' \alias{sbi$ref_score}
+#' \alias{sbi_ref_score}
+#' \title{ age corrected z-scores based on WHO references }
+#' \description{
+#'     Function to retrieve age corrected z-scores based on WHO references
+#' }
+#' \usage{ sbi_ref_score(x,age,sex,type) }
+#' \arguments{
+#'   \item{x}{
+#'     the numerical value for height (cm) or weight (kg) or BMI or muac (mm) or head circumference (cm).
+#'   }
+#'   \item{age}{
+#'     age in years, fractional numbers are possible 
+#'   }
+#'   \item{sex}{
+#'     character string, either "M" for male/boy of "F" for female 
+#'   }
+#'   \item{type}{
+#'     character string, either "height" or "weight"
+#'   }
+#' }
+#' \details{
+#'     Some more details ...
+#' }
+#' \value{data frame with the reference value}
+#' \examples{
+#'     sbi$ref_score(100,age=4,sex="M",type="height")
+#'     sbi$ref_score(100,age=4,sex="F",type="height")
+#'     head(sbi$ref_table(sex="F",type="height"))
+#' }
+#' 
+
+#' FILE: sbi/R/ref_score.R
+sbi$ref_score <- function (x,age,sex,type) {
+    this=sbi
+    type=tolower(type)
+    sex=tolower(sex)
+    if (!type %in% c("height","weight","bmi","muac","head")) {
+        stop("Unknown type, known types are 'height', 'weight', 'bmi', 'muac' or 'head'!")
+    }
+    res = c()
+    tabs=list()
+    for (s in c("boys","girls")) {
+        tabs[[s]] = this$ref_table(s,type)
+    }
+    if (length(x)>1) {
+        if (length(age)==1) {
+            age=rep(age,length(x)) 
+            sex=rep(sex,length(x))
+        }
+    }
+    sex=gsub("ma?l?e?","boys",sex)
+    sex=gsub("fe?m?a?l?e?","girls",sex)
+    sex[!(sex %in% c("girls","boys"))]=NA
+    for (i in 1:length(x)) {
+        if (is.na(sex[i])) {
+            res=c(res,NA)
+            next
+        }
+        tab=tabs[[sex[i]]]
+        idx0=which(tab$Age==age[i])
+        if (length(idx0)==0) {
+            idx1=which(tab$Age<age[i])
+            idx1=idx1[length(idx1)]
+            idx2=which(tab$Age>age[i])[1]
+            if (!is.numeric(idx1) | !is.numeric(idx2)) {
+                res=c(res,NA)
+                next
+            }
+            r=(tab$Age[idx2]-age[i])/(tab$Age[idx2]-tab$Age[idx1])
+            M=tab[idx1,'M']*r+tab[idx2,'M']*(1-r)
+            if (type %in% c("weight","bmi","muac","head")) {
+                L=tab[idx1,'L']*r+tab[idx2,'L']*(1-r)
+                S=tab[idx1,'S']*r+tab[idx2,'S']*(1-r)
+                z=(((x[i]/M)^L)-1)/(L*S)
+                res=c(res,z)
+            } else {
+                SD=tab[idx1,'SD']*r+tab[idx2,'SD']*(1-r)
+                z = (x[i]-M)/SD
+                res=c(res,z)
+            }
+        } else {
+            M=tab[idx0,'M']
+            if (any(type %in% c("weight","bmi","muac","head"))) {
+                L=tab[idx0,'L']
+                S=tab[idx0,'S']
+                z=(((x[i]/M)^L)-1)/(L*S)
+                res=c(res,z)
+            } else {
+                SD=tab[idx0,'SD']
+                z = (x[i]-M)/SD
+                res=c(res,z)
+            }
+        }
+    }
+    return(res)
+}
 
 
 #' FILE: sbi/man/report_pval.Rd
