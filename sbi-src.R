@@ -3,7 +3,7 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.0.8
+#' Version: 0.0.9
 #' Date: 2025-07-09
 #' Author: Detlef Groth
 #' Authors@R:c(
@@ -4571,6 +4571,7 @@ sbi_pastel = sbi$pastel
 #' sbi$ref_score(100,age=4,sex="M",type="height")
 #' sbi$ref_score(100,age=4,sex="F",type="height")
 #' head(sbi$ref_table(sex="F",type="height"))
+#' # check for NA's
 #' }
 #' 
 
@@ -4597,7 +4598,7 @@ sbi$ref_score <- function (x,age,sex,type) {
     sex=gsub("fe?m?a?l?e?","girls",sex)
     sex[!(sex %in% c("girls","boys"))]=NA
     for (i in 1:length(x)) {
-        if (is.na(sex[i])) {
+        if (is.na(sex[i]) | is.na(age[i])) {
             res=c(res,NA)
             next
         }
