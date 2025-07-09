@@ -38,7 +38,7 @@
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
-#'     rad2deg.R report_pval.R shell.R sdata.R sem.R shape.R skewness.R smartbind.R
+#'     rad2deg.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
 #'     textplot.R untab.R venn.R wilcoxR.R
 #'     ni.R pipe.R
 #' FILE: sbi/LICENSE
@@ -189,6 +189,7 @@
 #' \item{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}}{partial correlation test}
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree}
 #' \item{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star=FALSE)}}{Report a p-value with optional stars based on significance thresholds}
+#' \item{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}}{pooled standard deviation for a numercial vector and two or more groups}
 #' \item{\link[sbi:sbi_sdata]{sbi$sdata(name)}}{Load small data sets like 'c20' or 'azt'.}
 #' \item{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}}{standard error of the mean}
 #' \item{\link[sbi:sbi_shape]{sbi$shape(x,y)}}{Create random polygon shapes centered at given x and y coordinates}
@@ -292,6 +293,7 @@
 #' \item \code{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}} partial correlation test
 #' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} convert angle in radian into angle in degree
 #' \item \code{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star = FALSE)}} report a p-value with optional stars based on significance thresholds
+#' \item \code{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}} pooled standard deviation for a numercial vector and two or more groups
 #' \item \code{\link[sbi:sbi_sdata]{sbi$sdata(name)}} load small data sets like 'c20' or 'azt'.
 #' \item \code{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}} standard error of the mean
 #' \item \code{\link[sbi:sbi_shape]{sbi$shape(x,y)}} create random polygon shapes centered at given x and y coordinates
@@ -699,13 +701,78 @@ sbi$chr2ord <- function (x,map) {
 }
 sbi_chr2ord = sbi$chr2ord    
 
+#' FILE: sbi/man/sbi_ci_plot.Rd
+#' \name{sbi$ci_plot}
+#' \alias{sbi$ci_plot}
+#' \alias{sbi_ci_plot}
+#' \title{Confidence interval plots in style of Tukey plots}
+#' \description{
+#' The function sbi$ci_plot creates a TukeyHSD like plot, plotting
+#' points for the mean and lines between the lower and upper confidence interval or any other ranges. In contrast to Tukey's plot, this function
+#' can take any confidence interval, for instance as well confidence intervals from effect sizes.
+#' }
+#' \usage{sbi_ci_plot(x,col="black",xlim=NULL,...)}
+#' \arguments{
+#' \item{x}{either a data matrix or a data frame with three columns, 
+#'           first column showing the lower bound, second column showing the mean,
+#'           and third column giving the lower bound.}
+#' \item{col}{color used for lines and plotting character, can be as well the string "auto"
+#'            where colors are red, black or blue depending where the confidence interval
+#'            is located, can be as well a vector of same length as we 
+#'            we have number of rows, default: 'black'}
+#' \item{xlim}{if not given R will choose the limits based on the given data, default: NULL}
+#' \item{\ldots}{arguments delegated to the plot function}
+#' }
+#' \examples{
+#' df=data.frame(
+#' cil= c(-0.4,-0.2,0.2,-0.5,0.1,-0.8),
+#' mean=c(0.2,0.5,0.8,-0.1,0.1,-0.5),
+#' ciu =c(0.5,0.9,1.2,0.4,1.3))
+#' rownames(df)=LETTERS[1:6]
+#' sbi$ci_plot(df,col="auto")
+#' box()
+#' }
+#'
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/ci_plot.R
+
+sbi$ci_plot <- function (x,col="black",xlim=NULL,...) {
+    if (!(is.data.frame(x) | is.matrix(x)) | ncol(x) != 3) {
+        stop("Error: Given X must be a data frame or matrix with 3 columns!")
+    }
+    if (length(col)==1) {
+        if (col == "auto") {
+            col=rep("black",nrow(x))
+            col[x[,1]>0] = "blue"
+            col[x[,3]<0] = "red"
+        } else {
+            col=rep(col,nrow(x))
+        }
+    }
+    if (missing("xlim")) {
+        limits = range(x)
+        diff=diff(limits)*0.05
+        xlim=c(limits[1]-diff,limits[2]+diff)
+    }
+    plot(1,type="n",xlim=xlim,axes=FALSE,ylim=c(0.5,nrow(x)+0.5),ylab="",...)
+    axis(1)
+    axis(2,labels=rownames(x),at=1:nrow(x),las=2)
+    grid(lty=3)
+    abline(v=0,lty=2)
+    points(x=x[,2],y=1:nrow(x),pch=15,cex=2,col=col)
+    for (i in 1:nrow(x)) {
+        lines(x=c(x[i,1],x[i,3]),y=c(i,i),lwd=3,col=col[i])
+    }
+}
+sbi_ci_plot = sbi$ci_plot
+
 #' FILE: sbi/man/sbi_coa.Rd
 #' \name{sbi$coa}
 #' \alias{sbi$coa}
 #' \alias{sbi_coa}
 #' \title{Co-Occurence analysis}
 #' \description{
-#' The function sbi$cooccur performs a co-occurence analysis.
+#' The function sbi$coa performs a co-occurence analysis.
 #'   for small effects, values from 0.5 to 0.8 represent medium effects and values above 0.8 represent large effects. 
 #' }
 #' \usage{sbi_coa(x)}
@@ -845,7 +912,7 @@ sbi_coa = sbi$coa
 #' }
 #' \usage{sbi_cohensD(x, y,paired=FALSE)}
 #' \arguments{
-#' \item{x}{vector with numercial values}
+#' \item{x}{vector with numerical values}
 #' \item{y}{vector with two grouping variables, having the same length as x or another vector of numbers having then the same length as y}
 #' \item{paired}{are the data paired, default: FALSE}
 #' }
@@ -855,6 +922,7 @@ sbi_coa = sbi$coa
 #'   values might be of practical relevance.
 #' 
 #' Alternatively you could use the biserial correlation coefficient `r` as demonstrated in the example below.
+#' More functionality, like computing confidence intervals for Cohen's d can be found by installing the effsize package \url{https://cran.r-project.org/web/packages/effsize}.
 #' }
 #' \value{Cohen's d value, either as scalar or as matrix returning all pairwise Cohen's d values}
 #' \examples{
@@ -875,7 +943,8 @@ sbi_coa = sbi$coa
 #' data(airquality)
 #' with(airquality,sbi$cohensD(Ozone,as.factor(Month)))
 #' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensF]{sbi$cohensF}}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensF]{sbi$cohensF},
+#' \link[effsize]{cohen.d}}
 #' FILE: sbi/R/cohensD.R
 
 sbi$cohensD <- function (x, y, paired=FALSE) {
@@ -902,7 +971,8 @@ sbi$cohensD <- function (x, y, paired=FALSE) {
     cat=y
     if (paired) {
         tt=t.test(num ~ cat,paired=paired)
-        return(tt$statistic[[1]]/sqrt(length(num/2)))
+        d = tt$statistic[[1]]/sqrt(length(num/2))
+        return(d)
     }   
     tt.agg=aggregate(num,by=list(cat),
         mean,na.rm=TRUE)
@@ -3377,7 +3447,6 @@ sbi$pcor.test <- function (x,y,z,method='pearson') {
 
 sbi_pcor.test = sbi$pcor.test
 
-
 #' FILE: sbi/man/sbi_rad2deg.Rd
 #' \name{sbi$rad2deg}
 #' \alias{sbi$rad2deg}
@@ -4224,6 +4293,59 @@ sbi$report_pval <- function (p, star=TRUE) {
 }
 
 sbi_report_pval = sbi$report_pval
+
+#' FILE: sbi/man/sbi_sd_pooled.Rd
+#' \name{sbi$sd_pooled}
+#' \alias{sbi$sd_pooled}
+#' \alias{sbi_sd_pooled}
+#' \title{Pooled standard deviation from to numerical vectors}
+#' \description{The pooled standard deviation is the weighted average of 
+#'  the standard deviation of two or more groups }
+#' \usage{sbi_sd_pooled(x,y)}
+#' \arguments{
+#'   \item{x}{numerical vector}
+#'   \item{y}{either a numerical vector, or a factor vector containing
+#'   the classes for x, vectors x and y must have the same length}
+#' }
+#' \value{The angle converted to degrees.}
+#' \examples{
+#' rn1=rnorm(20,mean=12,sd=1)
+#' rn2=rnorm(100,mean=14,sd=3)
+#' sbi$sd_pooled(rn1,rn2)
+#' sbi$cohensD(rn1,rn2)
+#' # CI of cohens D 
+#' ci = t.test(rn1,rn2)
+#' ci
+#' ci/sbi$sd_pooled(rn1,rn2)
+#' # more than one mean
+#' with(airquality,sbi$sd_pooled(ozone,as.factor(month)))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package},\link[sbi:sbi_cohensD]{sbi$cohensD}}
+
+#' FILE: sbi/R/sd_pooled.R
+sbi$sd_pooled <- function(x, y) {
+    if (is.numeric(y)) {
+        x=x[!is.na(x)] 
+        y=y[!is.na(y)]
+        sq.devs <- (c(x - mean(x), y - mean(y)))^2
+        n <- length(sq.devs)
+        return(sqrt(sum(sq.devs)/(n - 2)))
+    } else {
+        if (length(x) != length(y)) {
+            stop("Error: Given vectors x and y must have the same length!")
+        }
+        idx = which(!is.na(x) & !is.na(y))
+        x=x[idx]
+        y=y[idx]
+        gstats = tapply(x, y, function(g) c(n = length(g), sd = sd(g)))
+        n = sapply(gstats, function(g) g["n"])
+        s = sapply(gstats, function(g) g["sd"])
+        psd = sqrt(sum((n - 1) * s^2) / sum(n - 1))
+        return(psd)
+    }
+}
+
+sbi_sd_pooled = sbi$sd_pooled
 
 #' FILE: sbi/man/sbi_sdata.Rd
 #' \name{sbi$sdata}
