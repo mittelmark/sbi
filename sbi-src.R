@@ -971,8 +971,13 @@ sbi$cohensD <- function (x, y, paired=FALSE) {
        }
        return(M)
    }
-    num=x
-    cat=y
+   if (is.numeric(y)) {
+       cat=as.factor(c(rep(1,length(x)),rep(2,length(y))))
+       num=c(x,y)
+   } else {
+       num=x
+       cat=y
+   }
     if (paired) {
         tt=t.test(num ~ cat,paired=paired)
         d = tt$statistic[[1]]/sqrt(length(num/2))
@@ -4318,11 +4323,12 @@ sbi_report_pval = sbi$report_pval
 #' sbi$sd_pooled(rn1,rn2)
 #' sbi$cohensD(rn1,rn2)
 #' # CI of cohens D 
-#' ci = t.test(rn1,rn2)
+#' ci = as.numeric(t.test(rn1,rn2)$conf.int)
 #' ci
 #' ci/sbi$sd_pooled(rn1,rn2)
 #' # more than one mean
-#' with(airquality,sbi$sd_pooled(ozone,as.factor(month)))
+#' data(airquality)
+#' with(airquality,sbi$sd_pooled(Ozone,as.factor(Month)))
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package},\link[sbi:sbi_cohensD]{sbi$cohensD}}
 
