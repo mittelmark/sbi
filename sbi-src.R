@@ -38,7 +38,7 @@
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
-#'     rad2deg.R ref_score.R ref_table.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
+#'     rad2deg.R ref_score.R ref_table.R report_effsize.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
 #'     textplot.R untab.R venn.R wilcoxR.R
 #'     ni.R pipe.R
 #' FILE: sbi/LICENSE
@@ -46,6 +46,11 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-07-09: Version 0.0.9
+#'    - fixes a bug in the sbi$ref_score function.
+#' 2025-07-09: Version 0.0.8
+#'    - adding methods sbi$ref_score and sbi$ref_table
+#'      and sbi$assoc_legend   
 #' 2025-07-08: Version 0.0.7
 #'    - adding sd_pooled method
 #'    - adding ci_plot method
@@ -76,7 +81,8 @@
 #'            "model.frame","predict", "rgamma", "runif", "spline",
 #'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals",
 #'            "qnorm", "wilcox.test","cov", "qchisq")
-#' importFrom("graphics", "axTicks","barplot","boxplot", "grid","hist","legend","pairs", "par","polygon", 
+#' importFrom("graphics", "axTicks","barplot","boxplot", "grid","hist","legend","mtext",
+#'            "pairs", "par","polygon", 
 #'             "arrows", "lines", "text", "title", "rect", "plot", "axis", "box",
 #'            "abline","points")
 #' importFrom("grDevices", "col2rgb", "rgb")
@@ -146,17 +152,67 @@
 #' 18	21.7	-1.03	0.128
 #' FILE: sbi/inst/references/boys-head.tab
 #' Age	M	L	S
-#' 0	34.4618	1	0.03686
-#' 0.25	40.5135	1	0.02918
-#' 0.5	43.3306	1	0.02817
-#' 0.75	44.9998	1	0.02792
-#' 1	46.0661	1	0.02789
-#' 1.5	47.3711	1	0.028
-#' 2	48.2515	1	0.02821
-#' 3	49.4612	1	0.02871
-#' 4	50.2115	1	0.02912
-#' 5	50.7375	1	0.02946
-#' 6	51.2	1	0.03
+#' 0.000	34.4618	1	0.03686
+#' 0.083	37.2759	1	0.03133
+#' 0.167	39.1285	1	0.02997
+#' 0.250	40.5135	1	0.02918
+#' 0.333	41.6317	1	0.02868
+#' 0.417	42.5576	1	0.02837
+#' 0.500	43.3306	1	0.02817
+#' 0.583	43.9803	1	0.02804
+#' 0.667	44.53	1	0.02796
+#' 0.750	44.9998	1	0.02792
+#' 0.833	45.4051	1	0.0279
+#' 0.917	45.7573	1	0.02789
+#' 1.000	46.0661	1	0.02789
+#' 1.083	46.3395	1	0.02789
+#' 1.167	46.5844	1	0.02791
+#' 1.250	46.806	1	0.02792
+#' 1.333	47.0088	1	0.02795
+#' 1.417	47.1962	1	0.02797
+#' 1.500	47.3711	1	0.028
+#' 1.583	47.5357	1	0.02803
+#' 1.667	47.6919	1	0.02806
+#' 1.750	47.8408	1	0.0281
+#' 1.833	47.9833	1	0.02813
+#' 1.917	48.1201	1	0.02817
+#' 2.000	48.2515	1	0.02821
+#' 2.083	48.3777	1	0.02825
+#' 2.167	48.4989	1	0.0283
+#' 2.250	48.6151	1	0.02834
+#' 2.333	48.7264	1	0.02838
+#' 2.417	48.8331	1	0.02842
+#' 2.500	48.9351	1	0.02847
+#' 2.583	49.0327	1	0.02851
+#' 2.667	49.126	1	0.02855
+#' 2.750	49.2153	1	0.02859
+#' 2.833	49.3007	1	0.02863
+#' 2.917	49.3826	1	0.02867
+#' 3.000	49.4612	1	0.02871
+#' 3.083	49.5367	1	0.02875
+#' 3.167	49.6093	1	0.02878
+#' 3.250	49.6791	1	0.02882
+#' 3.333	49.7465	1	0.02886
+#' 3.417	49.8116	1	0.02889
+#' 3.500	49.8745	1	0.02893
+#' 3.583	49.9354	1	0.02896
+#' 3.667	49.9942	1	0.02899
+#' 3.750	50.0512	1	0.02903
+#' 3.833	50.1064	1	0.02906
+#' 3.917	50.1598	1	0.02909
+#' 4.000	50.2115	1	0.02912
+#' 4.083	50.2617	1	0.02915
+#' 4.167	50.3105	1	0.02918
+#' 4.250	50.3578	1	0.02921
+#' 4.333	50.4039	1	0.02924
+#' 4.417	50.4488	1	0.02927
+#' 4.500	50.4926	1	0.02929
+#' 4.583	50.5354	1	0.02932
+#' 4.667	50.5772	1	0.02935
+#' 4.750	50.6183	1	0.02938
+#' 4.833	50.6587	1	0.0294
+#' 4.917	50.6984	1	0.02943
+#' 5.000	50.7375	1	0.02946
 #' FILE: sbi/inst/references/boys-height.tab
 #' Age	M	SD
 #' 0	49.8842	1.8931
@@ -184,10 +240,46 @@
 #' 18	176.1	7.5
 #' FILE: sbi/inst/references/boys-muac.tab
 #' Age	M	L	S
-#' 0			
-#' 0.25			
-#' 0.5			
-#' 0.75			
+#' 1	15.828	-1.2654	0.0607
+#' 1.5	16.0192	-1.3434	0.0629
+#' 2	16.2009	-1.4215	0.0651
+#' 2.5	16.3874	-1.4995	0.0674
+#' 3	16.6307	-1.5768	0.0698
+#' 3.5	16.8484	-1.652	0.0725
+#' 4	17.0558	-1.7238	0.0753
+#' 4.5	17.284	-1.7903	0.0784
+#' 5	17.4935	-1.8471	0.0818
+#' 5.5	17.6331	-1.8902	0.0854
+#' 6	17.6969	-1.9179	0.0892
+#' 6.5	17.8185	-1.9299	0.0932
+#' 7	18.098	-1.9266	0.0973
+#' 7.5	18.4327	-1.9084	0.1016
+#' 8	18.8214	-1.876	0.1059
+#' 8.5	19.1971	-1.8302	0.1101
+#' 9	19.5866	-1.7726	0.1142
+#' 9.5	20.0158	-1.705	0.118
+#' 10	20.4757	-1.6288	0.1214
+#' 10.5	20.894	-1.5454	0.1243
+#' 11	21.3582	-1.4566	0.1265
+#' 11.5	21.8568	-1.3646	0.128
+#' 12	22.4244	-1.272	0.1288
+#' 12.5	23.0236	-1.1821	0.1289
+#' 13	23.6916	-1.0993	0.1282
+#' 13.5	24.4146	-1.0268	0.1269
+#' 14	25.1483	-0.9653	0.1252
+#' 14.5	25.8222	-0.916	0.1231
+#' 15	26.4633	-0.8819	0.1209
+#' 15.5	27.0597	-0.8635	0.1185
+#' 16	27.5911	-0.8579	0.1162
+#' 16.5	28.0378	-0.8609	0.1141
+#' 17	28.4863	-0.8677	0.1121
+#' 17.5	28.9794	-0.8727	0.1103
+#' 18	29.4727	-0.8710	0.1086
+#' 18.5	29.8809	-0.8587	0.1071
+#' 19	30.1808	-0.8343	0.1057
+#' 19.5	30.3865	-0.7970	0.1044
+#' 20	30.5285	-0.7477	0.1033
+#' FILE: sbi/inst/references/boys-muac-old.tab
 #' 1	15.828	-1.2654	0.0607
 #' 1.5	16.0192	-1.3434	0.0629
 #' 2	16.2009	-1.4215	0.0651
@@ -235,17 +327,67 @@
 #' 18	21.3	-0.85	0.143
 #' FILE: sbi/inst/references/girls-head.tab
 #' Age	M	L	S
-#' 0	33.8787	1	0.03496
-#' 0.25	39.5328	1	0.0314
-#' 0.5	42.1995	1	0.03087
-#' 0.75	43.83	1	0.03053
-#' 1	44.8965	1	0.03027
-#' 1.5	46.2424	1	0.02987
-#' 2	47.1822	1	0.02957
-#' 3	48.5099	1	0.02912
-#' 4	49.3321	1	0.02878
-#' 5	49.9229	1	0.0285
-#' 6	50.6	1	0.028
+#' 0.000	33.8787	1	0.03496
+#' 0.083	36.5463	1	0.0321
+#' 0.167	38.2521	1	0.03168
+#' 0.250	39.5328	1	0.0314
+#' 0.333	40.5817	1	0.03119
+#' 0.417	41.459	1	0.03102
+#' 0.500	42.1995	1	0.03087
+#' 0.583	42.829	1	0.03075
+#' 0.667	43.3671	1	0.03063
+#' 0.750	43.83	1	0.03053
+#' 0.833	44.2319	1	0.03044
+#' 0.917	44.5844	1	0.03035
+#' 1.000	44.8965	1	0.03027
+#' 1.083	45.1752	1	0.03019
+#' 1.167	45.4265	1	0.03012
+#' 1.250	45.6551	1	0.03006
+#' 1.333	45.865	1	0.02999
+#' 1.417	46.0598	1	0.02993
+#' 1.500	46.2424	1	0.02987
+#' 1.583	46.4152	1	0.02982
+#' 1.667	46.5801	1	0.02977
+#' 1.750	46.7384	1	0.02972
+#' 1.833	46.8913	1	0.02967
+#' 1.917	47.0391	1	0.02962
+#' 2.000	47.1822	1	0.02957
+#' 2.083	47.3204	1	0.02953
+#' 2.167	47.4536	1	0.02949
+#' 2.250	47.5817	1	0.02945
+#' 2.333	47.7045	1	0.02941
+#' 2.417	47.8219	1	0.02937
+#' 2.500	47.934	1	0.02933
+#' 2.583	48.041	1	0.02929
+#' 2.667	48.1432	1	0.02926
+#' 2.750	48.2408	1	0.02922
+#' 2.833	48.3343	1	0.02919
+#' 2.917	48.4239	1	0.02915
+#' 3.000	48.5099	1	0.02912
+#' 3.083	48.5926	1	0.02909
+#' 3.167	48.6722	1	0.02906
+#' 3.250	48.7489	1	0.02903
+#' 3.333	48.8228	1	0.029
+#' 3.417	48.8941	1	0.02897
+#' 3.500	48.9629	1	0.02894
+#' 3.583	49.0294	1	0.02891
+#' 3.667	49.0937	1	0.02888
+#' 3.750	49.156	1	0.02886
+#' 3.833	49.2164	1	0.02883
+#' 3.917	49.2751	1	0.0288
+#' 4.000	49.3321	1	0.02878
+#' 4.083	49.3877	1	0.02875
+#' 4.167	49.4419	1	0.02873
+#' 4.250	49.4947	1	0.0287
+#' 4.333	49.5464	1	0.02868
+#' 4.417	49.5969	1	0.02865
+#' 4.500	49.6464	1	0.02863
+#' 4.583	49.6947	1	0.02861
+#' 4.667	49.7421	1	0.02859
+#' 4.750	49.7885	1	0.02856
+#' 4.833	49.8341	1	0.02854
+#' 4.917	49.8789	1	0.02852
+#' 5.000	49.9229	1	0.0285
 #' FILE: sbi/inst/references/girls-height.tab
 #' Age	M	SD
 #' 0	49.1477	1.8627
@@ -273,10 +415,47 @@
 #' 18	163.1	6.6
 #' FILE: sbi/inst/references/girls-muac.tab
 #' Age	M	L	S
-#' 0			
-#' 0.25			
-#' 0.5			
-#' 0.75			
+#' 1	15.4888	-0.6662	0.0618
+#' 1.5	15.7878	-0.7745	0.0643
+#' 2	16.0462	-0.8818	0.0669
+#' 2.5	16.255	-0.9872	0.0696
+#' 3	16.4756	-1.0889	0.0725
+#' 3.5	16.7231	-1.1849	0.0755
+#' 4	16.988	-1.2719	0.0789
+#' 4.5	17.2485	-1.3465	0.0825
+#' 5	17.4733	-1.4039	0.0863
+#' 5.5	17.6657	-1.4409	0.0905
+#' 6	17.7761	-1.4566	0.0949
+#' 6.5	17.8944	-1.4522	0.0995
+#' 7	18.1418	-1.4308	0.1042
+#' 7.5	18.472	-1.3962	0.1089
+#' 8	18.9023	-1.3518	0.1136
+#' 8.5	19.3871	-1.3013	0.118
+#' 9	19.8822	-1.2481	0.1221
+#' 9.5	20.2857	-1.1956	0.1257
+#' 10	20.6871	-1.1488	0.1288
+#' 10.5	21.1251	-1.1121	0.1311
+#' 11	21.6429	-1.0885	0.1328
+#' 11.5	22.213	-1.0791	0.1337
+#' 12	22.8495	-1.085	0.1339
+#' 12.5	23.4701	-1.1054	0.1334
+#' 13	24.0074	-1.1371	0.1325
+#' 13.5	24.4522	-1.1767	0.1311
+#' 14	24.8291	-1.2223	0.1295
+#' 14.5	25.1492	-1.2719	0.1278
+#' 15	25.4407	-1.3228	0.126
+#' 15.5	25.7045	-1.3721	0.1244
+#' 16	25.9214	-1.4169	0.1229
+#' 16.5	26.0662	-1.4551	0.1217
+#' 17	26.173	-1.4852	0.1206
+#' 17.5	26.2504	-1.5066	0.1198
+#' 18	26.3489	-1.5209	0.1191
+#' 18.5	26.4942	-1.5289	0.1187
+#' 19	26.6642	-1.5311	0.1185
+#' 19.5	26.8144	-1.5276	0.1185
+#' 20	26.9355	-1.5203	0.1187
+#' FILE: sbi/inst/references/girls-muac-old.tab
+#' Age	M	L	S
 #' 1	15.4888	-0.6662	0.0618
 #' 1.5	15.7878	-0.7745	0.0643
 #' 2	16.0462	-0.8818	0.0669
@@ -373,7 +552,8 @@
 #' \item{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}}{partial correlation test}
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree}
 #' \item{\link[sbi:sbi_ref_score]{sbi$ref_score(x,age,sex,type)}}{reference score for the given age, sex and type (data)}
-#' \item{\link[sbi:sbi_ref_table]{sbi$ref_table(sex,type)}}{reference table for WHO for the given sex and measure type (daa)}
+#' \item{\link[sbi:sbi_ref_table]{sbi$ref_table(sex,type)}}{reference table for WHO for the given sex and measure type (data)}
+#' \item{\link[sbi:sbi_report_effsize]{sbi$report_effsize(x,p.value=NULL)}}{Report the effect size for the given number and p.value}
 #' \item{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star=FALSE)}}{Report a p-value with optional stars based on significance thresholds}
 #' \item{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}}{pooled standard deviation for a numercial vector and two or more groups}
 #' \item{\link[sbi:sbi_sdata]{sbi$sdata(name)}}{Load small data sets like 'c20' or 'azt'.}
@@ -482,6 +662,7 @@
 #' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} convert angle in radian into angle in degree
 #' \item \code{\link[sbi:sbi_ref_score]{sbi$ref_score(x,age,sex,type)}} reference score for the given age, sex and type
 #' \item \code{\link[sbi:sbi_ref_table]{sbi$ref_table(sex,type)}} reference table for WHO for the given sex and measure type
+#' \item \code{\link[sbi:sbi_report_effsize]{sbi$report_effsize(x,p.value=NULL)}} Report the effect size for the given number and p.value
 #' \item \code{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star = FALSE)}} report a p-value with optional stars based on significance thresholds
 #' \item \code{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}} pooled standard deviation for a numercial vector and two or more groups
 #' \item \code{\link[sbi:sbi_sdata]{sbi$sdata(name)}} load small data sets like 'c20' or 'azt'.
@@ -4546,7 +4727,8 @@ sbi_pastel = sbi$pastel
 #' \alias{sbi_ref_score}
 #' \title{ age corrected z-scores based on WHO references }
 #' \description{
-#'     Function to retrieve age corrected z-scores based on WHO references
+#'  Function to retrieve age corrected z-scores based on WHO references (height, weight, BMI, head circumference)
+#'  and MUAC (Addo et. al. 2017).
 #' }
 #' \usage{ sbi_ref_score(x,age,sex,type) }
 #' \arguments{
@@ -4560,20 +4742,22 @@ sbi_pastel = sbi$pastel
 #'     character string, either "M" for male/boy of "F" for female 
 #'   }
 #'   \item{type}{
-#'     character string, either "height" or "weight"
+#'     character string, either "height", "weight", "bmi", "head" or "muac".
 #'   }
 #' }
 #' \details{
-#'     Some more details ...
+#' The WHO references are taken from the WHO website \url{https://www.who.int/tools/child-growth-standards/standards/} and 
+#' the MUAC references from the paper of Ado et. al. 2017 \url{https://doi.org/10.3945/ajcn.116.142190}.
 #' }
-#' \value{data frame with the reference value}
+#' \value{vector z-scores values normalized for age for the given values}
 #' \examples{
 #' sbi$ref_score(100,age=4,sex="M",type="height")
 #' sbi$ref_score(100,age=4,sex="F",type="height")
+#' sbi$ref_score(c(25,26,33),c(18,21,4),c("M","M","F"),"muac")
 #' head(sbi$ref_table(sex="F",type="height"))
 #' # check for NA's
 #' }
-#' 
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_ref_table]{sbi$ref_table}.}
 
 #' FILE: sbi/R/ref_score.R
 sbi$ref_score <- function (x,age,sex,type) {
@@ -4646,9 +4830,10 @@ sbi_ref_score = sbi$ref_score
 #' \name{sbi$ref_table}
 #' \alias{sbi$ref_table}
 #' \alias{sbi_ref_table}
-#' \title{ WHO reference tables }
+#' \title{ WHO and Addo reference tables for age normalized z-scores of height, weight, BMI, MUAC and head circumference }
 #' \description{
-#'     Function to retrieve reference tables.
+#' Function to retrieve reference tables for getting z-scores normalized for age for 
+#' height, weight, BMI, head circumference or MUAC.
 #' }
 #' \usage{ sbi_ref_table(sex,type) }
 #' \arguments{
@@ -4660,14 +4845,18 @@ sbi_ref_score = sbi$ref_score
 #'   }
 #' }
 #' \details{
-#'     Some more details ...
+#' The WHO references are taken from the WHO website \url{https://www.who.int/tools/child-growth-standards/standards/} and 
+#' the MUAC references from the paper of Ado et. al. 2017 \url{https://doi.org/10.3945/ajcn.116.142190}.
+#' The value of M is the mean for this age, the value of L is related to the skewness of the distribution and S is the scaling
+#' factor.
+#' The z-value is calculated based on the following formula: z = ((y/M)^L - 1)/(L*S) where y is the actual value.
 #' }
 #' \value{data frame with the reference value}
 #' \examples{
 #' sbi$ref_table(sex="M",type="height")
 #' head(sbi$ref_table(sex="F",type="height"))
 #' }
-#' 
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_ref_score]{sbi$ref_score}.}
 
 #' FILE: sbi/R/ref_table.R
 sbi$ref_table <- function (sex,type) {
@@ -4682,6 +4871,62 @@ sbi$ref_table <- function (sex,type) {
     return(tab)
 }
 sbi_ref_table = sbi$ref_table
+
+#' FILE: sbi/man/sbi_report_effsize.Rd
+#' \name{sbi$report_effsize}
+#' \alias{sbi$report_effsize}
+#' \alias{sbi_report_effsize}
+#' \title{Calculate the effect size for the given test and add significance information if requested}
+#' \description{Report a given effect size and the p-value for embedding it into a plot for instance or a table.
+#' }
+#' \usage{sbi_report_effsize(x, digits=2, p.value=NULL,plot=FALSE, star = TRUE,type=NULL)}
+#' \arguments{
+#'   \item{x}{effect size value which will be rounded with the given digits}
+#'   \item{p.value}{p-value for the given effect size, default: NULL}
+#'   \item{digits}{the rounding digits for the effect size, default: 2}
+#'   \item{plot}{should the string added to an existing plot, per default, on top on the right side, default: FALSE}
+#'   \item{star}{should the star syntax for the p-value being used (TRUE) or a number (FALSE), default: TRUE}
+#'   \item{type}{type of effect size, like 'w', 'd', 'eta^2' etc, default: NULL}
+#' }
+#' \value{Returns the effect size measure rounded and with optional indication of significance and optionally adds it to a plot.}
+#' \examples{
+#'  sbi$report_effsize(0.1234,p.value=0.19,star=FALSE,type="d")
+#'  M <- as.table(rbind(c(762, 327, 468), c(484, 239, 477)))
+#' dimnames(M) <- list(gender = c("F", "M"),
+#'                 party = c("Democrat","Independent", "Republican"))
+#' (Xsq <- chisq.test(M))  # Prints test summary
+#' sbi$report_effsize(sbi$cohensW(M), p.value=Xsq$p.value,type="w")
+#' ## using the plot for adding effect size
+#' x <- margin.table(HairEyeColor, c(1, 2))
+#' sbi$assoc(x)
+#' sbi$report_effsize(sbi$cohensW(x),p.value=chisq.test(x)$p.value,type="w",plot=TRUE)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_report_pval]{sbi$report_pval}}
+#' FILE: sbi/R/report_effsize.R
+sbi$report_effsize <- function (x, digits=2, p.value=NULL,plot=FALSE, star = TRUE,type=NULL) {
+    if (missing("p.value")) {
+        res=round(x,digits)
+    }
+    if (missing("type")) {
+        type=""
+    } else {
+        type=paste(type,"=",sep="")
+    }
+    if (star) {
+        pval=sbi$report_pval(p.value,star=TRUE)
+        res=paste(round(x,digits),pval,sep="")
+    } else {
+        pval=sbi$report_pval(p.value,star=FALSE)
+        res=paste(round(x,digits),", ",pval,sep="")
+    } 
+    if (plot) {
+        mtext(side=3,adj=1,paste(type,res,sep=""))
+    } else {
+        return(paste(type,res,sep=""))
+    }
+}
+
+sbi_report_effsize = sbi$report_effsize
 
 #' FILE: sbi/man/report_pval.Rd
 #' \name{sbi$report_pval}
@@ -4713,11 +4958,23 @@ sbi$report_pval <- function (p, star=TRUE) {
       return("**")
     } else if (p < 0.05) {
       return("*")
+    } else if (p < 0.1) {
+      return("'")
     } else {
-      return("")
+      return("(ns)")
     }
   } else {
-    return(sprintf("p = %.4f", p))
+    if (p < 0.001) {
+      return("p<.001")
+    } else if (p < 0.01) {
+      return("p<.01")
+    } else if (p < 0.05) {
+      return("p<.05")
+    } else if (p < 0.10) {
+      return("p<.1")
+    } else {
+      return(sprintf("p=%.2f", p))
+    }
   }
 }
 
