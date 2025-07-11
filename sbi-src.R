@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.0.9
-#' Date: 2025-07-09
+#' Version: 0.1.0
+#' Date: 2025-07-10
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -16,13 +16,14 @@
 #' Maintainer: Detlef Groth <dgroth@uni-potsdam.de>
 #' Description: 
 #'    This is a package template for the course Statistical Bioinformatics
-#'    at the University of Potsdam. For the Master couses Bioinformatics.
+#'    at the University of Potsdam which is a course for the Master Bioinformatics.
 #'    It contains methods introduced during the lectures and additional
-#'    useful functions helpful for in general statistical analysis.
+#'    useful functions used at the University summer school Human Biology and
+#'    Public Health which are helpful for statistical analysis.
 #' URL:  https://github.com/mittelmark/sbi
 #' BugReports: https://github.com/mittelmark/sbi/issues
 #' Imports: cluster, rpart
-#' Suggests: knitr, rmarkdown, extrafont, MASS, digest, tcltk, png, tools
+#' Suggests: knitr, rmarkdown, extrafont, MASS, digest, tcltk, png, tools, quantreg
 #' VignetteBuilder: knitr
 #' License: MIT + file LICENSE
 #' Language: en-US
@@ -38,7 +39,8 @@
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
-#'     rad2deg.R ref_score.R ref_table.R report_effsize.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
+#'     qr_plot.R
+#'     rad2deg.R randomize.R ref_score.R ref_table.R report_effsize.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
 #'     textplot.R untab.R venn.R wilcoxR.R
 #'     ni.R pipe.R
 #' FILE: sbi/LICENSE
@@ -46,6 +48,9 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-07-10: Version 0.1.0
+#'    - adding methods qr_plot and randomize
+#'    - adding new MUAC references from Ado et. al. 2017
 #' 2025-07-09: Version 0.0.9
 #'    - fixes a bug in the sbi$ref_score function.
 #' 2025-07-09: Version 0.0.8
@@ -77,7 +82,7 @@
 #' exportPattern("^[[:lower:]]+")
 #' export("%>%")
 #' export("%ni%")
-#' importFrom("stats", "dist", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
+#' importFrom("stats", "coef", "dist", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
 #'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals",
 #'            "qnorm", "wilcox.test","cov", "qchisq")
@@ -550,6 +555,8 @@
 #' \item{\link[sbi:sbi_pca_varplot]{sbi$pca_varplot(pca)}}{PCA variance plot (pca, plot)}
 #' \item{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}}{partial correlation}
 #' \item{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}}{partial correlation test}
+#' \item{\link[sbi:sbi_qr_plot]{sbi$qr_plot(x,data)}}{plot quantile regression models}
+#' \item{\link[sbi:sbi_randomize]{sbi$randomize(x)}}{randomize column data within matrix or data frame (data)}
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree}
 #' \item{\link[sbi:sbi_ref_score]{sbi$ref_score(x,age,sex,type)}}{reference score for the given age, sex and type (data)}
 #' \item{\link[sbi:sbi_ref_table]{sbi$ref_table(sex,type)}}{reference table for WHO for the given sex and measure type (data)}
@@ -659,6 +666,8 @@
 #' \item \code{\link[sbi:sbi_pca_varplot]{sbi$pca_varplot(pca)}} PCA variance plot (pca, plot)
 #' \item \code{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}} partial correlation
 #' \item \code{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}} partial correlation test
+#' \item \code{\link[sbi:sbi_qr_plot]{sbi$qr_plot(x,data)}} plot quantile regression models
+#' \item \code{\link[sbi:sbi_randomize]{sbi$randomize(x)}} randomize column data within matrix or data frame (data)
 #' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} convert angle in radian into angle in degree
 #' \item \code{\link[sbi:sbi_ref_score]{sbi$ref_score(x,age,sex,type)}} reference score for the given age, sex and type
 #' \item \code{\link[sbi:sbi_ref_table]{sbi$ref_table(sex,type)}} reference table for WHO for the given sex and measure type
@@ -4720,6 +4729,127 @@ sbi$pastel <- function (n) {
 }
 
 sbi_pastel = sbi$pastel
+
+#' FILE: sbi/man/sbi_qr_plot.Rd
+#' \name{sbi$qr_plot}
+#' \alias{sbi$qr_plot}
+#' \alias{sbi_qr_plot}
+#' \title{ Plot quantile regression models }
+#' \description{
+#'     This is a convinience method to plot quantile regression models and giving
+#'     optional percentile intervals for a given range of predictions.
+#'     The slope and the intercept for the different quantiles are returned as well if requested.
+#' }
+#' \usage{ sbi_qr_plot(x,data,quantiles=c(0.05,0.1,0.5,0.9,0.95),pred=NULL,plot=TRUE,...)} 
+#' \arguments{
+#'   \item{x}{
+#'     formula for two numerical variables
+#'   }
+#'   \item{data}{
+#'     data frame containing the variables for the formula
+#'   }
+#'   \item{quantiles}{
+#'     the requested quantiles, default: c(0.05,0.1,0.5,0.9,0.95)
+#'   }
+#'   \item{pred}{
+#'     vector for prediction values, default: NULL
+#'   }
+#'   \item{plot}{
+#'     should the data being plotted, default: TRUE
+#'   }
+#'   \item{\ldots}{other arguments which will be forwarded to the plot function}
+#' }
+#' \value{returns list with intercept and coefficients if requested (invisible)}
+#' \examples{
+#' data(iris) 
+#' if (requireNamespace("quantreg")) {
+#'   sbi$qr_plot(Sepal.Width ~ Sepal.Length,data=iris[51:151,])
+#'   sbi$qr_plot(Sepal.Width ~ Sepal.Length,data=iris[51:151,])
+#'   res=sbi$qr_plot(Sepal.Width ~ Sepal.Length,data=iris[51:151,],pred=c(5,5.5,6,6.5,7,7.5,8))
+#'   res$centiles
+#'   res$coef
+#' }
+#' }
+#' \seealso{
+#'    \link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_lm_plot]{sbi$lm_plot}
+#' }
+#'
+
+#' FILE: sbi/R/qr_plot.R
+sbi$qr_plot <- function (x,data,quantiles=c(0.05,0.1,0.5,0.9,0.95),
+                         pred=NULL,plot=TRUE,...) {
+    if (!requireNamespace("quantreg")) {
+        stop("Error: quantile regression needs package quantreg!")
+    }
+    seq=quantiles
+    if (!is.null(pred[1])) {
+        df=data.frame(y=pred)
+        for (i in seq) {
+            df=cbind(df,new=rep(0,nrow(df)))
+            colnames(df)[ncol(df)]=paste("Perc",i,sep="_")
+        }
+    }
+    multi_rqfit <- quantreg::rq(x, data = data, tau = seq)
+    colors <- c("#ffe6e6", "#cca6a6", "#993333", "#cca6a6", "#ffe6e6")
+    ltys=c(3,2,1,2,3)
+    if (plot) {
+        plot(x, data = data, pch = 16, ...)
+        #print(multi_rqfit$coefficients)
+        for (j in 1:ncol(multi_rqfit$coefficients)) {
+            abline(coef(multi_rqfit)[, j], col = colors[j],lty=ltys[j],lwd=2)
+        }
+    }
+    if (!is.null(pred[1])) {
+        i = 1
+        for (p in pred) {
+            for (j in 1:ncol(multi_rqfit$coefficients)) {
+                val=coef(multi_rqfit)[1, j]+p*coef(multi_rqfit)[2, j]
+                df[i,j+1]=val
+            }
+            i=i+1
+        }
+    }
+    if (!is.null(pred)[1]) {
+        invisible(list(coef=coef(multi_rqfit),centiles=df))
+    } else {
+        invisible(list(coef=coef(multi_rqfit)))
+    }
+}
+sbi_qr_plot = sbi$qr_plot
+
+#' FILE: sbi/man/sbi_randomize.Rd
+#' \name{sbi$randomize}
+#' \alias{sbi$randomize}
+#' \alias{sbi_randomize}
+#' \title{Randomize data frame or matrix columns}
+#' \description{
+#'   This function can be used to randomize the data within the same column.
+#' }
+#' \usage{ sbi_randomize(x) }
+#' \arguments{
+#'   \item{x}{
+#'     either a matrix or data frame
+#'   }
+#' }
+#' \value{depending on the input either a data frame or matrix with randomized values}
+#' \examples{
+#' data(iris)
+#' round(cor(iris[,1:4]),2)
+#' round(cor(sbi$randomize(iris[,1:4])),2)
+#' }
+#' \seealso{
+#'    \link[sbi:sbi-class]{sbi-class} 
+#' }
+#'
+
+#' FILE: sbi/R/randomize.R
+sbi$randomize <- function (x) {
+    for (i in 1:ncol(x)) {
+        x[,i]=sample(x[,i])
+    }
+    return(x)
+}
+sbi_randomize = sbi$randomize
 
 #' FILE: sbi/man/sbi_ref_score.Rd
 #' \name{sbi$ref_score}

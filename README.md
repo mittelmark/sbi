@@ -42,7 +42,7 @@ Or you install the latest release as a normal package:
 
 ```
 $ R
-> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.0.9/sbi_0.0.9.tar.gz",repos=NULL)
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.1.0/sbi_0.1.0.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
 ```
@@ -50,8 +50,8 @@ $ R
 Or you install the latest release from a Unix Terminal like this:
 
 ```
-wget https://github.com/mittelmark/sbi/releases/download/v0.0.9/sbi_0.0.9.tar.gz
-R CMD INSTALL sbi_0.0.9.tar.gz
+wget https://github.com/mittelmark/sbi/releases/download/v0.1.0/sbi_0.1.0.tar.gz
+R CMD INSTALL sbi_0.1.0.tar.gz
 ```
 
 Installation  as a package has the advantage  that you have the  documentation
@@ -73,8 +73,8 @@ wget -O sbi-src.R https://github.com/mittelmark/sbi/raw/main/sbi-src.R
 Rscript sbi-src.R --process    sbi-src.R         # extract all files
 Rscript sbi-src.R --vignettex  sbi-src.R         # extract examples as vignette
 Rscript sbi-src.R --build      sbi               # build package tar-gz file
-Rscript sbi-src.R --check      sbi_0.0.9.tar.gz  # check package tar-gz file
-Rscript sbi-src.R --install    sbi_0.0.9.tar.gz  # install from local tar-gz file
+Rscript sbi-src.R --check      sbi_0.1.0.tar.gz  # check package tar-gz file
+Rscript sbi-src.R --install    sbi_0.1.0.tar.gz  # install from local tar-gz file
 ```
 
 
