@@ -2,12 +2,13 @@
 
 [![Release](https://img.shields.io/github/v/release/mittelmark/sbi.svg?label=current+release)](https://github.com/mittelmark/sbi/releases)
 [![license](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://opensource.org/license/MIT)
-[![CI test](https://github.com/mittelmark/sbi/workflows/R/badge.svg)](https://www.gnu.org/licenses/gpl.html)
+[![CI test](https://github.com/mittelmark/sbi/workflows/R/badge.svg)](https://github.com/mittelmark/sbi/actions)
+![Commits](https://img.shields.io/github/commits-since/mittelmark/sbi/latest)
 
 ## Name
 
 __sbi__ - R functions for the course "Statistical Bioinformatics" and the
-Summer school of the University of Potsdam "Human Biology and Public Health"
+Summer school of the University of Potsdam ["Statistics for Human Biology and Public Health"](https://www.human-biology-and-public-health.org/index.php/hbph/summerschool).
 
 ## Synopsis
 

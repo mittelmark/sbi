@@ -3,7 +3,7 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.1.0
+#' Version: 0.1.1
 #' Date: 2025-07-10
 #' Author: Detlef Groth
 #' Authors@R:c(
@@ -2026,8 +2026,7 @@ sbi_dict = sbi$dict
 #'   the data distribution will be outlined. This plot is usually an useful visualization
 #'   for 3-8 variables.
 #' }
-#' \usage{sbi_dpairs(data,col.box='grey80', col.xy="grey60", 
-#'     cex.diag=2.5, order=TRUE,pch=19)}
+#' \usage{sbi_dpairs(data,col.box='grey80', col.xy="grey60", cex.diag=2, order=TRUE, pch=19)}
 #' \arguments{
 #'   \item{data}{data frame with columns of class factor, numeric or integer}
 #'   \item{col.box}{colors for the boxplots, either a single value or a vector of colors for each
@@ -2039,12 +2038,11 @@ sbi_dict = sbi$dict
 #'      as it orders the plots, starting with assocplots, then boxplots and finally xyplots, default: TRUE}
 #'   \item{pch}{plotting character for xy-plots, default 19 (round circle)}
 #' }
-#' \examples{ %options: fig.width=12,fig.height=12
+#' \examples{ %options: fig.width=8,fig.height=8
 #' data(iris)
 #' dpairs=sbi$dpairs
 #' par(omi = c(0.8, 0.4,0.4,0.4))
-#' dpairs(iris,col.box=2:4,col.xy=rep(c(2:4),each=50),
-#'   cex.diag=1.6)
+#' dpairs(iris,col.box=2:4,col.xy=rep(c(2:4),each=50), cex.diag=1.6)
 #' sbi$dpairs_legend(levels(iris$Species),col=2:4,cex=1)
 #' par(omi=c(0.5,0.5,0.8,0.2))
 #' btwt=MASS::birthwt; 
@@ -2057,7 +2055,7 @@ sbi_dict = sbi$dict
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_dpairs_legend]{sbi$spairs_legend}}
 #' FILE: sbi/R/dpairs.R
 
-sbi$dpairs <- function (data,col.box='grey80',col.xy="grey60",cex.diag=2.5,
+sbi$dpairs <- function (data,col.box='grey80',col.xy="grey60",cex.diag=2,
                     order=TRUE,pch=19) {
     oop=options()
     opar=par()
@@ -2217,16 +2215,16 @@ sbi_dpairs = sbi$dpairs
 #'   \item{cex}{the character expansion for the legend, default: 2}
 #'   \item{\ldots}{other arguments delegated to the legend command}
 #' }
-#' \examples{
+#' \examples{ %options: fig.width=8,fig.height=8
 #' data(iris)
 #' par(omi = c(0.8, 0.4,0.8,0.4)) # reserve some space top and bottom
-#' sbi$dpairs(iris,col.box=2:4,col.xy=rep(c(2:4),each=50))
-#' sbi$dpairs_legend(levels(iris$Species),col=2:4)
+#' sbi$dpairs(iris,col.box=2:4,col.xy=rep(c(2:4),each=50),cex.diag=1.6)
+#' sbi$dpairs_legend(levels(iris$Species),col=2:4,cex=1.6)
 #' mtext('Iris Data',side=3,outer=TRUE,cex=2,line=1)
 #' # simple example with outer legend on a single plot
 #' par(omi = c(0.5, 0.3,0.3,0.1))
 #' plot(c(1:3),pch=15,col=2:4,cex=2,ylim=c(0,4))
-#' sbi$dpairs_legend(label=LETTERS[1:3],col=2:4)
+#' sbi$dpairs_legend(label=LETTERS[1:3],col=2:4,cex=1.5)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_dpairs]{sbi$spairs}}
 #' FILE: sbi/R/dpairs_legend.R
