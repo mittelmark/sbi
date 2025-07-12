@@ -6110,6 +6110,16 @@ ExtractEx <- function (srcfile) {
             fout = file(rmdfile,'w')
             code=gsub("Introduction","EXAMPLES",gsub("tutorial","examples",VIGNETTE))
             cat(sprintf(code,pkg,Sys.Date(),pkg),file=fout)
+            if (dir.exists("inst")) {
+                if (!dir.exists(file.path(pkg,"inst"))) {
+                    file.copy("inst",file.path(pkg,recursive=TRUE))
+                } else {
+                    for (dir in list.dirs("inst")) {
+                        file.copy(dir,file.path(pkg,"inst"),recursive=TRUE)
+                    }
+                }
+            }
+            cat("Files from inst folder copied into package folder!\n")
         } else if (grepl("^#' \\\\name",line)) {
              cat(paste("### ",gsub(".+\\{(.+)\\}","\\1",line),"\n"),file=fout)
              name=gsub("[^A-Za-z0-9]","_",gsub(".+\\{(.+)\\}.*","\\1",line))
@@ -6178,6 +6188,7 @@ ExtractEx <- function (srcfile) {
     }
     file.copy(rmdfile,file.path(pkg,"vignettes",rmdfile),overwrite=TRUE)
     cat(sprintf("File: %s was written\n",file.path(pkg,"vignettes",rmdfile)))
+                      
 }
 
 Usage <- function (argv) {
