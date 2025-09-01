@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.1.1
-#' Date: 2025-07-10
+#' Version: 0.1.2
+#' Date: 2025-09-01
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -48,6 +48,10 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-09-01: Version 0.1.2
+#'    - fixing issue with girls / boys order in ref_table
+#' 2025-07-12:
+#'    - adding cdc references for weight
 #' 2025-07-10: Version 0.1.0
 #'    - adding methods qr_plot and randomize
 #'    - adding new MUAC references from Ado et. al. 2017
@@ -4906,8 +4910,8 @@ sbi$ref_score <- function (x,age,sex,type) {
             sex=rep(sex,length(x))
         }
     }
-    sex=gsub("ma?l?e?","boys",sex)
     sex=gsub("fe?m?a?l?e?","girls",sex)
+    sex=gsub("ma?l?e?","boys",sex)
     sex[!(sex %in% c("girls","boys"))]=NA
     for (i in 1:length(x)) {
         if (is.na(sex[i]) | is.na(age[i])) {
