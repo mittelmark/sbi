@@ -1386,10 +1386,11 @@ sbi_coa = sbi$coa
 #'   for small effects, values of around 0.5 represent medium effects and values of around 0.8 
 #'   and larger represent large effects. 
 #' }
-#' \usage{sbi_cohensD(x, y,paired=FALSE)}
+#' \usage{sbi_cohensD(x, y=NULL,mu=0,,paired=FALSE)}
 #' \arguments{
 #' \item{x}{vector with numerical values}
-#' \item{y}{vector with two grouping variables, having the same length as x or another vector of numbers having then the same length as y}
+#' \item{y}{vector with two grouping variables, having the same length as x or another vector of numbers having then the same length as y, if not given an one sample test is assumed, default: NULL}
+#' \item{mu}{population mean for an one sample test, used only if no y is given, default: 0}
 #' \item{paired}{are the data paired, default: FALSE}
 #' }
 #' \details{
@@ -1418,12 +1419,16 @@ sbi_coa = sbi$coa
 #' # matrix of Cohen's d values:
 #' data(airquality)
 #' with(airquality,sbi$cohensD(Ozone,as.factor(Month)))
+#' sbi$cohensD(rnorm(100,mean=1),mu=0.5)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensF]{sbi$cohensF},
 #' \link[effsize]{cohen.d}}
 #' FILE: sbi/R/cohensD.R
 
-sbi$cohensD <- function (x, y, paired=FALSE) {
+sbi$cohensD <- function (x, y=NULL, mu=0,paired=FALSE) {
+    if (is.null(y)) {
+        return((mu-mean(x,na.rm=TRUE))/sd(x,na.rm=TRUE))
+    }
     if (is.factor(y) & length(levels(y))>2) {
         M = matrix(0,nrow=length(levels(y)),ncol=length(levels(y)))
         rownames(M)=colnames(M)=levels(y)
@@ -3779,11 +3784,72 @@ sbi$mkdoc <- function (infile,cssfile="mini.css",eval=FALSE)  {
     if (!eval) {
         system(sbi$fmt("pandoc -s -f markdown -c {1} -o {2} {3}",cssfile,htmlfile,outfile))
     } else {
-        rmarkdown::render(outfile,rmarkdown::html_document(css="mini.css",theme=NULL))
+        rmarkdown::render(infile,rmarkdown::html_document(css=cssfile,theme=NULL))
     }
     cat("Processing done in",round(as.numeric(Sys.time()-t1,units="secs"),2),"seconds!\n")
 }
 sbi_mkdoc = sbi$mkdoc
+
+#' FILE: sbi/man/sbi_nfig.Rd
+#' \name{sbi$nfig}
+#' \alias{sbi$nfig}
+#' \alias{sbi_nfig}
+#' \title{Return the current figure number in Markdown documents}
+#' \description{Return the figure number, usually in figure legends. Thso command loads optionally a cache file, figs.RData in the
+#'  current directory.}
+#' \usage{sbi_nfig(label)}
+#' \arguments{
+#'   \item{label}{a text label for the figure, later used to get the figure number using the `rfig` method}
+#' }
+#' \details{
+#' The function is mainly used in Markdown documents for figure numbering and referencing.
+#' }
+#' \value{Current figure number as integer.}
+#' \examples{
+#' sbi$nfig('test1')
+#' sbi$nfig('test2')
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/nfig.R
+sbi$nfig <- function (label) {
+    if (!exists(".figs") & file.exists("figs.RData")) {
+        load("figs.RData")
+        .figs['N']=0
+    } else if (!exists(".figs")) {
+        .figs <<- list(N=0)
+    }
+    .figs['N'] <<- .figs[['N']]+1
+    .figs[label] <<- .figs[['N']]
+    return(.figs[['N']])
+}
+sbi_nfig = sbi$nfig
+sbi$rfig <- function (label) {
+    if (!exists(".figs") & file.exists("figs.RData")) {
+        load("figs.RData")
+    } else if (!exists(".figs")) {
+        return(0)
+    } else {
+        if (label %in% .figs) {
+            return(.figs[[label]])
+        } else {
+            return(0)
+        }
+    }
+}
+
+sbi_rfig = sbi$rfig
+sbi$ntab <- function (label) {
+    if (!exists(".tabs") & file.exists("tabs.RData")) {
+        load("tabs.RData")
+        .tabs['N']=0
+    } else if (!exists(".tabs")) {
+        .tabs <<- list(N=0)
+    }
+    .tabs['N'] <<- .tabs[['N']]+1
+    .tabs[label] <<- .tabs[['N']]
+    return(.tabs[['N']])
+}
+sbi_ntab = sbi$ntab
 
 #' FILE: sbi/man/sbi_modus.Rd
 #' \name{sbi$modus}
