@@ -4360,20 +4360,19 @@ sbi_pairwise.effect_size = sbi$pairwise.effect_size
 #' \item{\ldots}{additional arguments delegated to the standard plot function}
 #' }
 #' \value{NULL}
-#' \examples{ %options: fig.width=10,fig.height=5
-#' par(mai=c(0.8,0.8,0.2,0.6),mfrow=c(1,2))
+#' \examples{ %options: fig.width=10,fig.height=5 
+#' par(mfrow=c(1,2))
 #' data(iris)
-#' pci=prcomp(iris[,1:4],scale=TRUE)
-#' sbi$pca_biplot(pci,col=rep(2:4,each=50),ellipse=TRUE,ell.fill=TRUE,
-#'  arrow.fac=2.3,arrows=TRUE,main="biplot")
-#' legend('topright',pch=19,col=2:4,levels(iris$Species))
-#' # standard score plot
-#' sbi$pca_biplot(pci,col=rep(2:4,each=50),ellipse=FALSE,
-#'  arrows=FALSE,main="scoreplot")
+#' cols=c("blue","green","red")
+#' head(iris)
+#' pci=prcomp(scale(iris[,1:4]))
+#' sbi$pca_biplot(pci,col=rep(cols,each=50),ellipse=TRUE,ell.fill=TRUE,
+#'   arrow.fac=2.3,arrows=TRUE,main="biplot")
+#' legend("topright",pch=19,col=cols,levels(iris$Species))
+#' sbi$pca_biplot(pci,col=rep(cols,each=50),ellipse=FALSE,
+#    arrows=FALSE,main="scoreplot")
 #' }
-#' 
 #' FILE: sbi/R/pca_biplot.R
-
 sbi$pca_biplot <- function (pca,pcs=c("PC1","PC2"),
                        pch=19,col='black',
                        arrows=TRUE,arrow.fac=1,
