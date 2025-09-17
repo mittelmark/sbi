@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.1.2
-#' Date: 2025-09-01
+#' Version: 0.2.0
+#' Date: 2025-09-17
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -23,19 +23,20 @@
 #' URL:  https://github.com/mittelmark/sbi
 #' BugReports: https://github.com/mittelmark/sbi/issues
 #' Imports: cluster, rpart
-#' Suggests: knitr, rmarkdown, extrafont, MASS, digest, tcltk, png, tools, quantreg
+#' Suggests: knitr, rmarkdown, showtext, MASS, digest, tcltk, png, tools, quantreg
 #' VignetteBuilder: knitr
 #' License: MIT + file LICENSE
 #' Language: en-US
 #' Encoding: UTF-8
 #' NeedsCompilation: no
-#' Collate: sbi.R  assoc.R assoc_legend.R aggregate2.R angle.R bezier.R bootstrap.R
+#' Collate: sbi.R  aaa.R assoc.R assoc_legend.R aggregate2.R angle.R bezier.R bootstrap.R
 #'     cache_image.R cdist.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R 
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R 
 #'     kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
+#'     mtex.R nfig.R rfig.R ntab.R rtab.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
@@ -48,6 +49,11 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-09-17: Version 0.2.0
+#'    - new commands nfig, rfig, ntab, rtab for figure and 
+#'      table numbering and referencing
+#'    - new command mtex for create LaTeX equations as png documents
+#'    - switching from extrafont in vignette to showtext
 #' 2025-09-01: Version 0.1.2
 #'    - fixing issue with girls / boys order in ref_table
 #' 2025-07-12:
@@ -545,7 +551,10 @@
 #' \item{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}}{lattice like histogram}
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}}{convert mkdoc documentation to HTML}
-#' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{Return the most often level in a categorical variable.}
+#' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{return the most often level in a categorical variable}
+#' \item{\link[sbi:sbi_mtex]{sbi$mtex(equation)}}{create a png image for LaTeX equations and matrices}
+#' \item{\link[sbi:sbi_nfig]{sbi$nfig(label)}}{return the current figure number in Markdown documents}
+#' \item{\link[sbi:sbi_ntab]{sbi$ntab(label)}}{return the current table number in Markdown documents}
 #' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{create up to 20 pastel colors}
 #' \item{\link[sbi:sbi_packageDependencies]{sbi$packageDependencies(pkgname)}}{return the dependencies of the given package}
 #' \item{\link[sbi:sbi_pairwise.effect_size]{sbi$pairwise.effect_size(x,y=NULL)}}{pairwise effect size measures for more than two factors}
@@ -566,6 +575,8 @@
 #' \item{\link[sbi:sbi_ref_table]{sbi$ref_table(sex,type)}}{reference table for WHO for the given sex and measure type (data)}
 #' \item{\link[sbi:sbi_report_effsize]{sbi$report_effsize(x,p.value=NULL)}}{Report the effect size for the given number and p.value}
 #' \item{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star=FALSE)}}{Report a p-value with optional stars based on significance thresholds}
+#' \item{\link[sbi:sbi_rfig]{sbi$rfig(label)}}{return the figure number for the given label in Markdown documents}
+#' \item{\link[sbi:sbi_rtab]{sbi$rtab(label)}}{return the table number for the given label in Markdown documents}
 #' \item{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}}{pooled standard deviation for a numercial vector and two or more groups}
 #' \item{\link[sbi:sbi_sdata]{sbi$sdata(name)}}{Load small data sets like 'c20' or 'azt'.}
 #' \item{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}}{standard error of the mean}
@@ -657,6 +668,9 @@
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
 #' \item \code{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}} convert mkdoc documentation to HTML
 #' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} return the most often level in a categorical variable
+#' \item \code{\link[sbi:sbi_mtex]{sbi$mtex(equation)}} create a png image for LaTeX equations and matrices
+#' \item \code{\link[sbi:sbi_nfig]{sbi$nfig(label)}} return the current figure number in Markdown documents
+#' \item \code{\link[sbi:sbi_ntab]{sbi$ntab(label)}} return the current table number in Markdown documents
 #' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} create up to 20 pastel colors
 #' \item \code{\link[sbi:sbi_packageDependencies]{sbi$packageDependencies(pkgname)}} return the dependencies of the given package
 #' \item \code{\link[sbi:sbi_pairwise.effect_size]{sbi$pairwise.effect_size(x,y=NULL)}} pairwise effect size measures for more than two factors
@@ -677,6 +691,8 @@
 #' \item \code{\link[sbi:sbi_ref_table]{sbi$ref_table(sex,type)}} reference table for WHO for the given sex and measure type
 #' \item \code{\link[sbi:sbi_report_effsize]{sbi$report_effsize(x,p.value=NULL)}} Report the effect size for the given number and p.value
 #' \item \code{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star = FALSE)}} report a p-value with optional stars based on significance thresholds
+#' \item \code{\link[sbi:sbi_rfig]{sbi$rfig(label)}} return the figure number for the given label in Markdown documents
+#' \item \code{\link[sbi:sbi_rtab]{sbi$rtab(label)}}return the table number for the given label in Markdown documents
 #' \item \code{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}} pooled standard deviation for a numercial vector and two or more groups
 #' \item \code{\link[sbi:sbi_sdata]{sbi$sdata(name)}} load small data sets like 'c20' or 'azt'.
 #' \item \code{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}} standard error of the mean
@@ -703,6 +719,11 @@ sbi=new.env()
 
 ## Actual code starts
 ## Functions documentation, protect percent signs % with backslashes \%
+
+#' FILE: sbi/R/aaa.R
+.sbi_env <- new.env(parent = emptyenv())
+.sbi_env$figs <- list(N=0)
+.sbi_env$tabs <- list(N=0)
 
 #' FILE: sbi/man/sbi_aggregate2.Rd
 #' \name{sbi$aggregate2}
@@ -1386,7 +1407,7 @@ sbi_coa = sbi$coa
 #'   for small effects, values of around 0.5 represent medium effects and values of around 0.8 
 #'   and larger represent large effects. 
 #' }
-#' \usage{sbi_cohensD(x, y=NULL,mu=0,,paired=FALSE)}
+#' \usage{sbi_cohensD(x, y=NULL,mu=0,paired=FALSE)}
 #' \arguments{
 #' \item{x}{vector with numerical values}
 #' \item{y}{vector with two grouping variables, having the same length as x or another vector of numbers having then the same length as y, if not given an one sample test is assumed, default: NULL}
@@ -1421,8 +1442,7 @@ sbi_coa = sbi$coa
 #' with(airquality,sbi$cohensD(Ozone,as.factor(Month)))
 #' sbi$cohensD(rnorm(100,mean=1),mu=0.5)
 #' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensF]{sbi$cohensF},
-#' \link[effsize]{cohen.d}}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_cohensF]{sbi$cohensF}}
 #' FILE: sbi/R/cohensD.R
 
 sbi$cohensD <- function (x, y=NULL, mu=0,paired=FALSE) {
@@ -2476,7 +2496,7 @@ sbi_file.head = sbi$file.head
 #' }
 #' \usage{
 #' sbi_flow(x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, 
-#'          lab = "", family = "Arial", type = "arrow", axes = FALSE, lwd = 2, 
+#'          lab = "", family = "", type = "arrow", axes = FALSE, lwd = 2, 
 #'          width = 1, height = 0.5, cex = 1, col = "skyblue", border = "black", 
 #'          arrow.col = "black", cut = 0.6, shadow = TRUE, shadow.col = "#bbbbbb99", ...)
 #' }
@@ -2492,7 +2512,7 @@ sbi_file.head = sbi$file.head
 #'   \item{x.incr}{Optional increment in x direction. Default: \code{0}.}
 #'   \item{y.incr}{Optional increment in y direction. Default: \code{0}.}
 #'   \item{lab}{Label(s) for a node shown as a rectangle. Default: \code{""}.}
-#'   \item{family}{Font family for node labels. Default: \code{"Arial"}.}
+#'   \item{family}{Font family for node labels. Default: \code{""}.}
 #'   \item{type}{Shape type or arrow. Options include "arrow", "line", "rect", "circle", "ellipse", "hexagon", "diamond", etc. Default: \code{"arrow"}.}
 #'   \item{axes}{Logical; show axes on the plot. Default: \code{FALSE}.}
 #'   \item{lwd}{Line width for arrows or lines. Default: \code{2}.}
@@ -2508,20 +2528,15 @@ sbi_file.head = sbi$file.head
 #'   \item{...}{Additional graphical parameters passed to plot functions.}
 #' }
 #' \examples{
-#' font <- "Arial"
-#' if (requireNamespace("extrafont", quietly = TRUE)) {
-#'    extrafont::loadfonts(device = "pdf", quiet = TRUE)
-#'    if (length(extrafont::fonts()) == 0) {
-#'         extrafont::ttf_import()
-#'         extrafont::loadfonts(device = "pdf", quiet = TRUE)
-#'    }
-#'    if ("Albertus Medium" \%in\% extrafont::fonts()) {
-#'         font <- "Albertus Medium"
-#'    } else if ("Georgia" \%in\% extrafont::fonts()) {
-#'         font <- "Georgia"
-#'    } else if ("Liberation Sans" \%in\% extrafont::fonts()) {
-#'         font <- "Liberation Sans"
-#'    }
+#' font <- ""
+#' if (requireNamespace("showtext", quietly = TRUE)) {
+#'    library(showtext)
+#'    ## Loading Google fonts (https://fonts.google.com/)
+#'    font_add_google("Gochi Hand", "gochi")
+#'    font_add_google("Schoolbell", "bell")
+#' 
+#'    ## Automatically use showtext to render text
+#'    showtext_auto()
 #' }
 #' flow <- sbi$flow
 #' flow(4, 4, axes = TRUE, cex.axis = 3, family = font)
@@ -2540,7 +2555,7 @@ sbi_file.head = sbi$file.head
 #' } 
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/flow.R
-sbi$flow = function (x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, lab = "", family = "Arial",
+sbi$flow = function (x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, lab = "", family = "",
                      type = "arrow", axes = FALSE, lwd = 2, width = 1, height = 0.5, 
                      cex = 1, col = "skyblue", border = "black", arrow.col = "black", 
                      cut = 0.6, shadow = TRUE, shadow.col = "#bbbbbb99", ...) {
@@ -3790,6 +3805,99 @@ sbi$mkdoc <- function (infile,cssfile="mini.css",eval=FALSE)  {
 }
 sbi_mkdoc = sbi$mkdoc
 
+#' FILE: sbi/man/sbi_mtex.Rd
+#' \name{sbi$mtex}
+#' \alias{sbi$mtex}
+#' \alias{sbi_mtex}
+#' \title{Create a png image for LaTeX equations and matrices}
+#' \description{This function takes a latex equation or a matrix formulation and produces apng image
+#' which requires that the command line tools pdflatex and image magick must be installed.}
+#' \usage{sbi_mtex(equation="E=mc^2",color="black",extension="png",packages=NULL,envir='$',folder="img")}
+#' \arguments{
+#'   \item{equation}{LaTeX equation, default: 'E=mc^2'}
+#'   \item{color}{color for the LaTeX text, default: 'black'}
+#'   \item{extension}{image filename extension, currently only png is supported, default: 'png'}
+#'   \item{packages}{comma separated list of LaTeX packages, currently unsupported}
+#'   \item{envir}{LaTeX environment, currently '$', '$$' and 'bmatrix' are supported}
+#'   \item{folder}{Folder within the current working directory where Tex and image files are placed
+#'   default: 'img'}
+#' }
+#' \details{
+#' The function can be used to embed LaTeX equations or matrices into your Markdown document.
+#' The LaTeX code is encoded as a CRC32 digest and the file is recreated only if the LaTeX code
+#' was changed. So calling it with \code{sbi_mtex("E = mc^2"} twice would produce only one image.
+#' If your code contains backslashes, you should use R raw strings and double the backslashes.
+#' }
+#' \value{Returns the image filename where the code is encoded as a CRC32 filename.}
+#' \examples{
+#' sbi$mtex('E = mc^2')
+#' url=sbi$mtex(equation=r"(1 & 2 & 3\\\\4 & 5 & 6)",envir="bmatrix",color="red")
+#' url
+#' } %## ![](`r url`)
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/mtex.R
+
+sbi$mtex <- function (equation="E=mc^2",color="black",extension="png",packages=NULL,envir='$',folder="img") {
+    TEX="
+\\documentclass[preview]{standalone}
+\\usepackage{amsmath}
+\\usepackage{xcolor}
+%__PACKAGES__
+% if you need the equation number, remove the asterix
+\\PreviewEnvironment{equation*}
+\\PreviewEnvironment{align*}
+\\PreviewEnvironment{multiline*}
+
+% if you need paddings, adjust the following
+\\PreviewBorder=2pt
+
+
+\\begin{document}
+\\Large
+\\color{__COLOR__}
+__ESTART__ 
+__EQUATION__ 
+__EEND__
+
+\\end{document}
+"
+TEX=gsub("__EQUATION__",equation,TEX)
+TEX=gsub("__COLOR__",color,TEX)
+if (envir == "$" | envir == "$$") {
+    TEX=gsub("__ESTART__",envir,TEX)
+    TEX=gsub("__EEND__",envir,TEX)
+} else {
+    if (envir == "bmatrix" || envir == "xmatrix") {
+        TEX=gsub("__ESTART__",sprintf("$$\n\\\\begin{%s}",envir),TEX)
+        TEX=gsub("__EEND__",sprintf("\\\\end{%s}\n$$\n",envir),TEX)
+    } else {
+        TEX=gsub("__ESTART__",sprintf("\\\\begin{%s}",envir),TEX)
+        TEX=gsub("__EEND__",sprintf("\\\\end{%s}",envir),TEX)
+    }
+}
+if (!dir.exists(folder)) {
+    dir.create(folder)
+}
+if (!requireNamespace("digest")) {
+    stop("You need to install the digest library")
+} 
+filename=paste(digest::digest(TEX,"crc32"),".",extension,sep="")
+imgname=file.path(folder,filename)
+texname=gsub("...$","tex",imgname)
+pdfname=gsub("...$","pdf",imgname)
+if (file.exists(imgname)) {
+    return(imgname)
+}
+fout = file(texname,'w')
+cat(TEX,file=fout)
+close(fout)
+
+system(sprintf("pdflatex -halt-on-error -output-directory %s %s",folder,texname))
+system(sprintf("magick %s %s",pdfname,imgname))
+return(imgname)
+}
+sbi_mtex = sbi$mtex 
+
 #' FILE: sbi/man/sbi_nfig.Rd
 #' \name{sbi$nfig}
 #' \alias{sbi$nfig}
@@ -3812,44 +3920,106 @@ sbi_mkdoc = sbi$mkdoc
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/nfig.R
 sbi$nfig <- function (label) {
-    if (!exists(".figs") & file.exists("figs.RData")) {
-        load("figs.RData")
-        .figs['N']=0
-    } else if (!exists(".figs")) {
-        .figs <<- list(N=0)
-    }
-    .figs['N'] <<- .figs[['N']]+1
-    .figs[label] <<- .figs[['N']]
-    return(.figs[['N']])
+    .sbi_env$figs['N'] = .sbi_env$figs[['N']]+1
+    .sbi_env$figs[label] = .sbi_env$figs[['N']]
+    return(.sbi_env$figs[['N']])
 }
 sbi_nfig = sbi$nfig
+#' FILE: sbi/man/sbi_rfig.Rd
+#' \name{sbi$rfig}
+#' \alias{sbi$rfig}
+#' \alias{sbi_rfig}
+#' \title{Return the figure number for the given label in Markdown documents}
+#' \description{Return the figure number, usually in the text to reference
+#' a figure which was defined earlier.}
+#' \usage{sbi_rfig(label)}
+#' \arguments{
+#'   \item{label}{text label for the figure, previously used to define the figure number using the `nfig` method}
+#' }
+#' \details{
+#' The function is mainly used in Markdown documents for figure numbering and referencing.
+#' }
+#' \value{Figure number for the given label.}
+#' \examples{
+#' sbi$nfig('test1')
+#' sbi$nfig('test2')
+#' sbi$rfig('test2')
+#' sbi$rfig('test1')
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/rfig.R
+
 sbi$rfig <- function (label) {
-    if (!exists(".figs") & file.exists("figs.RData")) {
-        load("figs.RData")
-    } else if (!exists(".figs")) {
-        return(0)
+    if (label %in% names(.sbi_env$figs)) {
+        return(.sbi_env$figs[[label]])
     } else {
-        if (label %in% .figs) {
-            return(.figs[[label]])
-        } else {
-            return(0)
-        }
+        return(0)
     }
 }
 
 sbi_rfig = sbi$rfig
+#' FILE: sbi/man/sbi_ntab.Rd
+#' \name{sbi$ntab}
+#' \alias{sbi$ntab}
+#' \alias{sbi_ntab}
+#' \title{Return the current table number in Markdown documents}
+#' \description{Return the table number, usually in table legends. Thso command loads optionally a cache file, tabs.RData in the
+#'  current directory.}
+#' \usage{sbi_ntab(label)}
+#' \arguments{
+#'   \item{label}{a text label for the table, later used to get the table number using the `rtab` method}
+#' }
+#' \details{
+#' The function is mainly used in Markdown documents for table numbering and referencing.
+#' }
+#' \value{Current table number as integer.}
+#' \examples{
+#' sbi$ntab('test1')
+#' sbi$ntab('test2')
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/ntab.R
+
 sbi$ntab <- function (label) {
-    if (!exists(".tabs") & file.exists("tabs.RData")) {
-        load("tabs.RData")
-        .tabs['N']=0
-    } else if (!exists(".tabs")) {
-        .tabs <<- list(N=0)
-    }
-    .tabs['N'] <<- .tabs[['N']]+1
-    .tabs[label] <<- .tabs[['N']]
-    return(.tabs[['N']])
+    .sbi_env$tabs['N'] = .sbi_env$tabs[['N']]+1
+    .sbi_env$tabs[label] = .sbi_env$tabs[['N']]
+    return(.sbi_env$tabs[['N']])
 }
 sbi_ntab = sbi$ntab
+
+#' FILE: sbi/man/sbi_rtab.Rd
+#' \name{sbi$rtab}
+#' \alias{sbi$rtab}
+#' \alias{sbi_rtab}
+#' \title{Return the table number for the given label in Markdown documents}
+#' \description{Return the table number, usually in the text to reference
+#' a table which was defined earlier.}
+#' \usage{sbi_rtab(label)}
+#' \arguments{
+#'   \item{label}{text label for the table, previously used to define the table number using the `ntab` method}
+#' }
+#' \details{
+#' The function is mainly used in Markdown documents for table numbering and referencing.
+#' }
+#' \value{Table number for the given label.}
+#' \examples{
+#' 
+#' sbi$ntab('test1')
+#' sbi$ntab('test2')
+#' sbi$rtab('test2')
+#' sbi$rtab('test1')
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/rtab.R
+sbi$rtab <- function (label) {
+    if (label %in% names(.sbi_env$tabs)) {
+        return(.sbi_env$tabs[[label]])
+    } else {
+        return(0)
+    }
+}
+
+sbi_rtab = sbi$rtab
 
 #' FILE: sbi/man/sbi_modus.Rd
 #' \name{sbi$modus}
@@ -3871,6 +4041,8 @@ sbi_ntab = sbi$ntab
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/modus.R
+
+
 sbi$modus <- function (catvar) {
   tab <- table(catvar)
   idx <- which(max(tab) == tab)
@@ -6238,6 +6410,10 @@ ExtractEx <- function (srcfile) {
             ex = TRUE
         } else if (ex & lastindent < 3 & substr(line,1,4) == "#' }") {
             cat("```\n\n",file=fout)                   
+            if (grepl("%## !\\[\\].+",line)) {
+                cat(gsub(".+## ","",line),file=fout)
+                cat("\n\n",file=fout)
+            }
             ex = FALSE
         } else if (ex & substr(line,1,11) == "#' \\dontrun") {
             dr = TRUE
