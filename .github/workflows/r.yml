@@ -26,7 +26,7 @@ jobs:
       - name: Process and Create Package Structure
         run: |
             sudo apt install r-cran-knitr graphviz imagemagick 
-            sudo apt install texlive-full
+            sudo apt install texlive-latex-extra
       - name: build package
         run: |
             make build pkg=sbi
