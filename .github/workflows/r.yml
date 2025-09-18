@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Process and Create Package Structure
         run: |
-            sudo apt install r-cran-knitr
+            sudo apt install r-cran-knitr imagemagick texlive-latex-extra texlive-fonts-extra texlive-fonts-recommended
       - name: build package
         run: |
             make build pkg=sbi
