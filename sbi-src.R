@@ -23,7 +23,8 @@
 #' URL:  https://github.com/mittelmark/sbi
 #' BugReports: https://github.com/mittelmark/sbi/issues
 #' Imports: cluster, rpart
-#' Suggests: knitr, rmarkdown, showtext, MASS, digest, tcltk, png, tools, quantreg
+#' Suggests: knitr, rmarkdown, showtext, MASS, digest, tcltk, 
+#'    png, tools, quantreg, tinytex
 #' VignetteBuilder: knitr
 #' License: MIT + file LICENSE
 #' Language: en-US
@@ -3847,6 +3848,23 @@ sbi_mkdoc = sbi$mkdoc
 #' FILE: sbi/R/mtex.R
 
 sbi$mtex <- function (equation="E=mc^2",color="black",extension="png",packages=NULL,envir='$',folder="img") {
+    latex=Sys.which("pdflatex")
+    if (latex == "") {
+        stop("pdflatex is not installed")
+    }
+    magick=Sys.which("magick")
+    if (magick=="") {
+        magick = Sys.which("convert")
+    }
+    if (magick == "") {
+        stop("imagemagick is not installed")
+    }
+    ## we would not like to depend on tinytex
+    if (requireNamespace("tinytex")) {
+        if (!tinytex::check_installed("standalone")) {
+            stop("latex standalone package is not installed")
+        }
+    }
     TEX="
 \\documentclass[preview]{standalone}
 \\usepackage{amsmath}
@@ -3902,7 +3920,7 @@ cat(TEX,file=fout)
 close(fout)
 
 system(sprintf("pdflatex -halt-on-error -output-directory %s %s",folder,texname))
-system(sprintf("magick %s %s",pdfname,imgname))
+system(sprintf("%s %s %s",magick,pdfname,imgname))
 return(imgname)
 }
 sbi_mtex = sbi$mtex 
