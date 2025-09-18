@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.2.0
-#' Date: 2025-09-17
+#' Version: 0.2.1
+#' Date: 2025-09-18
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -49,6 +49,8 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-09-18: version 0.2.1
+#'    - fix main.cex to cex.main in vignette
 #' 2025-09-17: Version 0.2.0
 #'    - new commands nfig, rfig, ntab, rtab for figure and 
 #'      table numbering and referencing
@@ -5887,7 +5889,8 @@ sbi_textplot <- sbi$textplot
 #' \title{Prepare a time table plot for adding items}
 #' \description{Function to create a timetable using textual descriptions of the axes. Used together with
 #'  the function `sbi_tt_item` to add items on the existing plot}
-#' \usage{sbi_tt_plot(xlabels=c("Mon","Tue","Wed","Thu","Fri", "Sat", "Sun"),ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00","20:00"), display="xy",...)}
+#' \usage{sbi_tt_plot(xlabels=c("Mon","Tue","Wed","Thu","Fri", "Sat", "Sun"),
+#'     ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00","20:00"), display="xy",...)}
 #' \arguments{
 #'   \item{xlabels}{Vector of labels for the x-axis, default: xlabels=c("Mon","Tue","Wed","Thu","Fri", "Sat", "Sun"),ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00","20:00")}
 #'   \item{ylabels}{Vector of labels for the y-axis, default: xlabels=c("08:00","10:00" .. "20:00")}
@@ -5903,7 +5906,7 @@ sbi_textplot <- sbi$textplot
 #' par(mai=rep(0.1,4))
 #' sbi$tt_plot(xlabels=c("Mon","Tue","Wed","Thu","Fri"),
 #'  ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00"),cex=1.5,
-#'  main="Winter Semester",main.cex=2)
+#'  main="Winter Semester",cex.main=2)
 #' sbi$tt_item("Mon","10:00",dy=0.5,label="AMBI/L",width=1.1,col="skyblue")
 #' sbi$tt_item("Mon","12:00",dy=0.5,label="AMBI/E",width=1.1,col="skyblue")
 #' sbi$tt_item("Tue","08:00",dy=0.5,label="SEQ/L",width=1.1,col="skyblue")
@@ -5916,7 +5919,7 @@ sbi_textplot <- sbi$textplot
 #' sbi$tt_item("Fri","10:00",dy=0.5,label="DBP/E",width=1.1,col="beige")
 #' sbi$tt_item("Wed","16:00",dy=0.5,label="SABM/L",width=1.1,col="salmon")
 #' sbi$tt_item("Thu","14:00",dy=0.5,label="BIOC/L",width=1.1,col="salmon")
-#' sbi$tt_item("Fri","14:00",dy=0.5,label="Gen/L",width=1.1,col="salmon")
+#' sbi$tt_item("Fri","14:00",dy=0.5,label="GENE/L",width=1.1,col="salmon")
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package},
 #' \link[sbi:sbi_tt_item]{sbi$tt_item}}
