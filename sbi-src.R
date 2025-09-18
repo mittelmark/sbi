@@ -42,7 +42,7 @@
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
 #'     qr_plot.R
 #'     rad2deg.R randomize.R ref_score.R ref_table.R report_effsize.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
-#'     textplot.R untab.R venn.R wilcoxR.R
+#'     textplot.R tt_plot.R tt_item.R untab.R venn.R wilcoxR.R
 #'     ni.R pipe.R
 #' FILE: sbi/LICENSE
 #' YEAR: 2025
@@ -54,6 +54,7 @@
 #'      table numbering and referencing
 #'    - new command mtex for create LaTeX equations as png documents
 #'    - switching from extrafont in vignette to showtext
+#'    - adding timetable functions tt_plot and tt_item
 #' 2025-09-01: Version 0.1.2
 #'    - fixing issue with girls / boys order in ref_table
 #' 2025-07-12:
@@ -585,6 +586,8 @@
 #' \item{\link[sbi:sbi_skewness]{sbi$skewness(x)}}{third central moment of a distribution}
 #' \item{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}}{Bind two data frames by matching column names, filling in missing columns with NAs.}
 #' \item{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}}{Display a data frame or matrix in a plot.}
+#' \item{\link[sbi:sbi_tt_item]{sbi$tt_item(x,y,label)}}{place an item to a timetable plot}
+#' \item{\link[sbi:sbi_tt_plot]{sbi$tt_plot(xlabels,ylabels)}}{display a timetable plot ready to take items}
 #' \item{\link[sbi:sbi_untab]{sbi$untab(x)}}{expand a contingency table to a data frame one item per row (data)}
 #' \item{\link[sbi:sbi_venn]{sbi$venn(x)}}{Venn diagram for logical relations between two and three sets (plot)}
 #' \item{\link[sbi:sbi_wilcoxR]{sbi$wilcoxR(x)}}{calculate effect size r, for a wilcox test object (effect size, stats)}
@@ -700,6 +703,8 @@
 #' \item \code{\link[sbi:sbi_shell]{sbi$shell(script)}} executes a given sell script in text format (Unix only)
 #' \item \code{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}} bind two data frames by matching columns and filling missing values with NA.
 #' \item \code{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}} display a small data frame or matrix inside a plot.
+#' \item \code{\link[sbi:sbi_tt_item]{sbi$tt_item(x,y,label)}} place an item to a timetable plot (plot)
+#' \item \code{\link[sbi:sbi_tt_plot]{sbi$tt_plot(xlabels,ylabels)}} display a timetable plot ready to take items (plot)
 #' \item \code{\link[sbi:sbi_untab]{sbi$untab(x)}} expand a contingency table to a data frame one item per row (data)
 #' \item \code{\link[sbi:sbi_venn]{sbi$venn(x)}} Venn diagram for logical relations between two and three sets (plot)
 #' \item \code{\link[sbi:sbi_wilcoxR]{sbi$wilcoxR(x)}} calculate effect size r, for a wilcox test object (effect size, stats)
@@ -724,6 +729,8 @@ sbi=new.env()
 .sbi_env <- new.env(parent = emptyenv())
 .sbi_env$figs <- list(N=0)
 .sbi_env$tabs <- list(N=0)
+.sbi_env$tt_xlabs = NULL
+.sbi_env$tt_ylabs = NULL
 
 #' FILE: sbi/man/sbi_aggregate2.Rd
 #' \name{sbi$aggregate2}
@@ -4367,10 +4374,10 @@ sbi_pairwise.effect_size = sbi$pairwise.effect_size
 #' head(iris)
 #' pci=prcomp(scale(iris[,1:4]))
 #' sbi$pca_biplot(pci,col=rep(cols,each=50),ellipse=TRUE,ell.fill=TRUE,
-#'   arrow.fac=2.3,arrows=TRUE,main="biplot")
+#'  arrow.fac=2.3,arrows=TRUE,main="biplot")
 #' legend("topright",pch=19,col=cols,levels(iris$Species))
 #' sbi$pca_biplot(pci,col=rep(cols,each=50),ellipse=FALSE,
-#    arrows=FALSE,main="scoreplot")
+#'  arrows=FALSE,main="scoreplot")
 #' }
 #' FILE: sbi/R/pca_biplot.R
 sbi$pca_biplot <- function (pca,pcs=c("PC1","PC2"),
@@ -5843,7 +5850,7 @@ sbi_smartbind <- sbi$smartbind
 #' \value{NULL}
 #' \examples{
 #' par(mai=rep(0.1,4))
-#' sbi$textplot(head(swiss), caption="Table 1: Swiss data first six lines")
+#' sbi$textplot(head(swiss), caption="Table 1: Swiss data first six lines",cex=2)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/textplot.R
@@ -5873,6 +5880,143 @@ sbi$textplot <- function (x, cex = 1, caption = NULL, ...) {
 }
 sbi_textplot <- sbi$textplot
 
+#' FILE: sbi/man/sbi_tt_plot.Rd
+#' \name{sbi$tt_plot}
+#' \alias{sbi$tt_plot}
+#' \alias{sbi_tt_plot}
+#' \title{Prepare a time table plot for adding items}
+#' \description{Function to create a timetable using textual descriptions of the axes. Used together with
+#'  the function `sbi_tt_item` to add items on the existing plot}
+#' \usage{sbi_tt_plot(xlabels=c("Mon","Tue","Wed","Thu","Fri", "Sat", "Sun"),ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00","20:00"), display="xy",...)}
+#' \arguments{
+#'   \item{xlabels}{Vector of labels for the x-axis, default: xlabels=c("Mon","Tue","Wed","Thu","Fri", "Sat", "Sun"),ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00","20:00")}
+#'   \item{ylabels}{Vector of labels for the y-axis, default: xlabels=c("08:00","10:00" .. "20:00")}
+#'   \item{display}{lowercase letters for which labels should be displayed, default: 'xy'}
+#'   \item{...}{Other arguments passed to the \code{plot} and \code{text} functions.}
+#' }
+#' \details{
+#' This function can be used as to draw time tables using 
+#'  textual descriptions.
+#' }
+#' \value{NULL}
+#' \examples{
+#' par(mai=rep(0.1,4))
+#' sbi$tt_plot(xlabels=c("Mon","Tue","Wed","Thu","Fri"),
+#'  ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00"),cex=1.5,
+#'  main="Winter Semester",main.cex=2)
+#' sbi$tt_item("Mon","10:00",dy=0.5,label="AMBI/L",width=1.1,col="skyblue")
+#' sbi$tt_item("Mon","12:00",dy=0.5,label="AMBI/E",width=1.1,col="skyblue")
+#' sbi$tt_item("Tue","08:00",dy=0.5,label="SEQ/L",width=1.1,col="skyblue")
+#' sbi$tt_item("Tue","10:00",dy=0.5,label="SEQ/E",width=1.1,col="skyblue")
+#' sbi$tt_item("Wed","10:00",dy=0.5,label="SBI/L",width=1.1,col="skyblue")
+#' sbi$tt_item("Wed","12:00",dy=0.5,label="SBI/E",width=1.1,col="skyblue")
+#' sbi$tt_item("Thu","10:00",dy=0.5,label="CMCN/L",width=1.1,col="skyblue")
+#' sbi$tt_item("Thu","12:00",dy=0.5,label="CMCN/E",width=1.1,col="skyblue")
+#' sbi$tt_item("Fri","08:00",dy=0.5,label="DBP/L",width=1.1,col="beige")
+#' sbi$tt_item("Fri","10:00",dy=0.5,label="DBP/E",width=1.1,col="beige")
+#' sbi$tt_item("Wed","16:00",dy=0.5,label="SABM/L",width=1.1,col="salmon")
+#' sbi$tt_item("Thu","14:00",dy=0.5,label="BIOC/L",width=1.1,col="salmon")
+#' sbi$tt_item("Fri","14:00",dy=0.5,label="Gen/L",width=1.1,col="salmon")
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package},
+#' \link[sbi:sbi_tt_item]{sbi$tt_item}}
+#' FILE: sbi/R/tt_plot.R
+
+sbi$tt_plot <- function (xlabels=c("Mon","Tue","Wed","Thu","Fri", "Sat", "Sun"),
+                         ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00","20:00"),
+                         display="xy",...) {
+    plot(1,type="n",ylim=c(length(ylabels)+0.5,0.5),
+         xlim=c(0.25,length(xlabels)+0.5),
+         axes=FALSE,xlab="",ylab="",...)  
+    if (grepl("y",display)) {
+        text(0.25,1:length(ylabels),label=paste("",ylabels),...)
+    }
+    if (grepl("x",display)) {
+        text(1:length(xlabels),length(ylabels)+0.5,xlabels,...)
+    }
+    .sbi_env$tt_xlabs=xlabels
+    .sbi_env$tt_ylabs=ylabels
+}
+#' FILE: sbi/man/sbi_tt_item.Rd
+#' \name{sbi$tt_item}
+#' \alias{sbi$tt_item}
+#' \alias{sbi_tt_item}
+#' \title{Add a timeslot item to an existing tt-plot}
+#' \description{Function to add items to the timetable plot, so the function `
+#'  `sbi_tt_plot` has to be called first.}
+#' \usage{sbi_tt_item(x, y, dx=0, dy=0, label="", subtitle="", border="black", col="beige",
+#'    cex=1.8,width=1,...)}
+#' \arguments{
+#'   \item{x}{xlabel as text or as number where to place the item}
+#'   \item{y}{ylabel as text or as number where to place the item}
+#'   \item{dx}{increment or decrement relative to the given x-label}
+#'   \item{dy}{increment or decrement relative to the given y-label}
+#'   \item{label}{label to be placed in the rectangle}
+#'   \item{subtitle}{label to be placed in a second row in the  rectangle}
+#'   \item{border}{border color around the rectangle, default: 'black'}
+#'   \item{col}{color of the rectangle, default: 'beige'}
+#'   \item{cex}{character expansion of the label, subtitle is scaled to 60\%, default: 1.8}
+#'   \item{width}{the relative width of the rectangle, default: 1}
+#'   \item{...}{other arguments delegated to the text function}
+#' }
+#' \details{
+#' This function can be used as to draw time tables using 
+#'  textual descriptions.
+#' }
+#' \value{NULL}
+#' \examples{
+#' par(mai=rep(0.1,4))
+#' sbi$tt_plot(xlabels=1:8,ylabels=c("FS1","FS2","FS3","FS4"),
+#'   main="Master Bioinformatics",cex.main=2,display="y")
+#' sbi$tt_item(1,"FS1",label="DBP")
+#' sbi$tt_item(2,"FS1",label="SBMB",col="salmon")
+#' sbi$tt_item(3,"FS1",label="AMBI",col="skyblue")
+#' sbi$tt_item(4,"FS1",label="SBI" ,col="skyblue")
+#' sbi$tt_item(5,"FS1",label="SEQ" ,col="skyblue")
+#' sbi$tt_item(6,"FS1",label="CMCN",col="skyblue")
+#' sbi$tt_item(1,"FS2",label="PEX",col="beige")
+#' sbi$tt_item(2,"FS2",label="MSEB",col="salmon")
+#' sbi$tt_item(3,"FS2",label="ACN",col="skyblue")
+#' sbi$tt_item(4,"FS2",label="TSB",col="skyblue")
+#' sbi$tt_item(5,"FS2",label="STR",col="grey80")
+#' sbi$tt_item(6,"FS2",label="MLB",col="grey80")
+#' sbi$tt_item(7,"FS2",label="ICLS",col="grey80")
+#' sbi$tt_item(8,"FS2",label="DICN",col="grey80")
+#' sbi$tt_item(2,"FS3",label="Project Work",col="skyblue",width=3)
+#' sbi$tt_item(4,"FS3",label="AMBN",col="grey80")
+#' sbi$tt_item(5,"FS3",label="PSA",col="grey80")
+#' sbi$tt_item(6,"FS3",label="IPPT",col="grey80")
+#' sbi$tt_item(7,"FS3",label="QUGE",col="grey80")
+#' sbi$tt_item(3,"FS4",label="Master Thesis",col="skyblue",width=5)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package},
+#' \link[sbi:sbi_tt_plot]{sbi$tt_plot}}
+#' FILE: sbi/R/tt_item.R
+
+sbi$tt_item <- function(x,y,dx=0,dy=0,label="",subtitle="",border="black",
+                        col="beige",cex=1.8,width=1,...) {
+    w = (width/2)-0.1 
+    if (is.character(x)) {
+        x=which(grepl(x,.sbi_env$tt_xlabs))
+    }
+    if (is.character(y)) {
+        y=which(grepl(y,.sbi_env$tt_ylabs))
+    }
+    x=x+dx
+    y=y+dy
+    rect(x-w,y-0.4,x+w,y+0.4,col=col,border=border)
+    if (subtitle == "") {
+        text(x,y,label,cex=cex)
+    } else {
+        text(x,y+0.2,label,cex=cex*0.9)
+        text(x,y-0.2,subtitle,cex=cex*0.6)
+    }
+}
+
+sbi_tt_plot = sbi$tt_plot
+sbi_tt_item = sbi$tt_item
+
+                     
 #' FILE: sbi/man/sbi_untab.Rd
 #' \name{sbi$untab}
 #' \alias{sbi$untab}
