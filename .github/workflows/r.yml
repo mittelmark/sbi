@@ -26,6 +26,8 @@ jobs:
       - name: Process and Create Package Structure
         run: |
             sudo apt install r-cran-knitr graphviz imagemagick texlive-latex-extra texlive-fonts-extra texlive-fonts-recommended
+            tlmgr install standalone
+            tlmgr update --self --all
       - name: build package
         run: |
             make build pkg=sbi
