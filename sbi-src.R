@@ -3848,26 +3848,17 @@ sbi_mkdoc = sbi$mkdoc
 #' FILE: sbi/R/mtex.R
 
 sbi$mtex <- function (equation="E=mc^2",color="black",extension="png",packages=NULL,envir='$',folder="img") {
-    latex=Sys.which("pdflatex")
+    latex=Sys.which("latex")
     if (latex == "") {
-        stop("pdflatex is not installed")
+        stop("latex is not installed")
     }
-    magick=Sys.which("magick")
-    if (magick=="") {
-        magick = Sys.which("convert")
-    }
-    if (magick == "") {
-        stop("imagemagick is not installed")
-    }
-    ## we would not like to depend on tinytex
-    if (requireNamespace("tinytex")) {
-        if (!tinytex::check_installed("standalone")) {
-            stop("latex standalone package is not installed")
-        }
+    dvipng=Sys.which("dvipng")
+    if (dvipng == "") {
+        stop("dvipng is not installed")
     }
     TEX="
-\\documentclass[preview]{standalone}
-\\usepackage{amsmath}
+\\documentclass{minimal}
+\\usepackage{amsmath,amssym,cancel}
 \\usepackage{xcolor}
 %__PACKAGES__
 % if you need the equation number, remove the asterix
@@ -3911,7 +3902,7 @@ if (!requireNamespace("digest")) {
 filename=paste(digest::digest(TEX,"crc32"),".",extension,sep="")
 imgname=file.path(folder,filename)
 texname=gsub("...$","tex",imgname)
-pdfname=gsub("...$","pdf",imgname)
+dviname=gsub("...$","dvi",imgname)
 if (file.exists(imgname)) {
     return(imgname)
 }
@@ -3919,8 +3910,8 @@ fout = file(texname,'w')
 cat(TEX,file=fout)
 close(fout)
 
-system(sprintf("pdflatex -halt-on-error -output-directory %s %s",folder,texname))
-system(sprintf("%s %s %s",magick,pdfname,imgname))
+system(sprintf("latex -halt-on-error -output-directory %s %s",folder,texname))
+system(sprintf("%s %s",dvipng,dviname))
 return(imgname)
 }
 sbi_mtex = sbi$mtex 
