@@ -43,7 +43,7 @@ Or you install the latest release as a normal package:
 
 ```
 $ R
-> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.1.0/sbi_0.1.0.tar.gz",repos=NULL)
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.2.0/sbi_0.2.0.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
 ```
@@ -51,8 +51,8 @@ $ R
 Or you install the latest release from a Unix Terminal like this:
 
 ```
-wget https://github.com/mittelmark/sbi/releases/download/v0.1.0/sbi_0.1.0.tar.gz
-R CMD INSTALL sbi_0.1.0.tar.gz
+wget https://github.com/mittelmark/sbi/releases/download/v0.2.0/sbi_0.2.0.tar.gz
+R CMD INSTALL sbi_0.2.0.tar.gz
 ```
 
 Installation  as a package has the advantage  that you have the  documentation
