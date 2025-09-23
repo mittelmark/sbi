@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.2.1
-#' Date: 2025-09-18
+#' Version: 0.3.0
+#' Date: 2025-09-23
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -34,6 +34,7 @@
 #'     cache_image.R cdist.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R 
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
+#'     error_plot.R
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R 
 #'     kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
@@ -50,6 +51,9 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-09-XX: version 0.3.0
+#'    - new function sbi_error_plot
+#'    - new function sbi_mtex to display LaTeX equations
 #' 2025-09-18: version 0.2.1
 #'    - fix main.cex to cex.main in vignette
 #' 2025-09-17: Version 0.2.0
@@ -104,7 +108,7 @@
 #'            "pairs", "par","polygon", 
 #'             "arrows", "lines", "text", "title", "rect", "plot", "axis", "box",
 #'            "abline","points")
-#' importFrom("grDevices", "col2rgb", "rgb")
+#' importFrom("grDevices", "col2rgb", "rgb","png","dev.off")
 #' importFrom("utils","head","read.table","installed.packages","URLencode", "download.file")
 #' importFrom("tools","package_dependencies")
 ###' importFrom("digest","digest")
@@ -533,6 +537,7 @@
 #' \item{\link[sbi:sbi_dpairs_legend]{sbi$dpairs_legend(...)}}{adding legends to pairs and dpairs plots}
 #' \item{\link[sbi:sbi_drop_na]{sbi$drop_na(...)}}{remove all rows where any of the given columns contain a NA - so missing values}
 #' \item{\link[sbi:sbi_epsilon_squared]{sbi$epsilon_squared(x, y=NULL)}}{Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.}
+#' \item{\link[sbi:sbi_error_plot]{sbi$error_plot(message, filename)}}{create a png file with an error message}
 #' \item{\link[sbi:sbi_eta_squared]{sbi$eta_squared(x, y=NULL)}}{Calculate the effect size eta-squared for an Anova or a linear model.}
 #' \item{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}}{Displays a file to the terminal, not to stdout.}
 #' \item{\link[sbi:sbi_file.head]{sbi$file.head(filename,n=6)}}{Displays the first n lines of a file to the terminal.}
@@ -652,6 +657,7 @@
 #' \item \code{\link[sbi:sbi_dpairs_legend]{sbi$dpairs_legend(...)}} adding legends to pairs and dpairs plots
 #' \item \code{\link[sbi:sbi_drop_na]{sbi$drop_na(...)}} remove all rows where any of the given columns contain a NA - so missing values
 #' \item \code{\link[sbi:sbi_epsilon_squared]{sbi$epsilon_squared(x, y=NULL)}} Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.
+#' \item \code{\link[sbi:sbi_error_plot]{sbi$error_plot(message, filename)}} create a png file with an error message
 #' \item \code{\link[sbi:sbi_eta_squared]{sbi$eta_squared(x, y=NULL)}} Calculate the effect size eta-squared for an Anova or a linear model.
 #' \item \code{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}} Displays a file to the terminal, not to stdout.
 #' \item \code{\link[sbi:sbi_file.head]{sbi$file.head(filename, n=6)}} Displays the first n lines of a file to the terminal.
@@ -1946,6 +1952,29 @@ sbi$cv <- function (x, na.rm = FALSE) {
 }
 sbi_cv = sbi$cv
 
+#' FILE: sbi/man/sbi_deg2rad.Rd
+#' \name{sbi$deg2rad}
+#' \alias{sbi$deg2rad}
+#' \alias{sbi_deg2rad}
+#' \title{Convert Angle in Degrees to Radians}
+#' \description{Convert an angle from degrees to radians.}
+#' \usage{sbi_deg2rad(x)}
+#' \arguments{
+#'   \item{x}{Angle in degrees.}
+#' }
+#' \value{The angle converted to radians.}
+#' \examples{
+#' sbi$deg2rad(180)  # Returns pi radians
+#' sbi$rad2deg(sbi$deg2rad(360))  # Converts 360 degrees to radians and back to degrees
+#' }
+#' \seealso{\link[sbi:sbi_rad2deg]{sbi$rad2deg}}
+#' FILE: sbi/R/deg2rad.R
+sbi$deg2rad <- function (x) {
+  (x * pi) / 180
+}
+
+sbi_deg2rad = sbi$deg2rad
+
 #' FILE: sbi/man/sbi_df2md.Rd
 #' \name{sbi$df2md}
 #' \alias{sbi$df2md}
@@ -2401,29 +2430,45 @@ sbi$eta_squared <- function (x, y = NULL) {
 
 sbi_eta_squared = sbi$eta_squared
 
-#' FILE: sbi/man/sbi_deg2rad.Rd
-#' \name{sbi$deg2rad}
-#' \alias{sbi$deg2rad}
-#' \alias{sbi_deg2rad}
-#' \title{Convert Angle in Degrees to Radians}
-#' \description{Convert an angle from degrees to radians.}
-#' \usage{sbi_deg2rad(x)}
+#' FILE: sbi/man/sbi_error_plot.Rd
+#' \name{sbi$error_plot}
+#' \alias{sbi$error_plot}
+#' \alias{sbi_error_plot}
+#' \title{Create a png file with an error message}
+#' \description{Helps in debugging errors in case imagfe creation is expected.}
+#' \usage{sbi_error_plot(message, filename=NULL, ...)}
 #' \arguments{
-#'   \item{x}{Angle in degrees.}
+#'   \item{message}{The message to display in the middle of the plot.}
+#'   \item{filename}{The name of the file to create, should be a PNG file, default: NULL}
+#'   \item{\ldots}{remaining arguments which are delegated to the text function}
 #' }
-#' \value{The angle converted to radians.}
+#' \details{
+#' This function allows in R code for instance in R Markdown document to produce images
+#' with error message without breaking the code as the document assumes an image to be created.
+#' }
 #' \examples{
-#' sbi$deg2rad(180)  # Returns pi radians
-#' sbi$rad2deg(sbi$deg2rad(360))  # Converts 360 degrees to radians and back to degrees
-#' }
-#' \seealso{\link[sbi:sbi_rad2deg]{sbi$rad2deg}}
-#' FILE: sbi/R/deg2rad.R
-sbi$deg2rad <- function (x) {
-  (x * pi) / 180
+#' sbi$error_plot("Error:\nThis is an severe error!","img/error.png")
+#' } %## ![](img/error.png)
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/error_plot.R
+
+sbi$error_plot <- function (message,filename=NULL,...) {
+    if (!is.null(filename)&grepl("png$",filename)) {
+        if (file.exists(filename)) {
+            return(filename)
+        }
+        png(filename,height=200,width=400)
+    }
+    plot(1,type="n",xlab="",ylab="",axes=FALSE,xlim=c(0,1),ylim=c(0.25,0.75))
+    box()
+    text(0.5,0.5,message,col='red',...)
+    if (!is.null(filename)) {
+        dev.off()
+        return(filename)
+    }
+    
 }
-
-sbi_deg2rad = sbi$deg2rad
-
+sbi_error_plot = sbi$error_plot
 
 #' FILE: sbi/man/sbi_file.cat.Rd
 #' \name{sbi$file.cat}
@@ -3846,22 +3891,6 @@ sbi_mkdoc = sbi$mkdoc
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/mtex.R
 
-sbi$error_plot <- function (message,filename=NULL,...) {
-    if (!is.null(filename)&grepl("png$",filename)) {
-        if (file.exists(filename)) {
-            return(filename)
-        }
-        png(filename,height=200,width=400)
-    }
-    plot(1,type="n",xlab="",ylab="",axes=FALSE,xlim=c(0,1),ylim=c(0.25,0.75))
-    box()
-    text(0.5,0.5,message,col='red',...)
-    if (!is.null(filename)) {
-        dev.off()
-        return(filename)
-    }
-    
-}
 sbi$mtex <- function (equation="E=mc^2",color="black",extension="svg",folder="img") {
     equation=URLencode(equation)
     equation=gsub("&","%26",equation)
