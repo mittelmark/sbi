@@ -51,7 +51,7 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
-#' 2025-09-XX: version 0.3.0
+#' 2025-09-23: version 0.3.0
 #'    - new function sbi_error_plot
 #'    - new function sbi_mtex to display LaTeX equations
 #' 2025-09-18: version 0.2.1
@@ -3919,7 +3919,8 @@ sbi_mtex = sbi$mtex
 #'  current directory.}
 #' \usage{sbi_nfig(label)}
 #' \arguments{
-#'   \item{label}{a text label for the figure, later used to get the figure number using the `rfig` method}
+#'   \item{label}{a text label for the figure, later used to get the figure number using the `rfig` method,
+#'   if the label is in use already returns the figure number for that label.}
 #' }
 #' \details{
 #' The function is mainly used in Markdown documents for figure numbering and referencing.
@@ -3932,9 +3933,13 @@ sbi_mtex = sbi$mtex
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/nfig.R
 sbi$nfig <- function (label) {
-    .sbi_env$figs['N'] = .sbi_env$figs[['N']]+1
-    .sbi_env$figs[label] = .sbi_env$figs[['N']]
-    return(.sbi_env$figs[['N']])
+    if (label %in% names(.sbi_env$figs)) {
+        return(.sbi_env$figs[[label]])
+    } else {
+        .sbi_env$figs['N'] = .sbi_env$figs[['N']]+1
+        .sbi_env$figs[label] = .sbi_env$figs[['N']]
+        return(.sbi_env$figs[['N']])
+    }
 }
 sbi_nfig = sbi$nfig
 #' FILE: sbi/man/sbi_rfig.Rd
@@ -3975,11 +3980,11 @@ sbi_rfig = sbi$rfig
 #' \alias{sbi$ntab}
 #' \alias{sbi_ntab}
 #' \title{Return the current table number in Markdown documents}
-#' \description{Return the table number, usually in table legends. Thso command loads optionally a cache file, tabs.RData in the
-#'  current directory.}
+#' \description{Return the table number, usually in table legends.}
 #' \usage{sbi_ntab(label)}
 #' \arguments{
-#'   \item{label}{a text label for the table, later used to get the table number using the `rtab` method}
+#'   \item{label}{a text label for the table, later used to get the table number using the `rtab` method, 
+#'   if the label is in use already returns the table number for that label.}
 #' }
 #' \details{
 #' The function is mainly used in Markdown documents for table numbering and referencing.
@@ -3993,9 +3998,13 @@ sbi_rfig = sbi$rfig
 #' FILE: sbi/R/ntab.R
 
 sbi$ntab <- function (label) {
-    .sbi_env$tabs['N'] = .sbi_env$tabs[['N']]+1
-    .sbi_env$tabs[label] = .sbi_env$tabs[['N']]
-    return(.sbi_env$tabs[['N']])
+    if (label %in% names(.sbi_env$tabs)) {
+        return(.sbi_env$tabs[[label]])
+    } else {
+        .sbi_env$tabs['N'] = .sbi_env$tabs[['N']]+1
+        .sbi_env$tabs[label] = .sbi_env$tabs[['N']]
+        return(.sbi_env$tabs[['N']])
+    }
 }
 sbi_ntab = sbi$ntab
 
@@ -5784,7 +5793,7 @@ sbi_skewness <- sbi$skewness
 #'   }
 #'  ")
 #'  }
-#' }
+#' } %## 
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_kroki]{sbi$kroki}.}
 #' FILE: sbi/R/shell.R
 sbi$shell <- function (script,filename="shell-script.sh") {
