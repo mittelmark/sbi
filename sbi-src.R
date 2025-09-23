@@ -105,7 +105,7 @@
 #'             "arrows", "lines", "text", "title", "rect", "plot", "axis", "box",
 #'            "abline","points")
 #' importFrom("grDevices", "col2rgb", "rgb")
-#' importFrom("utils","head","read.table","installed.packages")
+#' importFrom("utils","head","read.table","installed.packages","URLencode", "download.file")
 #' importFrom("tools","package_dependencies")
 ###' importFrom("digest","digest")
 #'
@@ -3819,100 +3819,65 @@ sbi_mkdoc = sbi$mkdoc
 #' \name{sbi$mtex}
 #' \alias{sbi$mtex}
 #' \alias{sbi_mtex}
-#' \title{Create a png image for LaTeX equations and matrices}
-#' \description{This function takes a latex equation or a matrix formulation and produces apng image
-#' which requires that the command line tools pdflatex and image magick must be installed.}
-#' \usage{sbi_mtex(equation="E=mc^2",color="black",extension="png",packages=NULL,envir='$',folder="img")}
+#' \title{Create a svg image for LaTeX equations and matrices using a web service}
+#' \description{This function takes a LaTeX equation or a matrix formulation and returns either an URL
+#' for this LaTeX code using the \url{https://math.vercel.app} webservice. If the digest package
+#' is installed the image will be downloaded and stored locally to avoid refetching the image again.}
+#' \usage{sbi_mtex(equation="E=mc^2",color="black",extension="svg",folder="img")}
 #' \arguments{
 #'   \item{equation}{LaTeX equation, default: 'E=mc^2'}
 #'   \item{color}{color for the LaTeX text, default: 'black'}
-#'   \item{extension}{image filename extension, currently only png is supported, default: 'png'}
-#'   \item{packages}{comma separated list of LaTeX packages, currently unsupported}
-#'   \item{envir}{LaTeX environment, currently '$', '$$' and 'bmatrix' are supported}
+#'   \item{extension}{image filename extension, currently only png is supported, default: 'svg'}
 #'   \item{folder}{Folder within the current working directory where Tex and image files are placed
 #'   default: 'img'}
 #' }
 #' \details{
 #' The function can be used to embed LaTeX equations or matrices into your Markdown document.
-#' The LaTeX code is encoded as a CRC32 digest and the file is recreated only if the LaTeX code
+#' The resulting image code is encoded as a CRC32 digest and the file is recreated only if the LaTeX code
 #' was changed. So calling it with \code{sbi_mtex("E = mc^2"} twice would produce only one image.
-#' If your code contains backslashes, you should use R raw strings and double the backslashes.
+#' If your code contains backslashes, you should use R raw strings.
 #' }
-#' \value{Returns the image filename where the code is encoded as a CRC32 filename.}
+#' \value{Returns either the image URL or if the digest package is available the image filename where the code is encoded as a CRC32 filename.}
 #' \examples{
-#' sbi$mtex('E = mc^2')
-#' url=sbi$mtex(equation=r"(1 & 2 & 3\\\\4 & 5 & 6)",envir="bmatrix",color="red")
-#' url
-#' } %## ![](`r url`)
+#' url1=sbi$mtex('E = mc^2')
+#' url1
+#' url2=sbi$mtex(equation=r"(\begin{bmatrix}1 & 2 & 3\\4 & 5 & 6\end{bmatrix})",color="red")
+#' } %## ![](`r url1`)  </br> </br> ![](`r url2`)
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/mtex.R
 
-sbi$mtex <- function (equation="E=mc^2",color="black",extension="png",packages=NULL,envir='$',folder="img") {
-    latex=Sys.which("latex")
-    if (latex == "") {
-        stop("latex is not installed")
+sbi$error_plot <- function (message,filename=NULL,...) {
+    if (!is.null(filename)&grepl("png$",filename)) {
+        if (file.exists(filename)) {
+            return(filename)
+        }
+        png(filename,height=200,width=400)
     }
-    dvipng=Sys.which("dvipng")
-    if (dvipng == "") {
-        stop("dvipng is not installed")
+    plot(1,type="n",xlab="",ylab="",axes=FALSE,xlim=c(0,1),ylim=c(0.25,0.75))
+    box()
+    text(0.5,0.5,message,col='red',...)
+    if (!is.null(filename)) {
+        dev.off()
+        return(filename)
     }
-    TEX="
-\\documentclass{minimal}
-\\usepackage{amsmath,amssym,cancel}
-\\usepackage{xcolor}
-%__PACKAGES__
-% if you need the equation number, remove the asterix
-\\PreviewEnvironment{equation*}
-\\PreviewEnvironment{align*}
-\\PreviewEnvironment{multiline*}
-
-% if you need paddings, adjust the following
-\\PreviewBorder=2pt
-
-
-\\begin{document}
-\\Large
-\\color{__COLOR__}
-__ESTART__ 
-__EQUATION__ 
-__EEND__
-
-\\end{document}
-"
-TEX=gsub("__EQUATION__",equation,TEX)
-TEX=gsub("__COLOR__",color,TEX)
-if (envir == "$" | envir == "$$") {
-    TEX=gsub("__ESTART__",envir,TEX)
-    TEX=gsub("__EEND__",envir,TEX)
-} else {
-    if (envir == "bmatrix" || envir == "xmatrix") {
-        TEX=gsub("__ESTART__",sprintf("$$\n\\\\begin{%s}",envir),TEX)
-        TEX=gsub("__EEND__",sprintf("\\\\end{%s}\n$$\n",envir),TEX)
-    } else {
-        TEX=gsub("__ESTART__",sprintf("\\\\begin{%s}",envir),TEX)
-        TEX=gsub("__EEND__",sprintf("\\\\end{%s}",envir),TEX)
-    }
+    
 }
-if (!dir.exists(folder)) {
-    dir.create(folder)
-}
-if (!requireNamespace("digest")) {
-    stop("You need to install the digest library")
-} 
-filename=paste(digest::digest(TEX,"crc32"),".",extension,sep="")
-imgname=file.path(folder,filename)
-texname=gsub("...$","tex",imgname)
-dviname=gsub("...$","dvi",imgname)
-if (file.exists(imgname)) {
+sbi$mtex <- function (equation="E=mc^2",color="black",extension="svg",folder="img") {
+    equation=URLencode(equation)
+    equation=gsub("&","%26",equation)
+    url=paste(sprintf("https://math.vercel.app/?color=%s&bgcolor=auto&from=",color),equation,".svg",sep="")
+    if (!requireNamespace("digest")) {
+        return(url)
+    } 
+    if (!dir.exists(folder)) {
+        dir.create(folder)
+    }
+    filename=paste(digest::digest(equation,"crc32"),".",extension,sep="")
+    imgname=file.path(folder,filename)
+    if (!file.exists(imgname)) {
+        download.file(url,imgname)
+    }
     return(imgname)
-}
-fout = file(texname,'w')
-cat(TEX,file=fout)
-close(fout)
-
-system(sprintf("latex -halt-on-error -output-directory %s %s",folder,texname))
-system(sprintf("%s %s",dvipng,dviname))
-return(imgname)
 }
 sbi_mtex = sbi$mtex 
 
