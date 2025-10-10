@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.3.0
-#' Date: 2025-09-23
+#' Version: 0.4.0
+#' Date: 2025-10-09
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -37,7 +37,7 @@
 #'     error_plot.R
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R 
-#'     kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
+#'     kl.R kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     mtex.R nfig.R rfig.R ntab.R rtab.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
@@ -51,6 +51,8 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-10-09: version 0.4.0
+#'    - new function KL divergence sbi_kl
 #' 2025-09-23: version 0.3.0
 #'    - new function sbi_error_plot
 #'    - new function sbi_mtex to display LaTeX equations
@@ -553,6 +555,7 @@
 #' \item{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}}{Check if the given object is a dictionary (list with unique keys)}
 #' \item{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}}{check if a given value within a vector is an outlier}
 #' \item{\link[sbi:sbi_itemchart]{sbi$itemchart(labels)}}{visualization of short item lists with 3 to four items}
+#' \item{\link[sbi:sbi_kl]{sbi$kl(p,q)}}{calculate Kulback-Leibler divergence}
 #' \item{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}}{create flowcharts using the kroki online tool}
 #' \item{\link[sbi:sbi_kurtosis]{sbi$kurtosis(x)}}{fourth central moment of a distribution}
 #' \item{\link[sbi:sbi_lm_plot]{sbi$lm_plot(x,y)}}{XY-plot with linear model and the confidence intervals}
@@ -673,6 +676,7 @@
 #' \item \code{\link[sbi:sbi_is.dict]{sbi$is.dict(x)}} check if an object is a dictionary (list with unique keys)
 #' \item \code{\link[sbi:sbi_is.outlier]{sbi$is.outlier(x)}} check if a given value within a vector is an outlier
 #' \item \code{\link[sbi:sbi_itemchart]{sbi$itemchart(labels)}} visualization of short item lists with 3 to four items
+#' \item \code{\link[sbi:sbi_kl]{sbi$kl(p,q)}} calculate Kulback-Leibler divergence
 #' \item \code{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}} create flowcharts using the kroki online tool
 #' \item \code{\link[sbi:sbi_lm_plot]{sbi$lm_plot(x,y)}} XY-plot with linear model and the confidence intervals.
 #' \item \code{\link[sbi:sbi_mds_plot]{sbi$mds_plot(x,method="euclidean",...)}} plot a multidimensional scaling.
@@ -3263,6 +3267,53 @@ sbi$itemchart <- function (labels,cex=1.2,col=c("#bbddff","#ffcccc","#ccffcc","#
 
 sbi_itemchart = sbi$itemchart
 
+#' FILE: sbi/man/sbi_kl.Rd
+#' \name{sbi$kl}
+#' \alias{sbi$kl}
+#' \alias{sbi_kl}
+#' \title{Caclculate Kulback-Leibler divergence fof two distributions}
+#' \description{
+#'   This function calculates the Kulback-Leibler divergence for two distributions
+#'   based in the formula `KL = sum(p*log(p/q))`.
+#' }
+#' \usage{sbi_kl(p,q,unit="log")}
+#' \arguments{
+#'  \item{p}{first distribution densities, must sum up to 1}
+#'  \item{q}{second distribution densities, must sum up to 1}
+#'  \item{unit}{Should be either log or log2 be used for calculating the divergence, default: 'log'}
+#' }
+#' \examples{
+#' P <- c(.05, .1, .2, .05, .15, .25, .08, .12)
+#' Q <- c(.3, .1, .2, .1, .1, .02, .08, .1)
+#' sbi$kl(P,Q)
+#' sbi$kl(Q,P)
+#' sbi$kl(Q,P,unit="log2")
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/kl.R
+
+sbi$kl <- function (p,q,unit="log") {
+    if (length(p) != length(q)) {
+        stop("Error: Length of P and Q must be equal!")
+    }
+    if (sum(p) != 1) {
+        stop("Error: Sum of P must be 1!")
+    }
+    if (sum(q) != 1) {
+        stop("Error: Sum of Q must be 1!")
+    }
+    if (unit=="log") {
+        v=log(p/q)
+    } else if (unit == "log2") {
+        v=log2(p/q)
+    } else {
+        stop("Error: unit must be either 'log' or 'log2'")
+    }
+    v[v==-Inf]=0
+    #v[v==Inf]=0
+    return(sum(p*v))
+}
+sbi_kl = sbi$kl
 #' FILE: sbi/man/sbi_kroki.Rd
 #' \name{sbi$kroki}
 #' \alias{sbi$kroki}
