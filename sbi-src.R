@@ -3398,9 +3398,9 @@ sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache
         }
         filename=paste(digest::digest(url,"crc32"),".",ext,sep="")
         imgname=file.path("img",filename)
-        dotfile=file.path("img",paste(digest(url,"crc32"),".dot",sep=""))
-        pmlfile=file.path("img",paste(digest(url,"crc32"),".pml",sep=""))
-        ditfile=file.path("img",paste(digest(url,"crc32"),".ditaa",sep=""))
+        dotfile=file.path("img",paste(digest::digest(url,"crc32"),".dot",sep=""))
+        pmlfile=file.path("img",paste(digest::digest(url,"crc32"),".pml",sep=""))
+        ditfile=file.path("img",paste(digest::digest(url,"crc32"),".ditaa",sep=""))
 
         if (!file.exists(imgname)) {
             if (type=="graphviz" & Sys.which("dot") != "") {
