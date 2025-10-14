@@ -3398,8 +3398,30 @@ sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache
         }
         filename=paste(digest::digest(url,"crc32"),".",ext,sep="")
         imgname=file.path("img",filename)
+        dotfile=file.path("img",paste(digest(url,"crc32"),".dot",sep=""))
+        pmlfile=file.path("img",paste(digest(url,"crc32"),".pml",sep=""))
+        ditfile=file.path("img",paste(digest(url,"crc32"),".ditaa",sep=""))
+
         if (!file.exists(imgname)) {
-            utils::download.file(url,imgname,mode="wb")
+            if (type=="graphviz" & Sys.which("dot") != "") {
+                fout2 = file(dotfile,'w')
+                cat(text,file=fout2)
+                close(fout2)
+                system2("dot",sprintf("-T%s",ext),dotfile,"-O")
+            } else if (type=="plantuml" & Sys.which("plantuml") != "") {
+                fout2 = file(pmlfile,'w')
+                cat(text,file=fout2)
+                close(fout2)
+                system2("plantuml",sprintf("-t%s",ext),pmlfile)
+            } else if (type=="ditaa" & Sys.which("ditaa") != "") {
+                fout2 = file(ditfile,'w')
+                cat(text,file=fout2)
+                close(fout2)
+                system2("ditaa",ditfile,"-o","img/ditaa.log")
+            } else {
+                utils::download.file(url,imgname,mode="wb")
+            }
+            url=imgname
         }
         if (plot) {
             img=png::readPNG(imgname)
