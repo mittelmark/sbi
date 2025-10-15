@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.4.0
-#' Date: 2025-10-09
+#' Version: 0.4.1
+#' Date: 2025-10-15
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -51,6 +51,10 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2025-10-15: version 0.4.1
+#'    - fix for kroki service not working by using local installs of
+#'      GraphViz dot, plantuml and ditaa first before using kroki
+#'    - fix for background color in vignette in code sections
 #' 2025-10-09: version 0.4.0
 #'    - new function KL divergence sbi_kl
 #' 2025-09-23: version 0.3.0
@@ -3357,10 +3361,12 @@ sbi_kl = sbi$kl
 #'  ")
 #'  url1
 #'  url2
-#'  sbi$kroki("digraph { node[shape=box,style=filled,fillcolor=beige]; plot -> kroki; }",type="graphviz",plot=TRUE)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/kroki.R
+
+# sbi$kroki("digraph { node[shape=box,style=filled,fillcolor=beige]; plot -> kroki; }",
+# type="graphviz",plot=TRUE)
 
 sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache=TRUE,plot=FALSE) {
     # memCompress and openssl::base64_encode in R 
@@ -3401,13 +3407,21 @@ sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache
         dotfile=file.path("img",paste(digest::digest(url,"crc32"),".dot",sep=""))
         pmlfile=file.path("img",paste(digest::digest(url,"crc32"),".pml",sep=""))
         ditfile=file.path("img",paste(digest::digest(url,"crc32"),".ditaa",sep=""))
-
+        cat(text,file=stderr())
+        cat("\n",file=stderr())
+        cat(imgname,file=stderr())
         if (!file.exists(imgname)) {
+            cat("file does not exists!\n",file=stderr())
+            cat("dotfile is ",dotfile,"\n",file=stderr())
             if (type=="graphviz" & Sys.which("dot") != "") {
+                cat("writing dotfile ",dotfile,"\n",file=stderr())
                 fout2 = file(dotfile,'w')
                 cat(text,file=fout2)
                 close(fout2)
                 system2("dot",sprintf("-T%s",ext),dotfile,"-O")
+                cat("writing dotfile ",dotfile," done!\n",file=stderr())
+                cat("wd: ",getwd(),"\n",file=stderr())
+                list.files(getwd())
             } else if (type=="plantuml" & Sys.which("plantuml") != "") {
                 fout2 = file(pmlfile,'w')
                 cat(text,file=fout2)
@@ -3431,7 +3445,7 @@ sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache
         }
     } else {
         if (plot) {
-            img=png::readPNG(url)
+            img=png::readPNG(imgname)
             grid::grid.raster(img)
         } else {
             return(url)
@@ -6466,6 +6480,7 @@ include-before: |
         padding: 10px;
         background: #e9f9ff;
     }
+    code, .hljs-literal, .hljs-number, .hljs-comment, .hljs-keyword, .hljs-string {  background: #e9f9ff; }
     table { min-width: 400px; border-spacing: 5px;  border-collapse: collapse; }
     .title, .author, .date { text-align: center ; }
     #TOC > ul { margin-left: -20px;  list-style-type: square ; }
