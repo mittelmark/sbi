@@ -6480,6 +6480,7 @@ include-before: |
         padding: 10px;
         background: #e9f9ff;
     }
+    #TOC ul, #TOC ul li, #TOC ul li a,
     code, .hljs-literal, .hljs-number, .hljs-comment, .hljs-keyword, .hljs-string {  background: #e9f9ff; }
     table { min-width: 400px; border-spacing: 5px;  border-collapse: collapse; }
     .title, .author, .date { text-align: center ; }
@@ -6506,6 +6507,8 @@ include-before: |
         text-align: left; 
         padding: 10px;
     }
+    table td strong { background-color: #fff9e9; }
+    p code { background: #f1f7fa ; font-size: 90%%;}
     </style>
     <center>some links on top</center>
 ---
