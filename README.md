@@ -36,7 +36,8 @@ the latest version of that script directly from Github like this:
 ```
 $ R    # start R from a terminal or via start menu
 > source("https://raw.githubusercontent.com/mittelmark/sbi/refs/heads/main/sbi-src.R")
-> ls(sbi) 
+> ls(sbi)  ## list all methods
+> vignette("sbi-examples")  ## load the vignette
 ```
 
 Or you install the latest release as a normal package:
@@ -46,16 +47,17 @@ $ R
 > install.packages("https://github.com/mittelmark/sbi/releases/download/v0.4.1/sbi_0.4.1.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
+> vignette("sbi-examples")
 ```
 
 Or you install the latest release from a Unix Terminal like this:
 
 ```
 wget https://github.com/mittelmark/sbi/releases/download/v0.4.1/sbi_0.4.1.tar.gz
-R CMD INSTALL sbi_0.4.1.tar.gz
+R CMD INSTALL --library=~/R sbi_0.4.1.tar.gz
 ```
 
-Installation  as a package has the advantage  that you have the  documentation
+Installation as a package has the advantage  that you have the  documentation
 and the package vignette available as usually for R packages.
 
 Or you can install the latest development version directly from Github like this:
