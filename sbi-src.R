@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.4.1
-#' Date: 2025-10-15
+#' Version: 0.4.2
+#' Date: 2026-01-15
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -51,6 +51,8 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2026-01-15: version 0.4.2
+#'    - adding doc, ellipse and cylinder shape to flow charts and shape function
 #' 2025-10-15: version 0.4.1
 #'    - fix for kroki service not working by using local installs of
 #'      GraphViz dot, plantuml and ditaa first before using kroki
@@ -2576,7 +2578,7 @@ sbi_file.head = sbi$file.head
 #'   \item{y.incr}{Optional increment in y direction. Default: \code{0}.}
 #'   \item{lab}{Label(s) for a node shown as a rectangle. Default: \code{""}.}
 #'   \item{family}{Font family for node labels. Default: \code{""}.}
-#'   \item{type}{Shape type or arrow. Options include "arrow", "line", "rect", "circle", "ellipse", "hexagon", "diamond", etc. Default: \code{"arrow"}.}
+#'   \item{type}{Shape type or arrow. Options include "arrow", "line", "rect", "circle", "doc", "ellipse", "hexagon", "diamond", etc. Default: \code{"arrow"}.}
 #'   \item{axes}{Logical; show axes on the plot. Default: \code{FALSE}.}
 #'   \item{lwd}{Line width for arrows or lines. Default: \code{2}.}
 #'   \item{width}{Width of shape. Default: \code{0.6}.}
@@ -2630,7 +2632,6 @@ sbi$flow = function (x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, lab = "", fa
     row = as.integer(substr(x, 2, 2)) + y.incr
     return(c(col, row))
   }
-  
   # Handle multiple input coordinates
   if (length(x) > 1) {
     for (i in 1:length(x)) {
@@ -3275,10 +3276,10 @@ sbi_itemchart = sbi$itemchart
 #' \name{sbi$kl}
 #' \alias{sbi$kl}
 #' \alias{sbi_kl}
-#' \title{Caclculate Kulback-Leibler divergence fof two distributions}
+#' \title{Calculate Kulback-Leibler divergence fof two distributions}
 #' \description{
 #'   This function calculates the Kulback-Leibler divergence for two distributions
-#'   based in the formula `KL = sum(p*log(p/q))`.
+#'   based in the formula 'KL = sum(p*log(p/q))'.
 #' }
 #' \usage{sbi_kl(p,q,unit="log")}
 #' \arguments{
@@ -3314,7 +3315,6 @@ sbi$kl <- function (p,q,unit="log") {
         stop("Error: unit must be either 'log' or 'log2'")
     }
     v[v==-Inf]=0
-    #v[v==Inf]=0
     return(sum(p*v))
 }
 sbi_kl = sbi$kl
@@ -5616,7 +5616,7 @@ sbi_sem = sbi$sem
 #'   \item{y}{vertical center of shape, default: 0}
 #'   \item{width}{the shape width, default: 1}
 #'   \item{height}{the shape height, default: 1}
-#'   \item{type}{the shape type, either 'circle', 'diamond', 'hexagon', 'octagon' or 'rand', default: 'circle'}
+#'   \item{type}{the shape type, either 'circle', 'diamond', 'doc','hexagon', 'octagon' or 'rand', default: 'circle'}
 #'   \item{seed}{set a seed for a random polygon, default: 17}
 #'   \item{dir}{for some shapes such as pentagon a direction, default: 'left'}
 #'   \item{arrow}{for some shapes such as pentagon or hexagon a boolean to change to a more arrow like style, default: FALSE}
@@ -5751,14 +5751,27 @@ sbi$shape <- function (x=0,y=0,width=1,height=1,type="circle",
         cbind(x1, x2)[k < x & x <= n+k, ]
     }
     center = function(poly) {
-        poly$x=poly$x-mean(poly$x)
+        poly$x=poly$x-mean(range(poly$x))
         poly$x=poly$x/diff(range(poly$x))
-        poly$y=poly$y-mean(poly$y)
+        poly$y=poly$y-mean(range(poly$y))
         poly$y=poly$y/diff(range(poly$y))
         return(poly)
     }
     if (substr(type,1,4) == "circ") {
         poly=circle(0,0,radius=1)
+    } else if (substr(type,1,4) == "elli") {
+        poly=circle(0,0,radius=1)
+        poly$x=poly$x*1.2
+        poly$y=poly$y*0.8
+    } else if (substr(type,1,3) == "cyl") {
+        poly=circle(0,0,radius=1)
+        poly$x=poly$x*1.2
+        poly$y=poly$y*0.8
+        xy=poly
+        poly$y=poly$y+(height/2)
+        xy$y=xy$y-(height/2)
+        poly$x=c(poly$x,xy$x)
+        poly$y=c(poly$y,xy$y)
     } else if (type == "rand") {
         poly=randPoly(seed=seed) 
     } else if (type %in% c("rect","rectangle")) {
@@ -5767,6 +5780,12 @@ sbi$shape <- function (x=0,y=0,width=1,height=1,type="circle",
     } else if (type == "diamond") {
         poly=list(x=c(-0.5,  0,   0.5,0  ),
                   y=c( 0  , -0.5, 0.0,0.5))
+    } else if (type == "doc") {
+        poly=list(x=c(-0.5,0.3,0.5,0.3,0.3,0.5,0.5,-0.5,-0.5),
+                  y=c(0.5,0.5,0.2,0.2,0.5,0.2,-0.5,-0.5,-0.5))
+        #poly=list(x=c(-0.5,0.5,0.5,0.3,-0.5),
+        #          y=c(-0.5,-0.5,0.3,0.5,0.5))
+
     } else if (type == "hexagon") {
         poly=list(x=c(-0.5,-0.3,+0.3,+0.5,+0.3,-0.3),
                   y=c(+0.0,-0.5,-0.5,+0.0,+0.5,+0.5))
