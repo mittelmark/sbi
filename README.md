@@ -2,8 +2,10 @@
 
 [![Release](https://img.shields.io/github/v/release/mittelmark/sbi.svg?label=current+release)](https://github.com/mittelmark/sbi/releases)
 [![license](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://opensource.org/license/MIT)
-[![CI test](https://github.com/mittelmark/sbi/workflows/R/badge.svg)](https://github.com/mittelmark/sbi/actions)
+<!-- [![CI test](https://github.com/mittelmark/sbi/workflows/R/badge.svg)](https://github.com/mittelmark/sbi/actions) -->
 ![Commits](https://img.shields.io/github/commits-since/mittelmark/sbi/latest)
+![Downloads](https://img.shields.io/github/downloads/mittelmark/sbir/total)
+[![Vignette](https://img.shields.io/badge/Vignette-blue)](https://github.com/mittelmark/sbi/releases/latest/download/sbi-examples.pdf)
 
 ## Name
 
@@ -88,7 +90,7 @@ The   single   file  R   package   approach   is   described   in  the
 
 ## Changes
 
-- 2026-01-17: version 0.4.2
+- 2026-01-17: version 0.4.2 - [package](https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi_0.4.2.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi-examples.pdf)
    - adding doc, ellipse and cylinder shape to flow charts and shape function
    - adding fstart, fnext, fend shapes for process charts
 - 2025-10-15: version 0.4.1
