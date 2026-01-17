@@ -44,7 +44,7 @@ Or you install the latest release as a normal package:
 
 ```
 $ R
-> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.4.1/sbi_0.4.1.tar.gz",repos=NULL)
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi_0.4.2.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
 > vignette("sbi-examples")
@@ -53,8 +53,8 @@ $ R
 Or you install the latest release from a Unix Terminal like this:
 
 ```
-wget https://github.com/mittelmark/sbi/releases/download/v0.4.1/sbi_0.4.1.tar.gz
-R CMD INSTALL --library=~/R sbi_0.4.1.tar.gz
+wget https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi_0.4.2.tar.gz
+R CMD INSTALL --library=~/R sbi_0.4.2.tar.gz
 ```
 
 Installation as a package has the advantage  that you have the  documentation
@@ -76,8 +76,8 @@ wget -O sbi-src.R https://github.com/mittelmark/sbi/raw/main/sbi-src.R
 Rscript sbi-src.R --process    sbi-src.R         # extract all files
 Rscript sbi-src.R --vignettex  sbi-src.R         # extract examples as vignette
 Rscript sbi-src.R --build      sbi               # build package tar-gz file
-Rscript sbi-src.R --check      sbi_0.4.1.tar.gz  # check package tar-gz file
-Rscript sbi-src.R --install    sbi_0.4.1.tar.gz  # install from local tar-gz file
+Rscript sbi-src.R --check      sbi_0.4.2.tar.gz  # check package tar-gz file
+Rscript sbi-src.R --install    sbi_0.4.2.tar.gz  # install from local tar-gz file
 ```
 
 
@@ -86,6 +86,36 @@ Rscript sbi-src.R --install    sbi_0.4.1.tar.gz  # install from local tar-gz fil
 The   single   file  R   package   approach   is   described   in  the
 [rsfp project](https://github.com/mittelmark/rsfp).
 
+## Changes
+
+- 2026-01-17: version 0.4.2
+   - adding doc, ellipse and cylinder shape to flow charts and shape function
+   - adding fstart, fnext, fend shapes for process charts
+- 2025-10-15: version 0.4.1
+   - fix for kroki service not working by using local installs of
+     GraphViz dot, plantuml and ditaa first before using kroki
+   - fix for background color in vignette in code sections
+- 2025-10-09: version 0.4.0
+   - new function KL divergence sbi_kl
+- 2025-09-23: version 0.3.0
+   - new function sbi_error_plot
+   - new function sbi_mtex to display LaTeX equations
+- 2025-09-18: version 0.2.1
+   - fix main.cex to cex.main in vignette
+- 2025-09-17: Version 0.2.0
+   - new commands nfig, rfig, ntab, rtab for figure and 
+     table numbering and referencing
+   - new command mtex for create LaTeX equations as png documents
+   - switching from extrafont in vignette to showtext
+   - adding timetable functions tt_plot and tt_item
+- 2025-09-01: Version 0.1.2
+   - fixing issue with girls / boys order in ref_table
+- 2025-07-12:
+   - adding cdc references for weight
+- 2025-07-10: Version 0.1.0
+   - adding methods qr_plot and randomize
+   - adding new MUAC references from Ado et. al. 2017
+- 2024-08-28: Version 0.0.1 - Initial Release
 ## Authors
 
 - Detlef Groth, University of Potsdam (Author and Maintainer)
