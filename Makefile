@@ -1,7 +1,7 @@
 ##-*- makefile -*-############################################################
 #  Created By    : Detlef Groth, University of Potsdam
 #  Created       : Wed Aug 28 16:08:38 2024
-#  Last Modified : <240909.1755>
+#  Last Modified : <260117.1122>
 #
 #  Description	 : Makefile for creating packages from the sfrp-src.R script
 #
@@ -32,3 +32,6 @@ install: build
 clean:
 	-rm -rf $(pkg)/
 	-rm -rf $(pkg).Rcheck
+pdf:
+	weasyprint sbi.Rcheck/sbi/doc/sbi-examples.html sbi-examples.pdf \
+		-s assets/small.css
