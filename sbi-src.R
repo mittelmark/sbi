@@ -51,8 +51,9 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
-#' 2026-01-15: version 0.4.2
+#' 2026-01-17: version 0.4.2
 #'    - adding doc, ellipse and cylinder shape to flow charts and shape function
+#'    - adding fstart, fnext, fend shapes for process charts
 #' 2025-10-15: version 0.4.1
 #'    - fix for kroki service not working by using local installs of
 #'      GraphViz dot, plantuml and ditaa first before using kroki
@@ -2558,6 +2559,7 @@ sbi_file.head = sbi$file.head
 #'   (rectangles, circles, diamonds, etc.) and arrows or lines between them. You can specify 
 #'   coordinates using chessboard notation (e.g., 'A1', 'C3') for placing shapes and drawing 
 #'   connections.
+#'   Using the shapes 'fstart','fnext' and 'fend' simple process charts can be created.
 #' }
 #' \usage{
 #' sbi_flow(x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, 
@@ -2578,7 +2580,8 @@ sbi_file.head = sbi$file.head
 #'   \item{y.incr}{Optional increment in y direction. Default: \code{0}.}
 #'   \item{lab}{Label(s) for a node shown as a rectangle. Default: \code{""}.}
 #'   \item{family}{Font family for node labels. Default: \code{""}.}
-#'   \item{type}{Shape type or arrow. Options include "arrow", "line", "rect", "circle", "doc", "ellipse", "hexagon", "diamond", etc. Default: \code{"arrow"}.}
+#'   \item{type}{Shape type or arrow. Options include "arrow", "line", "fstart","fnext", "fend",
+#'    "rect", "circle", "doc", "ellipse", "hexagon", "diamond", etc. Default: \code{"arrow"}.}
 #'   \item{axes}{Logical; show axes on the plot. Default: \code{FALSE}.}
 #'   \item{lwd}{Line width for arrows or lines. Default: \code{2}.}
 #'   \item{width}{Width of shape. Default: \code{0.6}.}
@@ -2617,6 +2620,15 @@ sbi_file.head = sbi$file.head
 #' flow("C1", lab = "World!", col = "salmon", width = 1.2, height = 0.8, cex = 1.2)
 #' flow("B4", lab = "B4", cex = 1.2)
 #' flow("D3", lab = "This is\nD3", cex = 1.2, col = "cornsilk", height = 0.7)
+#' flow(4,2)
+#' flow("A2",lab="2016",type="text",cex=2.4)
+#' flow("B2",lab="2017",type="text",cex=2.4)
+#' flow("C2",lab="2018",type="text",cex=2.4)
+#' flow("D2",lab="2019",type="text",cex=2.4)
+#' flow("A1",lab="Start",type="fstart",col="cornsilk",cex=2.4,width=1.1,shadow=FALSE)
+#' flow("B1",lab="  Next",type="fnext",col="cornsilk",cex=2.4,width=1.1,shadow=FALSE)
+#' flow("C1",lab="  Next",type="fnext",col="cornsilk",cex=2.4,width=1.1,shadow=FALSE)
+#' flow("D1",lab="  End",type="fend",col="cornsilk",cex=2.4,width=1.1,shadow=FALSE)
 #' } 
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/flow.R
@@ -2699,7 +2711,7 @@ sbi$flow = function (x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, lab = "", fa
     if (type != "text") {
       polygon(poly$x + pos[1], poly$y + pos[2], col = col, border = border)
     }
-    text(pos[1], pos[2], lab, cex = cex, family = sbi$FLOWFONT, ...)
+    text(pos[1], pos[2], labels=lab, cex = cex, family = sbi$FLOWFONT, ...)
   }
 }
 
@@ -5616,7 +5628,8 @@ sbi_sem = sbi$sem
 #'   \item{y}{vertical center of shape, default: 0}
 #'   \item{width}{the shape width, default: 1}
 #'   \item{height}{the shape height, default: 1}
-#'   \item{type}{the shape type, either 'circle', 'diamond', 'doc','hexagon', 'octagon' or 'rand', default: 'circle'}
+#'   \item{type}{the shape type, either 'circle', 'diamond', 'doc',
+#'         'fstart','fnext','fend','hexagon', 'octagon' or 'rand', default: 'circle'}
 #'   \item{seed}{set a seed for a random polygon, default: 17}
 #'   \item{dir}{for some shapes such as pentagon a direction, default: 'left'}
 #'   \item{arrow}{for some shapes such as pentagon or hexagon a boolean to change to a more arrow like style, default: FALSE}
@@ -5641,6 +5654,8 @@ sbi_sem = sbi$sem
 #' polygon(sbi$shape(0.5,1,type="pentagon",width=0.4,height=0.2,dir="right",arrow=TRUE),col="bisque")
 #' polygon(sbi$shape(1,1,type="hexagon",width=0.4,height=0.2,dir="right",arrow=TRUE),col="cornsilk")
 #' polygon(sbi$shape(1,0.5,type="hexagon",width=0.4,height=0.2,arrow=TRUE),col="cornsilk")
+#' polygon(sbi$shape(1,0,type="doc",width=0.2,height=0.3),col="cornsilk")
+#' polygon(sbi$shape(1,-0.5,type="cylinder",width=0.4,height=0.2),col="cornsilk")
 #' plot(1,xlim=c(-1,1),ylim=c(-1,1),axes=FALSE,xlab="",ylab="",type="n")
 #' for (i in 1:20) {
 #'    col=colors()[sample(2:50,1)]
@@ -5790,24 +5805,37 @@ sbi$shape <- function (x=0,y=0,width=1,height=1,type="circle",
         poly=list(x=c(-0.5,-0.3,+0.3,+0.5,+0.3,-0.3),
                   y=c(+0.0,-0.5,-0.5,+0.0,+0.5,+0.5))
         if (arrow) {
-            poly$x[1]=-0.05
+            poly$x[1]=-0.1 #-0.05
         }
         if (dir == "right") {
             poly$x=poly$x*-1
         }
+            
     } else if (type == "octagon") {
         poly=list(x=c(-0.5,-0.5,-0.3,0.3,0.5,0.5,0.3,-0.3),
                   y=c(0.25,-0.25,-0.5,-0.5,-0.25,+0.25,0.5,0.5))
     } else if (type == "pentagon") {
-        poly=list(x=c(-0.5,-0.25,0.5,0.5,-0.25),
+        poly=list(x=c(-0.5,-0.3,0.5,0.5,-0.3),
                   y=c(0,0.5,0.5,-0.5,-0.5))
         if (arrow) {
-            poly$y[3]=0.25
-            poly$y[4]=-0.25
+            poly$y[3]=0.3
+            poly$y[4]=-0.3
         }
         if (dir == "right") {
             poly$x=poly$x*-1
         }
+    } else if (type %in% c("fstart","fnext","fend")) {
+        poly = list(x=c(-0.5,0.3,0.5,0.3,-0.5,-0.3),
+                    y=c(0.25,0.25,0,-0.25,-0.25,0))
+        if (type=="fstart") {
+            poly$x=poly$x[1:5]
+            poly$y=poly$y[1:5]
+            
+        }
+        if (type=="fend") {
+            poly$x[2]=poly$x[4]=0.5
+        }
+                    
     } else {
         stop("Error: Unkown type '",type,"'!",sep="")
     }
