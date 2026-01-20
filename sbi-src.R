@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.4.2
-#' Date: 2026-01-15
+#' Version: 0.4.3
+#' Date: 2026-01-20
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -38,7 +38,7 @@
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R 
 #'     kl.R kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
-#'     mtex.R nfig.R rfig.R ntab.R rtab.R
+#'     marrow.R mtex.R nfig.R rfig.R ntab.R rtab.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
@@ -51,6 +51,8 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' 2026-01-XX: versin 0.4.3
+#'    - adding sbi_marrow function
 #' 2026-01-17: version 0.4.2
 #'    - adding doc, ellipse and cylinder shape to flow charts and shape function
 #'    - adding fstart, fnext, fend shapes for process charts
@@ -566,6 +568,7 @@
 #' \item{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}}{create flowcharts using the kroki online tool}
 #' \item{\link[sbi:sbi_kurtosis]{sbi$kurtosis(x)}}{fourth central moment of a distribution}
 #' \item{\link[sbi:sbi_lm_plot]{sbi$lm_plot(x,y)}}{XY-plot with linear model and the confidence intervals}
+#' \item{\link[sbi:sbi_marrow]{sbi$marrow(x,y,...)}}{improved arrow function (plot)}
 #' \item{\link[sbi:sbi_mds_plot]{sbi$mds_plot(x,method="euclidean",...)}}{plot a multidimensional scaling (plot)}
 #' \item{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}}{lattice like histogram}
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
@@ -686,6 +689,7 @@
 #' \item \code{\link[sbi:sbi_kl]{sbi$kl(p,q)}} calculate Kulback-Leibler divergence
 #' \item \code{\link[sbi:sbi_kroki]{sbi$kroki(text,type="ditaa",ext="png")}} create flowcharts using the kroki online tool
 #' \item \code{\link[sbi:sbi_lm_plot]{sbi$lm_plot(x,y)}} XY-plot with linear model and the confidence intervals.
+#' \item \code{\link[sbi:sbi_marrow]{sbi$marrow(x,y,...)}} improved arrow function (plot)
 #' \item \code{\link[sbi:sbi_mds_plot]{sbi$mds_plot(x,method="euclidean",...)}} plot a multidimensional scaling.
 #' \item \code{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}} lattice like histogram
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
@@ -3545,14 +3549,14 @@ sbi_kurtosis <- sbi$kurtosis
 #' par(mfrow=c(1,2))
 #' data(iris) 
 #' sbi$lm_plot(iris$Sepal.Width, iris$Sepal.Length,
-#'    col=as.numeric(iris$Species)+1,col.pi="bisque4",
-#'    col.lm="black",xlab="Sepal.Width",ylab="Sepal.Length")
+#'   col=as.numeric(iris$Species)+1,col.pi="bisque4",
+#'   col.lm="black",xlab="Sepal.Width",ylab="Sepal.Length")
 #' props=c(0.0441,0.0133,0.0183,0.0238,0.0389,
-#'         0.0648,0.0275,0.0704,0.0796,0.036,0.0132,
-#'         0.108,0.136,0.0383,0.1008)
+#'   0.0648,0.0275,0.0704,0.0796,0.036,0.0132,
+#'   0.108,0.136,0.0383,0.1008)
 #' years=2005:2019
 #' sbi$lm_plot(years,props,ylim=c(0,0.3),xlab="Year",ylab="Proportion",
-#'    col.pi=NULL,col.plm='#FFB0B066',col.polygon='#FFB0B066')
+#'  col.pi=NULL,col.plm='#FFB0B066',col.polygon='#FFB0B066')
 #' 
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
@@ -3628,6 +3632,65 @@ sbi$lm_plot = function (x,y=NULL, data=NULL,col="blue",pch=19,col.lm="red",col.p
 }
 
 sbi_lm_plot = sbi$lm_plot
+
+#' FILE: sbi/man/sbi_marrow.Rd
+#' \name{sbi$marrow}
+#' \alias{sbi$marrow}
+#' \alias{sbi_marrow}
+#' \title{Draw horizontal or vertical oriented arrows}
+#' \description{Draw horizontal or vertical oriented arrows. 
+#'  The standard arrows function only has limited support for arrows. 
+#'  This function can draw for purely horizontal or vertical lines nice
+#'  triangular arrows at the end.
+#' }
+#' \usage{sbi_marrow(x,y,lwd=1,lty=1,size=1,col='black')}
+#' \arguments{
+#'  \item{x}{vector of the two x coordinates}
+#'  \item{y}{vector of the two y coordinates}
+#'  \item{lwd}{linewidth of the line, default: 1}
+#'  \item{lty}{line type of the line, default: 1}
+#'  \item{size}{length and width of the triangle, it is calculated based on
+#'    the x-axis range, default: 1}
+#'  \item{col}{color of the arrow, default: 'black'}
+#' }
+#' \examples{
+#' plot(1,type='n',axes=FALSE,xlim=c(0,1),
+#'   ylim=c(0,1),asp=1,xlab='',ylab='')
+#' rect(0.2,0.2,0.6,0.4,col="salmon")
+#' text(0.4,0.3,"Start",cex=1.5)
+#' rect(0.6,0.7,1.0,0.9,col="light blue")
+#' text(0.8,0.8,"End",cex=1.5)
+#' lines(x=c(0.4,0.4),y=c(0.4,0.8),lwd=2)
+#' sbi$marrow(x=c(0.4,0.6),y=c(0.8,0.8),lwd=2)
+#' lines(x=c(0.8,0.8),y=c(0.7,0.3),lwd=2,lty=2)
+#' sbi$marrow(x=c(0.8,0.6),y=c(0.3,0.3),lwd=2,lty=2)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#'
+
+#' FILE: sbi/R/marrow.R
+sbi$marrow = function (x,y,lwd=1,lty=1,size=1,col='black') { 
+    size=((par("usr")[2]-par("usr")[1])/80)*size
+    lines(x,y,lwd=lwd,lty=lty,col=col)
+    if (x[1]<x[2]) {
+        # left-right
+        polygon(x=c(x[2]-size,x[2]-size,
+            x[2]),y=c(y[2]+0.5*size,y[2]-0.5*size,y[2]),col=col)
+    } else if (x[2]<x[1]) {
+        # right-left
+        polygon(x=c(x[2]+size,x[2]+size,x[2]),
+                y=c(y[2]+0.5*size,y[2]-0.5*size,y[2]),col=col)
+    } else if (y[1] > y[2]) {
+        # top-down
+        polygon(x=c(x[2]-size*0.5,x[2]+size*0.5,x[2]),
+                y=c(y[2]+size,y[2]+size,y[2]),col=col)
+    } else if (y[2] > y[1]) {
+        # down-top
+        polygon(x=c(x[2]-size*0.5,x[2]+size*0.5,x[2]),
+                y=c(y[2]-size,y[2]-size,y[2]),col=col)
+    }
+}
+sbi_marrow <- sbi$marrow
 #' FILE: sbi/man/sbi_mds_plot.Rd
 #' \name{sbi$mds_plot}
 #' \alias{sbi$mds_plot}
