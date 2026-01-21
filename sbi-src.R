@@ -3,7 +3,7 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.4.3
+#' Version: 0.5.0
 #' Date: 2026-01-20
 #' Author: Detlef Groth
 #' Authors@R:c(
@@ -31,6 +31,7 @@
 #' Encoding: UTF-8
 #' NeedsCompilation: no
 #' Collate: sbi.R  aaa.R assoc.R assoc_legend.R aggregate2.R angle.R bezier.R bootstrap.R
+#'     barrow.R btable.R berdline.R
 #'     cache_image.R cdist.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R 
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
@@ -53,6 +54,8 @@
 #' FILE: sbi/NEWS
 #' 2026-01-XX: versin 0.4.3
 #'    - adding sbi_marrow function
+#'    - adding sbi_btable and sbi_barrow function for arrows between blocks
+#'    - adding sbi_berdline for drawing ERD diagrams
 #' 2026-01-17: version 0.4.2
 #'    - adding doc, ellipse and cylinder shape to flow charts and shape function
 #'    - adding fstart, fnext, fend shapes for process charts
@@ -116,7 +119,7 @@
 #'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals",
 #'            "qnorm", "wilcox.test","cov", "qchisq")
 #' importFrom("graphics", "axTicks","barplot","boxplot", "grid","hist","legend","mtext",
-#'            "pairs", "par","polygon", 
+#'            "pairs", "par","polygon", "strwidth",
 #'             "arrows", "lines", "text", "title", "rect", "plot", "axis", "box",
 #'            "abline","points")
 #' importFrom("grDevices", "col2rgb", "rgb","png","dev.off")
@@ -526,7 +529,10 @@
 #' \item{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}}{Create assocplots with residual coloring}
 #' \item{\link[sbi:sbi_assoc_legend]{sbi$assoc_legend(pch=15,side="bottom",...)}}{Adds a legend with color codes for the residuals to a assocplot}
 #' \item{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}}{create bezier lines using three coordinates}
+#' \item{\link[sbi:sbi_barrow]{sbi$barrow(from,to,...)}}{connect btable objects with arrows (plot)}
+#' \item{\link[sbi:sbi_berdline]{sbi$berdline(from,to,...)}}{connect btable objects with ERD arrows with crowfoot notation (plot)}
 #' \item{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}}{perform a resampling for the given data set and function}
+#' \item{\link[sbi:sbi_btable]{sbi$btable(pos,...)}}{display table definitions (plot)}
 #' \item{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}}{create a crc32 image for a downloaded image from the internet if not yet there}
 #' \item{\link[sbi:sbi_cdist]{sbi$cdist(x,method="spearman",type="abs")}}{calculate correlation distances}
 #' \item{\link[sbi:sbi_chr2ord]{sbi$chr2ord(x,map)}}{convert factors or characters to ordinal numbers}
@@ -647,8 +653,11 @@
 #' \item \code{\link[sbi:sbi_angle]{sbi$angle(x,y, degree=FALSE)}} determine the angle between two vectors
 #' \item \code{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}} Create assocplots with residual coloring
 #' \item \code{\link[sbi:sbi_assoc_legend]{sbi$assoc_legend(pch=15,side="bottom",...)}} Adds a legend with color codes for the residuals to a assocplot
+#' \item \code{\link[sbi:sbi_barrow]{sbi$barrow(from,to,...)}} connect btable objects with arrows (plot)
+#' \item \code{\link[sbi:sbi_berdline]{sbi$berdline(from,to,...)}} connect btable objects with ERD arrows with crowfoot notation (plot)
 #' \item \code{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}} create bezier lines using three coordinates
 #' \item \code{\link[sbi:sbi_bootstrap]{sbi$bootstrap(x,FUN=NULL,n=1000,...)}} perform a resampling for the given data set and function
+#' \item \code{\link[sbi:sbi_btable]{sbi$btable(pos,...)}} display table definitions (plot)
 #' \item \code{\link[sbi:sbi_cache_image]{sbi$cache_image(url,extension="png")}} create a crc32 image for a downloaded image from the internet if not yet there
 #' \item \code{\link[sbi:sbi_cdist]{sbi$cdist(x,method="spearman",type="abs")}} calculate correlation distances
 #' \item \code{\link[sbi:sbi_chr2ord]{sbi$chr2ord(x,map)}} convert factors or characters to ordinal numbers
@@ -745,6 +754,7 @@
 ## sbi-environment
 
 sbi=new.env()
+sbi$bbox=list() # various block object positions
 
 ## Actual code starts
 ## Functions documentation, protect percent signs % with backslashes \%
@@ -987,6 +997,207 @@ sbi$assoc_legend <- function (pch=15,side="bottom",cex=1,pt.cex=cex*2,...) {
 }
 sbi_assoc_legend = sbi$assoc_legend
 
+#' FILE: sbi/man/sbi_barrow.Rd
+#' \name{sbi$barrow}
+#' \alias{sbi$barrow}
+#' \alias{sbi_barrow}
+#' \title{Draw a line between two boxes drawn with btable}
+#' \description{Used for draw arrows between structures placed on a chessboard coordinate system.}
+#' \usage{sbi_barrow(from,to,lwd=2,x.incr=0,y.incr=0,label="",lab.cex=1,...)}
+#' \arguments{
+#'  \item{from}{chess board coordinate for x and y position like 'C4'}
+#'  \item{to}{chess board coordinate for x and y position like 'A4', from and to must be either
+#'  on the same line or column.}
+#'  \item{lwd}{line width of the edge, default: 2}
+#'  \item{x.incr}{x increment for the edges, default: 0}
+#'  \item{y.incr}{y increment for the edges, default: 0}
+#'  \item{label}{label on the edge, default: ""}
+#'  \item{lab.cex}{Character expansion for the label, default: 1}
+#'  \item{\ldots}{arguments delegated to the sbi_marrow function}
+#' }
+#' \examples{
+#' plot(1,type='n',axes=FALSE,xlim=c(0,3),
+#'   ylim=c(0,3),asp=1,xlab='',ylab='')
+#' sbi$btable('B2',label=c("Table1","Col1","Col2"))
+#' sbi$btable('C2',label=c("Table2","Col1","Col2"))
+#' sbi$barrow('B2','C2',lwd=4)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_btable]{sbi$btable}}
+#'
+
+#' FILE: sbi/R/barrow.R
+
+# arrow between objects on chessboard coordinates
+sbi$barrow = function (from,to,lwd=2,x.incr=0,y.incr=0,label="",lab.cex=1,...) {
+    if (length(which(names(sbi$bbox) %in% c(from,to))) != 2) {
+        stop("Objects must be already drawn to create arrows between them")
+    }
+    if (substr(from,1,1) != substr(to,1,1)) {
+        # different columns
+        x1=sbi$bbox[[from]][3]
+        x2=sbi$bbox[[to]][1]
+        y=(sbi$bbox[[from]][2]+sbi$bbox[[from]][4])/2
+        sbi$marrow(x=c(x1,x2),
+                     y=c(y,y),lwd=lwd,...)
+    } else if (substr(from,2,2) != substr(to,2,2)) {
+        # different rows
+        x=(sbi$bbox[[from]][1]+sbi$bbox[[from]][3])/2
+        y1=sbi$bbox[[from]][2]
+        y2=sbi$bbox[[to]][4]
+        if (y1<y2) {
+            y1=sbi$bbox[[from]][4]
+            y2=sbi$bbox[[to]][2]
+        }
+        sbi$marrow(x=c(x,x),y=c(y1,y2),lwd=lwd,...)
+    } else {
+        # currently not implemented
+        stop("Error: dia$barrow currently requires either rows or columns to be the same!")
+    }
+}
+sbi_barrow = sbi$barrow
+
+#' FILE: sbi/man/sbi_berdline.Rd
+#' \name{sbi$berdline}
+#' \alias{sbi$berdline}
+#' \alias{sbi_berdline}
+#' \title{Draw an entity relationship linebetween two boxes drawn with btable}
+#' \description{Used for draw entity relationship lines using crow notation between structures placed on a chessboard coordinate system.}
+#' \usage{sbi_berdline(from,to,erd="1111",lwd=2,label="",lab.cex=1,...)}
+#' \arguments{
+#'  \item{from}{chess board coordinate for x and y position like 'C4'}
+#'  \item{to}{chess board coordinate for x and y position like 'A4', from and to must be either
+#'  on the same line or column.}
+#'  \item{erd}{erd connection, string of four characters, '0' for zero, '1' for one, 'm' for many, default: '1111'} 
+#'  \item{lwd}{line width of the edge, default: 2}
+#'  \item{label}{label on the edge, default: ""}
+#'  \item{lab.cex}{Character expansion for the label, default: 1}
+#'  \item{\ldots}{arguments delegated to the sbi_marrow function}
+#' }
+#' \examples{
+#' sbi$flow(6,3)
+#' sbi$btable('B2',label=c('Table 1','...','...','...'),width=1.8)
+#' sbi$btable('E2',label=c('Table 2','...','...','...'),width=1.8)
+#' sbi$berdline('B2','E2',erd='110m')
+#' sbi$marrow(x=c(3.05,3.05),y=c(1.1,1.7),col='black',size=2,lwd=2)
+#' sbi$marrow(x=c(3.95,3.95),y=c(1.1,1.7),col='black',size=2,lwd=2)
+#' text(3.5,y=0.85,adj=c(0.5,0),'maximum',cex=1.5)
+#' text(3.5,y=3.05,adj=c(0.5,0),'minimum',cex=1.5)
+#' sbi$marrow(x=c(3.19,3.19),y=c(2.85,2.25),col='black',size=2,lwd=2)
+#' sbi$marrow(x=c(3.80,3.80),y=c(2.85,2.25),col='black',size=2,lwd=2)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_btable]{sbi$btable}}
+#'
+
+#' FILE: sbi/R/berdline.R
+
+
+sbi$berdline = function (from,to,erd='1111',lwd=2,
+                         label='',lab.cex=1,...) {
+    items=names(sbi$bbox)
+    if (length(which(items %in% c(from,to))) != 2) {
+        stop("erdline can be only displaxyed between existing tab items")
+    } 
+    
+    c.from=which(LETTERS==substr(from,1,1))
+    r.from=as.numeric(substr(from,2,2))
+    c.to=which(LETTERS==substr(to,1,1))
+    r.to=as.numeric(substr(to,2,2))
+    if (c.from > c.to) {
+        # reverse
+        ct=c.to
+        c.to = c.from
+        c.from=ct
+        erd=paste(rev(strsplit(erd,"")[[1]]),collapse="")
+        tmp=from
+        from=to
+        to=tmp
+        
+    } else if  (r.from > r.to) {
+        rt=r.to
+        r.to=r.from
+        r.from=rt
+        erd=paste(rev(strsplit(erd,"")[[1]]),collapse="")
+    }
+    if (r.from != r.to) {
+        # top to bottom
+        y1=sbi$bbox[[from]][2]
+        y2=sbi$bbox[[to]][4]            
+        x1=c.from
+        incr=0.1 #*(dchess$ncol/1.5)
+        width=0.1
+        lines(c(x1,x1),c(y1,y2),lwd=lwd)
+        for (i in c(1,3)) {
+            if (i == 1) {
+                ya=y1;yb=y1-incr;yc=y1-2*incr
+            } else {
+                ya=y2;yb=y2+incr;yc=y2+2*incr
+            }
+            if (any(substr(erd,i,i+1) %in% c("0m","m0"))) {
+                lines(c(x1-width,x1),c(ya,yc))
+                lines(c(x1+width,x1),c(ya,yc))
+                points(x1,yc,pch=19,col="black",cex=2.3)
+                points(x1,yc,pch=19,col="white",cex=2)
+                
+            } else if (any(substr(erd,i,i+1) %in% c("1m","m1"))) {
+                # one
+                lines(c(x1+width,x1-width),c(yc,yc))
+                # many
+                lines(c(x1,x1-width),c(yc,ya))
+                lines(c(x1,x1+width),c(yc,ya))
+            } else if (any(substr(erd,i,i+1) %in% c("11"))) {
+                lines(c(x1+width,x1-width),c(yc,yc))
+                lines(c(x1+width,x1-width),c(yb,yb))                    
+            } else if (any(substr(erd,i,i+1) %in% c("01","10"))) {
+                lines(c(x1+width,x1-width),c(yb,yb))
+                points(x1,yc,pch=19,col="black",cex=2.3)
+                points(x1,yc,pch=19,col="white",cex=2)
+            } 
+        }
+        
+        #            stop("vertical erd mode not yet implemented")
+    }
+    if (c.from != c.to) {
+        # left to right
+        x1=sbi$bbox[[from]][3]
+        x2=sbi$bbox[[to]][1]            
+        y1=r.from
+        lines(c(x1,x2),c(y1,y1),lwd=lwd)
+        incr=0.15
+        height=0.1
+        for (i in c(1,3)) {
+            if (i == 1) {
+                xa=x1;xb=x1+incr;xc=x1+2*incr
+            } else {
+                xa=x2;xb=x2-incr;xc=x2-2*incr
+            }
+            # left 
+            if (any(substr(erd,i,i+1) %in% c("0m","m0"))) {
+                lines(c(xc,xa),c(y1,y1+2*height))
+                lines(c(xc,xa),c(y1,y1-2*height))
+                points(xc,y1,pch=19,col="black",cex=2.3)
+                points(xc,y1,pch=19,col="white",cex=2)
+                
+            } else if (any(substr(erd,i,i+1) %in% c("1m","m1"))) {
+                lines(c(xc,xc),c(y1+2*height,y1-2*height))
+                lines(c(xc,xa),c(y1,y1+2*height))
+                lines(c(xc,xa),c(y1,y1-2*height))
+                
+            } else if (any(substr(erd,i,i+1) %in% c("11"))) {
+                lines(c(xc,xc),c(y1+2*height,y1-2*height))
+                lines(c(xb,xb),c(y1+2*height,y1-2*height))
+                
+            } else if (any(substr(erd,i,i+1) %in% c("01","10"))) {
+                lines(c(xb,xb),c(y1+2*height,y1-2*height))
+                points(xc,y1,pch=19,col="black",cex=2.3)
+                points(xc,y1,pch=19,col="white",cex=2)
+                
+            } 
+        }
+    }
+    return()
+}
+sbi_berdline=sbi$brdline
+
 #' FILE: sbi/man/sbi_bezier.Rd
 #' \name{sbi$bezier}
 #' \alias{sbi_bezier}
@@ -1107,6 +1318,89 @@ sbi$bootstrap <- function (x,FUN=NULL,n=1000,...) {
 }
 
 sbi_bootstrap = sbi$bootstrap
+#' FILE: sbi/man/sbi_btable.Rd
+#' \name{sbi$btable}
+#' \alias{sbi$btable}
+#' \alias{sbi_btable}
+#' \title{Draw a spreadsheet like table on a plot}
+#' \description{Used for draw database structures with given table names.}
+#' \usage{sbi_btable(pos, x.incr=0,y.incr=0, label=c("Title","Item1","Item2"),
+#'                       cex=1,width=0,height=0,bg.col=c("grey70","grey90"))}
+#' \arguments{
+#'  \item{pos}{chess board coordinates for x and y position like 'C4'}
+#'  \item{x.incr}{shift on the x-axis, default=0}
+#'  \item{y.incr}{shift on the y-axis, default=0}
+#'  \item{label}{list of labels for the table, first is the able name, default: c("Title","Item1","Item2")}
+#'  \item{cex}{Character expansion, default: 1}
+#'  \item{width}{table width if not given it is calculated based on the label lengths, default: 0}
+#'  \item{height}{table width if not given it is calculated based on the label number, default: 0}
+#'  \item{bg.col}{colors for the header and the following items, default: c("grey70","grey90")}
+#' }
+#' \examples{
+#' plot(1,type='n',axes=FALSE,xlim=c(0,3),
+#'   ylim=c(0,3),asp=1,xlab='',ylab='')
+#' sbi$btable('B2',label=c("Table1","Col1","Col2"))
+#' sbi$btable('C2',label=c("Table2","Col1","Col2"))
+#' sbi$barrow('B2','C2',lwd=4)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_barrow]{sbi$barrow}}
+#'
+
+#' FILE: sbi/R/btable.R
+sbi$btable <- function (pos, x.incr=0,y.incr=0, label=c("Title","Item1","Item2"),
+                        cex=1,width=0,height=0,bg.col=c("grey70","grey90")) {
+    f2v = function(x) {
+        col = substr(x, 1, 1)
+        col = as.integer(which(LETTERS == col)) + x.incr
+        row = as.integer(substr(x, 2, 2)) + y.incr
+        return(c(col, row))
+    }
+    xy=f2v(pos)
+    x=xy[1]
+    y=xy[2]
+    strheight=strheight("I",cex=cex)
+    yunit=strheight*2
+    if (width==0) {
+        # width is auto
+        lw=0
+        for (i in 1:length(label)) {
+            if (strwidth(label[i])>lw) {
+                lw=strwidth(label[i],cex=cex)
+            }
+        }
+        width=lw*1.2
+    }
+    if (height==0) {
+        # width is auto
+        height=yunit*length(label)
+    }
+    xtop=x-width*0.5
+    ytop=y+height*0.5
+    xbot=x+width*0.5
+    ybot=y-height*0.5
+    rect(xtop,ytop,xbot,ybot,col=bg.col[2])
+    # header
+    rect(xtop,ytop,xbot,ytop-yunit,col=bg.col[1],lty=1)
+    startx=xtop+0.1*(xbot-xtop)
+    starty=ytop-0.1*yunit
+    # again borders only
+    rect(xtop,ytop,xbot,ybot) 
+    indent=0
+    for (i in 1:length(label)) {
+        if (grepl("^(PK|FK) ",label[i])) {
+            text(startx,starty-yunit*0.18,label[i],adj=c(0,1),cex=cex)
+            indent=strwidth("PK ",cex=cex)
+        } else {
+            text(startx+indent,starty-yunit*0.18,label[i],adj=c(0,1),cex=cex)
+        }
+        starty=starty-yunit
+        
+    }
+    sbi$bbox[[pos]]=c(xtop,ybot,xbot,ytop)
+    invisible(list(bbox=c(xtop,ybot,xbot,ytop)))
+}
+sbi_btable=sbi$btable
+
 
 #' FILE: sbi/man/sbi_cache_image.Rd
 #' \name{sbi$cache_image}
@@ -2641,82 +2935,82 @@ sbi$flow = function (x, y = NULL, z = NULL, x.incr = 0, y.incr = 0, lab = "", fa
                      cex = 1, col = "skyblue", border = "black", arrow.col = "black", 
                      cut = 0.6, shadow = TRUE, shadow.col = "#bbbbbb99", ...) {
   
-  # Debugging output to ensure lab and type are correctly passed
-  f2v = function(x) {
-    col = substr(x, 1, 1)
-    col = as.integer(which(LETTERS == col)) + x.incr
-    row = as.integer(substr(x, 2, 2)) + y.incr
-    return(c(col, row))
-  }
-  # Handle multiple input coordinates
-  if (length(x) > 1) {
-    for (i in 1:length(x)) {
-      if (length(y) == length(x)) {
-        yi = y[i]
-      } else {
-        yi = y
-      }
-      if (length(lab) == length(x)) {
-        labi = lab[i]
-      } else {
-        labi = lab
-      }
-      if (length(col) == length(x)) {
-        coli = col[i]
-      } else {
-        coli = col
-      }
-      sbi$flow(x = x[i], y = yi, x.incr = x.incr, y.incr = y.incr, lab = labi, family = family, 
-               type = type, axes = axes, lwd = lwd, width = width, height = height, 
-               cex = cex, col = coli, border = border, arrow.col = arrow.col, 
-               cut = cut, shadow = shadow, shadow.col = shadow.col, ...)
+    # Debugging output to ensure lab and type are correctly passed
+    f2v = function(x) {
+        col = substr(x, 1, 1)
+        col = as.integer(which(LETTERS == col)) + x.incr
+        row = as.integer(substr(x, 2, 2)) + y.incr
+        return(c(col, row))
     }
-    return()
-  }
-  
-  # Case when both x and y are numeric (setup board)
-  if (is.numeric(x) & is.numeric(y)) {
-    plot(1, type = "n", xlim = c(0.5, x + 0.5), ylim = c(0.5, y + 0.5), 
-         xlab = "", ylab = "", axes = FALSE, ...)
-    if (axes) {
-      axis(2, lwd = 0, family = family)
-      axis(1, at = 1:x, labels = LETTERS[1:x], lwd = 0, family = family)
-      box()
+    # Handle multiple input coordinates
+    if (length(x) > 1) {
+        for (i in 1:length(x)) {
+            if (length(y) == length(x)) {
+                yi = y[i]
+            } else {
+                yi = y
+            }
+            if (length(lab) == length(x)) {
+                labi = lab[i]
+            } else {
+                labi = lab
+            }
+            if (length(col) == length(x)) {
+                coli = col[i]
+            } else {
+                coli = col
+            }
+            sbi$flow(x = x[i], y = yi, x.incr = x.incr, y.incr = y.incr, lab = labi, family = family, 
+                     type = type, axes = axes, lwd = lwd, width = width, height = height, 
+                     cex = cex, col = coli, border = border, arrow.col = arrow.col, 
+                     cut = cut, shadow = shadow, shadow.col = shadow.col, ...)
+        }
+        return()
     }
-    sbi$FLOWFONT = family
-  }
-  
-  # Handle arrows or lines for coordinates like "A1", "C1", etc.
-  else if (grepl("^[A-Z][0-9]+", x) && !is.null(y) && grepl("^[A-Z][0-9]+", y)) {
-    from = f2v(x)
-    to = f2v(y)
-    if (type == "arrow") {
-      hx <- (1 - cut) * from[1] + cut * to[1]
-      hy <- (1 - cut) * from[2] + cut * to[2]
-      arrows(hx, hy, to[1], to[2], lwd = lwd, code = 0, col = arrow.col, ...)
-      for (a in c(20, 15, 10, 5)) {
-        arrows(from[1], from[2], hx, hy, length = 0.05 * lwd, angle = a, lwd = lwd, col = arrow.col, ...)
-      }
-    } else {
-      lines(x = c(from[1], to[1]), y = c(from[2], to[2]), lwd = lwd, col = arrow.col, ...)
+    
+    # Case when both x and y are numeric (setup board)
+    if (is.numeric(x) & is.numeric(y)) {
+        plot(1, type = "n", xlim = c(0.5, x + 0.5), ylim = c(0.5, y + 0.5), 
+             xlab = "", ylab = "", axes = FALSE, ...)
+        if (axes) {
+            axis(2, lwd = 0, family = family)
+            axis(1, at = 1:x, labels = LETTERS[1:x], lwd = 0, family = family)
+            box()
+        }
+        sbi$FLOWFONT = family
     }
-  }
-  
-  # Handle nodes (rectangles, text, etc.)
-  else if (grepl("^[A-Z][0-9]+", x)) {
-    pos = f2v(x)
-    if (type != "text") {
-        if (type == "arrow") { type = "rectangle" }
-      poly = sbi$shape(0, 0, type = type, width = width, height = height, ...)
+    
+    # Handle arrows or lines for coordinates like "A1", "C1", etc.
+    else if (grepl("^[A-Z][0-9]+", x) && !is.null(y) && grepl("^[A-Z][0-9]+", y)) {
+        from = f2v(x)
+        to = f2v(y)
+        if (type == "arrow") {
+            hx <- (1 - cut) * from[1] + cut * to[1]
+            hy <- (1 - cut) * from[2] + cut * to[2]
+            arrows(hx, hy, to[1], to[2], lwd = lwd, code = 0, col = arrow.col, ...)
+            for (a in c(20, 15, 10, 5)) {
+                arrows(from[1], from[2], hx, hy, length = 0.05 * lwd, angle = a, lwd = lwd, col = arrow.col, ...)
+            }
+        } else {
+            lines(x = c(from[1], to[1]), y = c(from[2], to[2]), lwd = lwd, col = arrow.col, ...)
+        }
     }
-    if (shadow & type != "text") {
-      polygon(poly$x + pos[1] + 0.05, poly$y + pos[2] - 0.05, col = shadow.col, border = shadow.col)
+    
+    # Handle nodes (rectangles, text, etc.)
+    else if (grepl("^[A-Z][0-9]+", x)) {
+        pos = f2v(x)
+        if (type != "text") {
+            if (type == "arrow") { type = "rectangle" }
+            poly = sbi$shape(0, 0, type = type, width = width, height = height, ...)
+        }
+        if (shadow & type != "text") {
+            polygon(poly$x + pos[1] + 0.05, poly$y + pos[2] - 0.05, col = shadow.col, border = shadow.col)
+        }
+        if (type != "text") {
+            polygon(poly$x + pos[1], poly$y + pos[2], col = col, border = border)
+        }
+        text(pos[1], pos[2], labels=lab, cex = cex, family = sbi$FLOWFONT, ...)
     }
-    if (type != "text") {
-      polygon(poly$x + pos[1], poly$y + pos[2], col = col, border = border)
-    }
-    text(pos[1], pos[2], labels=lab, cex = cex, family = sbi$FLOWFONT, ...)
-  }
 }
 
 sbi_flow = sbi$flow
@@ -3654,8 +3948,8 @@ sbi_lm_plot = sbi$lm_plot
 #'  \item{col}{color of the arrow, default: 'black'}
 #' }
 #' \examples{
-#' plot(1,type='n',axes=FALSE,xlim=c(0,1),
-#'   ylim=c(0,1),asp=1,xlab='',ylab='')
+#' sbi$flow(1,2)
+#' plot(1,type='n',xlim=c(0,1),ylim=c(0,1),asp=1,xlab='',ylab='')
 #' rect(0.2,0.2,0.6,0.4,col="salmon")
 #' text(0.4,0.3,"Start",cex=1.5)
 #' rect(0.6,0.7,1.0,0.9,col="light blue")
