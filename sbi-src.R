@@ -53,7 +53,7 @@
 
 #' FILE: sbi/NEWS
 #' TODO:
-#'    - barrow: shape bar, rect,circle, none
+#'    - barrow: shape bar, circle, none
 #'    - barrow: if no object draw to the center, allows arrow around empty fields with two or more barrow calls
 #'    - bbox for irregular shapes on the middle of the shape
 #' 2026-01-XX: versin 0.4.3
@@ -1012,7 +1012,7 @@ sbi_assoc_legend = sbi$assoc_legend
 #'  \item{from}{chess board coordinate for x and y position like 'C4'}
 #'  \item{to}{chess board coordinate for x and y position like 'A4', from and to must be either
 #'  on the same line or column.}
-#'  \item{type}{arrow type, either 'arrow' or 'diamond', default: 'arrow'}
+#'  \item{type}{arrow type, either 'arrow', 'rect' or 'diamond', default: 'arrow'}
 #'  \item{lwd}{line width of the edge, default: 2}
 #'  \item{x.incr}{x increment for the edges, default: 0}
 #'  \item{y.incr}{y increment for the edges, default: 0}
@@ -1020,15 +1020,16 @@ sbi_assoc_legend = sbi$assoc_legend
 #'  \item{lab.cex}{Character expansion for the label, default: 1}
 #'  \item{\ldots}{arguments delegated to the sbi_marrow function}
 #' }
-#' \examples{
-#' sbi$flow(3,1)
-#' #plot(1,type='n',axes=FALSE,xlim=c(0,3),
-#' #  ylim=c(0,3),asp=1,xlab='',ylab='')
+#' \examples{ %options: fig.width=8,fig.height=2.5
+#' par(mai=c(rep(0.2,4)))
+#' sbi$flow(4,1)
 #' sbi$btable('B1',label=c("Table1 (B1)","Col1","Col2"))
 #' sbi$btable('C1',label=c("Table2 (C1)","Col1","Col2"))
 #' sbi$btable('A1',label=c("Table3 (A1)","Col1","Col2"))
+#' sbi$btable('D1',label=c("Table4 (D1)","Col1","Col2","Col3"))
 #' sbi$barrow('B1','C1',lwd=4,size=2)
 #' sbi$barrow('A1','B1',type="diamond",lwd=4,size=2)
+#' sbi$barrow('C1','D1',type="rect",lwd=4,size=1.5)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_btable]{sbi$btable}}
 #'
@@ -3980,43 +3981,50 @@ sbi$marrow = function (x,y,type='arrow',lwd=1,lty=1,size=1,col='black') {
     lines(x,y,lwd=lwd,lty=lty,col=col)
     diamond=list(x=c(0-size*0.5,0,0+size*0.5,0),
                  y=c(0,0+size*0.5,0,0-size*0.5))
+    rect=list(x=c(-size*0.5,-size*0.5,size*0.5,size*0.5),
+              y=c(-size*0.5,size*0.5,size*0.5,-size*0.5))
+    if (type=="diamond") {
+        poly=diamond
+    } else {
+        poly=rect
+    }
     #polygon(x=diamond$x+0.5,y=diamond$y+0.5,col="red")
     if (x[1]<x[2]) {
         # left-right
-        if (type == "diamond") {
-            diamond$x=diamond$x+x[2]-size*0.5
-            diamond$y=diamond$y+y[2]
-            polygon(x=diamond$x,y=diamond$y,col=col)
+        if (type %in% c("diamond","rect")) {
+            poly$x=poly$x+x[2]-size*0.5
+            poly$y=poly$y+y[2]
+            polygon(x=poly$x,y=poly$y,col=col)
         } else {
             polygon(x=c(x[2]-size,x[2]-size,
                         x[2]),y=c(y[2]+0.5*size,y[2]-0.5*size,y[2]),col=col)
         }
     } else if (x[2]<x[1]) {
         # right-left
-        if (type == "diamond") {
-            diamond$x=diamond$x+x[2]+size*0.5
-            diamond$y=diamond$y+y[2]
-            polygon(x=diamond$x,y=diamond$y,col=col)
+        if (type %in% c("diamond","rect")) {
+            poly$x=poly$x+x[2]+size*0.5
+            poly$y=poly$y+y[2]
+            polygon(x=poly$x,y=poly$y,col=col)
         } else {
             polygon(x=c(x[2]+size,x[2]+size,x[2]),
                     y=c(y[2]+0.5*size,y[2]-0.5*size,y[2]),col=col)
         }            
     } else if (y[1] > y[2]) {
         # top-down
-        if (type == "diamond") {
-            diamond$x=diamond$x+x[2]
-            diamond$y=diamond$y+y[2]+size*0.5
-            polygon(x=diamond$x,y=diamond$y,col=col)
+        if (type == "poly") {
+            poly$x=poly$x+x[2]
+            poly$y=poly$y+y[2]+size*0.5
+            polygon(x=poly$x,y=poly$y,col=col)
         } else {
             polygon(x=c(x[2]-size*0.5,x[2]+size*0.5,x[2]),
                     y=c(y[2]+size,y[2]+size,y[2]),col=col)
         }
     } else if (y[2] > y[1]) {
         # down-top
-        if (type == "diamond") {
-            diamond$x=diamond$x+x[2]
-            diamond$y=diamond$y+y[2]-0.5*size
-            polygon(x=diamond$x,y=diamond$y,col=col)
+        if (type == "poly") {
+            poly$x=poly$x+x[2]
+            poly$y=poly$y+y[2]-0.5*size
+            polygon(x=poly$x,y=poly$y,col=col)
         } else {
             polygon(x=c(x[2]-size*0.5,x[2]+size*0.5,x[2]),
                     y=c(y[2]-size,y[2]-size,y[2]),col=col)
