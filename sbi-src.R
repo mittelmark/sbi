@@ -52,6 +52,10 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
+#' TODO:
+#'    - barrow: shape bar, rect,circle, none
+#'    - barrow: if no object draw to the center, allows arrow around empty fields with two or more barrow calls
+#'    - bbox for irregular shapes on the middle of the shape
 #' 2026-01-XX: versin 0.4.3
 #'    - adding sbi_marrow function
 #'    - adding sbi_btable and sbi_barrow function for arrows between blocks
@@ -1003,11 +1007,12 @@ sbi_assoc_legend = sbi$assoc_legend
 #' \alias{sbi_barrow}
 #' \title{Draw a line between two boxes drawn with btable}
 #' \description{Used for draw arrows between structures placed on a chessboard coordinate system.}
-#' \usage{sbi_barrow(from,to,lwd=2,x.incr=0,y.incr=0,label="",lab.cex=1,...)}
+#' \usage{sbi_barrow(from,to,type="arrow",lwd=2,x.incr=0,y.incr=0,label="",lab.cex=1,...)}
 #' \arguments{
 #'  \item{from}{chess board coordinate for x and y position like 'C4'}
 #'  \item{to}{chess board coordinate for x and y position like 'A4', from and to must be either
 #'  on the same line or column.}
+#'  \item{type}{arrow type, either 'arrow' or 'diamond', default: 'arrow'}
 #'  \item{lwd}{line width of the edge, default: 2}
 #'  \item{x.incr}{x increment for the edges, default: 0}
 #'  \item{y.incr}{y increment for the edges, default: 0}
@@ -1016,11 +1021,14 @@ sbi_assoc_legend = sbi$assoc_legend
 #'  \item{\ldots}{arguments delegated to the sbi_marrow function}
 #' }
 #' \examples{
-#' plot(1,type='n',axes=FALSE,xlim=c(0,3),
-#'   ylim=c(0,3),asp=1,xlab='',ylab='')
-#' sbi$btable('B2',label=c("Table1","Col1","Col2"))
-#' sbi$btable('C2',label=c("Table2","Col1","Col2"))
-#' sbi$barrow('B2','C2',lwd=4)
+#' sbi$flow(3,1)
+#' #plot(1,type='n',axes=FALSE,xlim=c(0,3),
+#' #  ylim=c(0,3),asp=1,xlab='',ylab='')
+#' sbi$btable('B1',label=c("Table1 (B1)","Col1","Col2"))
+#' sbi$btable('C1',label=c("Table2 (C1)","Col1","Col2"))
+#' sbi$btable('A1',label=c("Table3 (A1)","Col1","Col2"))
+#' sbi$barrow('B1','C1',lwd=4,size=2)
+#' sbi$barrow('A1','B1',type="diamond",lwd=4,size=2)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_btable]{sbi$btable}}
 #'
@@ -1028,7 +1036,7 @@ sbi_assoc_legend = sbi$assoc_legend
 #' FILE: sbi/R/barrow.R
 
 # arrow between objects on chessboard coordinates
-sbi$barrow = function (from,to,lwd=2,x.incr=0,y.incr=0,label="",lab.cex=1,...) {
+sbi$barrow = function (from,to,type="arrow",lwd=2,x.incr=0,y.incr=0,label="",lab.cex=1,...) {
     if (length(which(names(sbi$bbox) %in% c(from,to))) != 2) {
         stop("Objects must be already drawn to create arrows between them")
     }
@@ -1038,7 +1046,7 @@ sbi$barrow = function (from,to,lwd=2,x.incr=0,y.incr=0,label="",lab.cex=1,...) {
         x2=sbi$bbox[[to]][1]
         y=(sbi$bbox[[from]][2]+sbi$bbox[[from]][4])/2
         sbi$marrow(x=c(x1,x2),
-                     y=c(y,y),lwd=lwd,...)
+                     y=c(y,y),lwd=lwd,type=type,...)
     } else if (substr(from,2,2) != substr(to,2,2)) {
         # different rows
         x=(sbi$bbox[[from]][1]+sbi$bbox[[from]][3])/2
@@ -1048,7 +1056,7 @@ sbi$barrow = function (from,to,lwd=2,x.incr=0,y.incr=0,label="",lab.cex=1,...) {
             y1=sbi$bbox[[from]][4]
             y2=sbi$bbox[[to]][2]
         }
-        sbi$marrow(x=c(x,x),y=c(y1,y2),lwd=lwd,...)
+        sbi$marrow(x=c(x,x),y=c(y1,y2),type=type,lwd=lwd,...)
     } else {
         # currently not implemented
         stop("Error: dia$barrow currently requires either rows or columns to be the same!")
@@ -3937,10 +3945,11 @@ sbi_lm_plot = sbi$lm_plot
 #'  This function can draw for purely horizontal or vertical lines nice
 #'  triangular arrows at the end.
 #' }
-#' \usage{sbi_marrow(x,y,lwd=1,lty=1,size=1,col='black')}
+#' \usage{sbi_marrow(x,y,type='arrow',lwd=1,lty=1,size=1,col='black')}
 #' \arguments{
 #'  \item{x}{vector of the two x coordinates}
 #'  \item{y}{vector of the two y coordinates}
+#'  \item{type}{arrow type, can be either arrow or diamond, default: 'arrow'}
 #'  \item{lwd}{linewidth of the line, default: 1}
 #'  \item{lty}{line type of the line, default: 1}
 #'  \item{size}{length and width of the triangle, it is calculated based on
@@ -3948,8 +3957,9 @@ sbi_lm_plot = sbi$lm_plot
 #'  \item{col}{color of the arrow, default: 'black'}
 #' }
 #' \examples{
-#' sbi$flow(1,2)
 #' plot(1,type='n',xlim=c(0,1),ylim=c(0,1),asp=1,xlab='',ylab='')
+#' rect(-0.2,0.7,0.2,0.9,col="cornsilk")
+#' text(0.0,0.8,"Side",cex=1.5)
 #' rect(0.2,0.2,0.6,0.4,col="salmon")
 #' text(0.4,0.3,"Start",cex=1.5)
 #' rect(0.6,0.7,1.0,0.9,col="light blue")
@@ -3958,30 +3968,59 @@ sbi_lm_plot = sbi$lm_plot
 #' sbi$marrow(x=c(0.4,0.6),y=c(0.8,0.8),lwd=2)
 #' lines(x=c(0.8,0.8),y=c(0.7,0.3),lwd=2,lty=2)
 #' sbi$marrow(x=c(0.8,0.6),y=c(0.3,0.3),lwd=2,lty=2)
+#' lines(x=c(0.2,0.0),y=c(0.3,0.3),lwd=2,lty=3)
+#' sbi$marrow(x=c(0,0),y=c(0.3,0.7),lwd=2,lty=3,type="diamond")
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #'
 
 #' FILE: sbi/R/marrow.R
-sbi$marrow = function (x,y,lwd=1,lty=1,size=1,col='black') { 
+sbi$marrow = function (x,y,type='arrow',lwd=1,lty=1,size=1,col='black') { 
     size=((par("usr")[2]-par("usr")[1])/80)*size
     lines(x,y,lwd=lwd,lty=lty,col=col)
+    diamond=list(x=c(0-size*0.5,0,0+size*0.5,0),
+                 y=c(0,0+size*0.5,0,0-size*0.5))
+    #polygon(x=diamond$x+0.5,y=diamond$y+0.5,col="red")
     if (x[1]<x[2]) {
         # left-right
-        polygon(x=c(x[2]-size,x[2]-size,
-            x[2]),y=c(y[2]+0.5*size,y[2]-0.5*size,y[2]),col=col)
+        if (type == "diamond") {
+            diamond$x=diamond$x+x[2]-size*0.5
+            diamond$y=diamond$y+y[2]
+            polygon(x=diamond$x,y=diamond$y,col=col)
+        } else {
+            polygon(x=c(x[2]-size,x[2]-size,
+                        x[2]),y=c(y[2]+0.5*size,y[2]-0.5*size,y[2]),col=col)
+        }
     } else if (x[2]<x[1]) {
         # right-left
-        polygon(x=c(x[2]+size,x[2]+size,x[2]),
-                y=c(y[2]+0.5*size,y[2]-0.5*size,y[2]),col=col)
+        if (type == "diamond") {
+            diamond$x=diamond$x+x[2]+size*0.5
+            diamond$y=diamond$y+y[2]
+            polygon(x=diamond$x,y=diamond$y,col=col)
+        } else {
+            polygon(x=c(x[2]+size,x[2]+size,x[2]),
+                    y=c(y[2]+0.5*size,y[2]-0.5*size,y[2]),col=col)
+        }            
     } else if (y[1] > y[2]) {
         # top-down
-        polygon(x=c(x[2]-size*0.5,x[2]+size*0.5,x[2]),
-                y=c(y[2]+size,y[2]+size,y[2]),col=col)
+        if (type == "diamond") {
+            diamond$x=diamond$x+x[2]
+            diamond$y=diamond$y+y[2]+size*0.5
+            polygon(x=diamond$x,y=diamond$y,col=col)
+        } else {
+            polygon(x=c(x[2]-size*0.5,x[2]+size*0.5,x[2]),
+                    y=c(y[2]+size,y[2]+size,y[2]),col=col)
+        }
     } else if (y[2] > y[1]) {
         # down-top
-        polygon(x=c(x[2]-size*0.5,x[2]+size*0.5,x[2]),
-                y=c(y[2]-size,y[2]-size,y[2]),col=col)
+        if (type == "diamond") {
+            diamond$x=diamond$x+x[2]
+            diamond$y=diamond$y+y[2]-0.5*size
+            polygon(x=diamond$x,y=diamond$y,col=col)
+        } else {
+            polygon(x=c(x[2]-size*0.5,x[2]+size*0.5,x[2]),
+                    y=c(y[2]-size,y[2]-size,y[2]),col=col)
+        }
     }
 }
 sbi_marrow <- sbi$marrow
