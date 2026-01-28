@@ -3,7 +3,7 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.5.0
+#' Version: 0.6.0
 #' Date: 2026-01-20
 #' Author: Detlef Groth
 #' Authors@R:c(
@@ -37,7 +37,7 @@
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
 #'     error_plot.R
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
-#'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R 
+#'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R join_plot.R
 #'     kl.R kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     marrow.R mtex.R nfig.R rfig.R ntab.R rtab.R
 #'     pairwise.effect_size.R
@@ -3590,6 +3590,80 @@ sbi$itemchart <- function (labels,cex=1.2,col=c("#bbddff","#ffcccc","#ccffcc","#
 }
 
 sbi_itemchart = sbi$itemchart
+
+#' FILE: sbi/man/sbi_join_plot.Rd
+#' \name{sbi$join_plot}
+#' \alias{sbi$join_plot}
+#' \alias{sbi_join_plot}
+#' \title{Display database join using set venn diagrams}
+#' \description{
+#' This graphs display set theory venn diagrams to display intersection, differences 
+#' and unions in set theory
+#' }
+#' \usage{sbi_join_plot(type="intersect",label=NULL,col="skyblue",...)}
+#' \arguments{
+#'   \item{type}{set type, either 'intersection', 'left', 'right' or 'full', default: intersect}
+#'   \item{label}{labels to be displayed from left to right in the sets, default: NULL}
+#'   \item{col}{color for the set, default: 'skyblue'}
+#'   \item{\ldots}{other arguments delegated to the plot function and the text function}
+#' }
+#' \details{
+#'  This function is used for database theory to display the different join types.
+#' }
+#' \examples{ 
+#' opar=par(mai=c(0.2,0.8,0.2,0.2),mfrow=c(2,2))
+#' sbi$join_plot("intersect",main="Inner Join",cex.main=2)
+#' sbi$join_plot("left",main="Left Join",main.cex=2,label=c("A","B","C"),cex=1.5)
+#' sbi$join_plot("right", main="Right Join",main.cex=2,)
+#' sbi$join_plot("full",main="Full Join",main.cex=2,)
+#' par(opar)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/join_plot.R
+
+
+sbi$join_plot <- function (type="intersect",label=NULL,col="skyblue",...) {
+    plot(1,xlim=c(-4,4),ylim=c(-4,4), type='n', asp=1,axes=FALSE,...)
+    theta <- seq(0,2*pi, length=400)
+    x1 <- 3*cos(theta)+1
+    y1 <- 3*sin(theta)+3
+    x2 <- 3*cos(theta)+4
+    y2 <- 3*sin(theta)+3
+    npx=c(x1[c(334:400,1:67)])
+    npy=c(y1[c(334:400,1:67)])
+    npx2=x2[134:266]
+    npy2=y2[134:266]
+    if (is.null(label[1])) {
+        lab=rep("",3)
+    } else if (length(label) != 3) {
+        stop("Error: Three labels must be given!")
+    } else {
+        lab=label
+    }
+    if (type=="intersect") {
+        polygon(x1-2.5,y1-3, col='white')
+        polygon(x2-2.5,y2-3, col='white')
+        polygon(x=c(npx,npx2)-2.5,y=c(npy,npy2)-3,col=col)
+    } else if (type=="left") {
+        polygon(x2-2.5,y2-3, col='white')
+        polygon(x1-2.5,y1-3, col=col)
+        polygon(x=c(npx,npx2)-2.5,y=c(npy,npy2)-3)
+    } else if (type=="right") {
+        polygon(x1-2.5,y1-3, col="white")
+        polygon(x2-2.5,y2-3, col=col)
+        polygon(x=c(npx,npx2)-2.5,y=c(npy,npy2)-3)
+    } else if (type=="full") {
+        polygon(x1-2.5,y1-3, col=col)
+        polygon(x2-2.5,y2-3, col=col)
+        polygon(x=c(npx,npx2)-2.5,y=c(npy,npy2)-3)
+    } else {
+        stop("Error: Wrong type argument, join types must be either 'intersect', 'left', 'right' or 'full'!")
+    }
+    text(x=c(-2.5,0,2.5),y=c(0,0,0),lab,...)
+        
+}
+
+sbi_join_plot = sbi$join_plot
 
 #' FILE: sbi/man/sbi_kl.Rd
 #' \name{sbi$kl}
