@@ -4,7 +4,7 @@
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
 #' Version: 0.6.0
-#' Date: 2026-01-20
+#' Date: 2026-07-10
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -39,16 +39,17 @@
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R join_plot.R
 #'     kl.R kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
-#'     marrow.R mtex.R nfig.R rfig.R ntab.R rtab.R
+#'     marrow.R nfig.R rfig.R ntab.R rtab.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
 #'     qr_plot.R
 #'     rad2deg.R randomize.R ref_score.R ref_table.R report_effsize.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
 #'     textplot.R tt_plot.R tt_item.R untab.R venn.R wilcoxR.R
+#'     transform.R untransform.R
 #'     ni.R pipe.R
 #' FILE: sbi/LICENSE
-#' YEAR: 2025
+#' YEAR: 2025-2026
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
@@ -56,7 +57,11 @@
 #'    - barrow: shape bar, circle, none
 #'    - barrow: if no object draw to the center, allows arrow around empty fields with two or more barrow calls
 #'    - bbox for irregular shapes on the middle of the shape
-#' 2026-01-XX: versin 0.4.3
+#' 2026-07-10: version 0.6.0
+#'    - support for transform and untransform signed log transformation and
+#'      Yeo-Johnson transformation
+#'    - removed mtex function
+#' 2026-01-20: versin 0.4.3
 #'    - adding sbi_marrow function
 #'    - adding sbi_btable and sbi_barrow function for arrows between blocks
 #'    - adding sbi_berdline for drawing ERD diagrams
@@ -121,7 +126,7 @@
 #' importFrom("stats", "coef", "dist", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
 #'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals",
-#'            "qnorm", "wilcox.test","cov", "qchisq")
+#'            "qnorm", "wilcox.test","cov", "qchisq", "shapiro.test")
 #' importFrom("graphics", "axTicks","barplot","boxplot", "grid","hist","legend","mtext",
 #'            "pairs", "par","polygon", "strwidth",
 #'             "arrows", "lines", "text", "title", "rect", "plot", "axis", "box",
@@ -584,7 +589,6 @@
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}}{convert mkdoc documentation to HTML}
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{return the most often level in a categorical variable}
-#' \item{\link[sbi:sbi_mtex]{sbi$mtex(equation)}}{create a png image for LaTeX equations and matrices}
 #' \item{\link[sbi:sbi_nfig]{sbi$nfig(label)}}{return the current figure number in Markdown documents}
 #' \item{\link[sbi:sbi_ntab]{sbi$ntab(label)}}{return the current table number in Markdown documents}
 #' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{create up to 20 pastel colors}
@@ -617,9 +621,11 @@
 #' \item{\link[sbi:sbi_skewness]{sbi$skewness(x)}}{third central moment of a distribution}
 #' \item{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}}{Bind two data frames by matching column names, filling in missing columns with NAs.}
 #' \item{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}}{Display a data frame or matrix in a plot.}
+#' \item{\link[sbi:sbi_transform]{sbi$transform(x,method="slog",lambda=NULL)}}{transform data using signed log or Yeo-Johnson transformation}
 #' \item{\link[sbi:sbi_tt_item]{sbi$tt_item(x,y,label)}}{place an item to a timetable plot}
 #' \item{\link[sbi:sbi_tt_plot]{sbi$tt_plot(xlabels,ylabels)}}{display a timetable plot ready to take items}
 #' \item{\link[sbi:sbi_untab]{sbi$untab(x)}}{expand a contingency table to a data frame one item per row (data)}
+#' \item{\link[sbi:sbi_untransform]{sbi$untransform(x,method="slog",lambda=NULL)}}{back transform data transformed before using signed log or Yeo-Johnson transformation}
 #' \item{\link[sbi:sbi_venn]{sbi$venn(x)}}{Venn diagram for logical relations between two and three sets (plot)}
 #' \item{\link[sbi:sbi_wilcoxR]{sbi$wilcoxR(x)}}{calculate effect size r, for a wilcox test object (effect size, stats)}
 #' \item{\link[sbi:sbi_pipe]{lhs \%>\% rhs}}{pipe operator}
@@ -708,7 +714,6 @@
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
 #' \item \code{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}} convert mkdoc documentation to HTML
 #' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} return the most often level in a categorical variable
-#' \item \code{\link[sbi:sbi_mtex]{sbi$mtex(equation)}} create a png image for LaTeX equations and matrices
 #' \item \code{\link[sbi:sbi_nfig]{sbi$nfig(label)}} return the current figure number in Markdown documents
 #' \item \code{\link[sbi:sbi_ntab]{sbi$ntab(label)}} return the current table number in Markdown documents
 #' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} create up to 20 pastel colors
@@ -740,9 +745,11 @@
 #' \item \code{\link[sbi:sbi_shell]{sbi$shell(script)}} executes a given sell script in text format (Unix only)
 #' \item \code{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}} bind two data frames by matching columns and filling missing values with NA.
 #' \item \code{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}} display a small data frame or matrix inside a plot.
+#' \item \code{\link[sbi:sbi_transform]{sbi$transform(x,method="slog",lambda=NULL)}} transform data using signed log or Yeo-Johnson transformation (data)
 #' \item \code{\link[sbi:sbi_tt_item]{sbi$tt_item(x,y,label)}} place an item to a timetable plot (plot)
 #' \item \code{\link[sbi:sbi_tt_plot]{sbi$tt_plot(xlabels,ylabels)}} display a timetable plot ready to take items (plot)
 #' \item \code{\link[sbi:sbi_untab]{sbi$untab(x)}} expand a contingency table to a data frame one item per row (data)
+#' \item \code{\link[sbi:sbi_untransform]{sbi$untransform(x,method="slog",lambda=NULL)}} back transform data transformed before using signed log or Yeo-Johnson transformation (data)
 #' \item \code{\link[sbi:sbi_venn]{sbi$venn(x)}} Venn diagram for logical relations between two and three sets (plot)
 #' \item \code{\link[sbi:sbi_wilcoxR]{sbi$wilcoxR(x)}} calculate effect size r, for a wilcox test object (effect size, stats)
 #' \item \code{\link[sbi:sbi_pipe]{lhs \%>\% rhs}} pipe operator
@@ -3804,30 +3811,7 @@ sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache
         cat("\n",file=stderr())
         cat(imgname,file=stderr())
         if (!file.exists(imgname)) {
-            cat("file does not exists!\n",file=stderr())
-            cat("dotfile is ",dotfile,"\n",file=stderr())
-            if (type=="graphviz" & Sys.which("dot") != "") {
-                cat("writing dotfile ",dotfile,"\n",file=stderr())
-                fout2 = file(dotfile,'w')
-                cat(text,file=fout2)
-                close(fout2)
-                system2("dot",sprintf("-T%s",ext),dotfile,"-O")
-                cat("writing dotfile ",dotfile," done!\n",file=stderr())
-                cat("wd: ",getwd(),"\n",file=stderr())
-                list.files(getwd())
-            } else if (type=="plantuml" & Sys.which("plantuml") != "") {
-                fout2 = file(pmlfile,'w')
-                cat(text,file=fout2)
-                close(fout2)
-                system2("plantuml",sprintf("-t%s",ext),pmlfile)
-            } else if (type=="ditaa" & Sys.which("ditaa") != "") {
-                fout2 = file(ditfile,'w')
-                cat(text,file=fout2)
-                close(fout2)
-                system2("ditaa",ditfile,"-o","img/ditaa.log")
-            } else {
-                utils::download.file(url,imgname,mode="wb")
-            }
+            utils::download.file(url,imgname,mode="wb")
             url=imgname
         }
         if (plot) {
@@ -4437,55 +4421,6 @@ sbi$mkdoc <- function (infile,cssfile="mini.css",eval=FALSE)  {
 }
 sbi_mkdoc = sbi$mkdoc
 
-#' FILE: sbi/man/sbi_mtex.Rd
-#' \name{sbi$mtex}
-#' \alias{sbi$mtex}
-#' \alias{sbi_mtex}
-#' \title{Create a svg image for LaTeX equations and matrices using a web service}
-#' \description{This function takes a LaTeX equation or a matrix formulation and returns either an URL
-#' for this LaTeX code using the \url{https://math.vercel.app} webservice. If the digest package
-#' is installed the image will be downloaded and stored locally to avoid refetching the image again.}
-#' \usage{sbi_mtex(equation="E=mc^2",color="black",extension="svg",folder="img")}
-#' \arguments{
-#'   \item{equation}{LaTeX equation, default: 'E=mc^2'}
-#'   \item{color}{color for the LaTeX text, default: 'black'}
-#'   \item{extension}{image filename extension, currently only png is supported, default: 'svg'}
-#'   \item{folder}{Folder within the current working directory where Tex and image files are placed
-#'   default: 'img'}
-#' }
-#' \details{
-#' The function can be used to embed LaTeX equations or matrices into your Markdown document.
-#' The resulting image code is encoded as a CRC32 digest and the file is recreated only if the LaTeX code
-#' was changed. So calling it with \code{sbi_mtex("E = mc^2"} twice would produce only one image.
-#' If your code contains backslashes, you should use R raw strings.
-#' }
-#' \value{Returns either the image URL or if the digest package is available the image filename where the code is encoded as a CRC32 filename.}
-#' \examples{
-#' url1=sbi$mtex('E = mc^2')
-#' url1
-#' url2=sbi$mtex(equation=r"(\begin{bmatrix}1 & 2 & 3\\4 & 5 & 6\end{bmatrix})",color="red")
-#' } %## ![](`r url1`)  </br> </br> ![](`r url2`)
-#' \seealso{\link[sbi:sbi-package]{sbi-package}}
-#' FILE: sbi/R/mtex.R
-
-sbi$mtex <- function (equation="E=mc^2",color="black",extension="svg",folder="img") {
-    equation=URLencode(equation)
-    equation=gsub("&","%26",equation)
-    url=paste(sprintf("https://math.vercel.app/?color=%s&bgcolor=auto&from=",color),equation,".svg",sep="")
-    if (!requireNamespace("digest")) {
-        return(url)
-    } 
-    if (!dir.exists(folder)) {
-        dir.create(folder)
-    }
-    filename=paste(digest::digest(equation,"crc32"),".",extension,sep="")
-    imgname=file.path(folder,filename)
-    if (!file.exists(imgname)) {
-        download.file(url,imgname)
-    }
-    return(imgname)
-}
-sbi_mtex = sbi$mtex 
 
 #' FILE: sbi/man/sbi_nfig.Rd
 #' \name{sbi$nfig}
@@ -6505,6 +6440,211 @@ sbi$textplot <- function (x, cex = 1, caption = NULL, ...) {
   }
 }
 sbi_textplot <- sbi$textplot
+
+#' FILE: sbi/man/sbi_transform.Rd
+#' \name{sbi$transform}
+#' \alias{sbi$transform}
+#' \alias{sbi_transform}
+#' \title{Transform numerical data towards a normal distribution}
+#' \description{Implements a few methods to transform data to a more normal distribution.}
+#' \usage{sbi_transform(x, method="slog",lambda=NULL,from=-3,to=3)}
+#' \arguments{
+#'   \item{x}{A numerical vector.}
+#'   \item{method}{Method to be used for transformation, can be either 'slog' - Signed Log Transform, 'yj' - 'Yeo-Johnson', default: 'slog'.}
+#'   \item{lambda}{Given lambda for transformation, if not given the optimal lambda is selected within the given range and returned, default: \code{NULL}.}
+#'   \item{from}{lowest Lambda value to start searching, default: -3}
+#'   \item{to}{highest lambda value to stop searching for optimal value, default: 3}
+#' }
+#' \details{
+#' This function can be used to normalize the given vector, matrix or data frame.
+#' In case of Yeo-Johnson transformation a Lambda value must be provided or 
+#' as many lamba values as there are columns. If lambda is null, the method just returns 
+#' optimal lambda values for every given collumn or vector. They can be then used to run the
+#' method again and perform the actual normalization.
+#' }
+#' \value{normalized values for the given vector}
+#' \examples{
+#' data(iris)
+#' shapiro.test(iris[,1])
+#' shapiro.test(sbi$transform(iris[,1],method="slog"))
+#' lambda=sbi$transform(iris[,1],method="yj")
+#' lambda
+#' tr=sbi$transform(iris[,1],method="yj",lambda=lambda)
+#' shapiro.test(tr)
+#' slog.iris=sbi$transform(iris[,1:4],method="slog")
+#' head(slog.iris)
+#' yj.iris=sbi$transform(iris[,1:4],method="yj",
+#'   lambda=sbi$transform(iris[,1:4],method="yj"))
+#' head(yj.iris)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package},
+#' \link[sbi:sbi_untransform]{sbi$untransform}}
+#' FILE: sbi/R/transform.R
+
+sbi$transform <- function (x, method = 'slog', lambda=NULL, from=-3,to=3) {
+    yj <- function(y, lambda) {
+        # Piecewise implementation based on Source [2]
+        yt <- numeric(length(y))
+        
+        # Case 1: y >= 0 and lambda != 0
+        idx1 <- y >= 0 & lambda != 0
+        yt[idx1] <- ((y[idx1] + 1)^lambda - 1) / lambda
+        
+        # Case 2: y >= 0 and lambda == 0
+        idx2 <- y >= 0 & lambda == 0
+        yt[idx2] <- log(y[idx2] + 1)
+        
+        # Case 3: y < 0 and lambda != 2
+        idx3 <- y < 0 & lambda != 2
+        yt[idx3] <- -(((-y[idx3] + 1)^(2 - lambda) - 1) / (2 - lambda))
+        
+        # Case 4: y < 0 and lambda == 2
+        idx4 <- y < 0 & lambda == 2
+        yt[idx4] <- -log(-y[idx4] + 1)
+        
+        return(yt)
+    }
+    best_lambda <- function(y) {
+        # Initial search range and steps [4]
+        current_best <- 0
+        search_range <- 4
+        for (step in c(1, 0.1, 0.01)) {
+            lambdas <- seq(current_best - search_range, current_best + search_range, by = step)
+            w_stats <- sapply(lambdas, function(l) {
+                              transformed <- yj(y, l)
+                              # Shapiro-Wilk requires at least 3 values and < 5000
+                              shapiro.test(transformed)$statistic
+                          })
+                current_best <- lambdas[which.max(w_stats)]
+                search_range <- step # Narrow search for next iteration
+       }
+       return(current_best)
+    }
+
+    if (method == 'yj') {
+        if (is.null(lambda)) {
+            if (is.matrix(x) | is.data.frame(x)) {
+                lambdas=c()
+                for (i in 1:ncol(x)) {
+                    lambdas=c(lambdas,best_lambda(x[,i]))
+                }
+                return(lambdas)
+            } else {
+                return(best_lambda(x))
+            }
+        } else {
+            if (is.matrix(x) | is.data.frame(x)) {
+                if (length(lambda) == 1) {
+                    lambda=rep(lambda,ncol(x))
+                }
+                if (length(lambda) != ncol(x)) {
+                    stop("Error: For Yeo-Johnson transformation either one lambda value or a value for every column must be given!")
+                }
+                for (i in 1:ncol(x)) {
+                    x[,i]=yj(x[,i],lambda[i])
+                }
+            } else {
+                x=yj(x,lambda)
+            }
+            return(x)
+        }
+    } else if (method == 'slog') {
+        result = sign(x)*log(abs(x)+1)
+        return(result)
+        #return(list(x=result,lambda=NULL,method=method,W=shapiro.test(result)$statistic))
+    }
+
+}
+sbi_transform <- sbi$transform
+
+
+#' FILE: sbi/man/sbi_untransform.Rd
+#' \name{sbi$untransform}
+#' \alias{sbi$untransform}
+#' \alias{sbi_untransform}
+#' \title{Undo a transformation which was done to mormalize data}
+#' \description{Implements two methods to undo a data transformationn.}
+#' \usage{sbi_untransform(x, method="slog",lambda=NULL)}
+#' \arguments{
+#'   \item{x}{A numerical vector.}
+#'   \item{method}{Method to be used for transformation, can be either 'slog' - Signed Log Transform, 'yj' - 'Yeo-Johnson', default: 'slog'.}
+#'   \item{lambda}{Given lambda for transformation, required for backtransfom Yeo-Johnson data, default: \code{NULL}.}
+#' }
+#' \details{
+#' This function can be used to undo a transformation for instance to communicate
+#' confidence intervals in the original scale.
+#' In case of Yeo-Johnson transformation a Lambda value must be provided or 
+#' as many lamba values as there are columns. 
+#' }
+#' \value{the original data before they were transformed}
+#' \examples{
+#' data(iris)
+#' head(iris)
+#' tf=sbi$transform(iris[,1:4],method="slog")
+#' head(tf)
+#' head(sbi$untransform(tf,method="slog"))
+#' lambdas=sbi$transform(iris[,1:4],method="yj")
+#' tf=sbi$transform(iris[,1:4],method="yj",lambda=lambdas)
+#' head(sbi$untransform(tf,method="yj",lambda=lambdas))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package},
+#' \link[sbi:sbi_transform]{sbi$transform}}
+#' FILE: sbi/R/untransform.R
+
+sbi$untransform <- function (x,method="slog",lambda=NULL) {
+    stopifnot(method %in% c("slog","yj"))
+    if (is.matrix(x) | is.data.frame(x)) {
+        if (method == "slog") {
+            for (i in 1:ncol(x)) {
+                x[,i] = sbi$untransform(x[,i],method=method)
+            }
+            return(x)
+        } else if (method == "yj") {
+            if (is.null(lambda)) {
+                stop("Error: For Yeo-Johnson transformation a Lambda value must be given!")
+            } 
+            if (length(lambda) > 1 & length(lambda) != ncol(x)) {
+                stop("Error: For Yeo-Johnson transformation either one lambda value or a value for every column must be given!")
+            }
+
+            if (length(lambda)==1) {
+                lambda=rep(lambda,ncol(x))
+            }
+            for (i in 1:ncol(x)) {
+                x[,i] = sbi$untransform(x[,i],method=method,lambda=lambda[i])
+            }
+            return(x)
+        } 
+    }
+    if (method == "slog") {
+        return(sign(x)*exp(abs(x))-1)
+    } else if (method == "yj") {
+        if (is.null(lambda)) {
+            stop("Error: For Yeo-Johnson transformation a Lambda value must be given!")
+        } 
+        y <- numeric(length(x))
+    
+        # Case for non-negative transformed values
+        pos_idx <- which(x >= 0)
+        if (lambda != 0) {
+            y[pos_idx] <- (lambda * x[pos_idx] + 1)^(1/lambda) - 1
+        } else {
+            y[pos_idx] <- exp(x[pos_idx]) - 1
+        }
+    
+        # Case for negative transformed values
+        neg_idx <- which(x < 0)
+        if (lambda != 2) {
+            y[neg_idx] <- 1 - (-(2 - lambda) * x[neg_idx] + 1)^(1 / (2 - lambda))
+        } else {
+            y[neg_idx] <- 1 - exp(-x[neg_idx])
+        }
+    
+        return(y)
+    } 
+}
+sbi_untransform <- sbi$untransform
+
 
 #' FILE: sbi/man/sbi_tt_plot.Rd
 #' \name{sbi$tt_plot}
