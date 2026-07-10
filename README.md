@@ -3,6 +3,7 @@
 [![Release](https://img.shields.io/github/v/release/mittelmark/sbi.svg?label=current+release)](https://github.com/mittelmark/sbi/releases)
 [![license](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://opensource.org/license/MIT)
 ![Commits](https://img.shields.io/github/commits-since/mittelmark/sbi/latest)
+![CI Check](https://github.com/mittelmark/sbi/workflows/R/badge.svg)
 ![Downloads](https://img.shields.io/github/downloads/mittelmark/sbi/total)
 [![Vignette](https://img.shields.io/badge/Vignette-blue)](https://github.com/mittelmark/sbi/releases/latest/download/sbi-examples.pdf)
 <!-- [![CI test](https://github.com/mittelmark/sbi/workflows/R/badge.svg)](https://github.com/mittelmark/sbi/actions) -->
