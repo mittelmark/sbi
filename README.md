@@ -47,7 +47,7 @@ Or you install the latest release as a normal package:
 
 ```
 $ R
-> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi_0.4.2.tar.gz",repos=NULL)
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi_0.6.0.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
 > vignette("sbi-examples")
@@ -56,8 +56,8 @@ $ R
 Or you install the latest release from a Unix Terminal like this:
 
 ```
-wget https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi_0.4.2.tar.gz
-R CMD INSTALL --library=~/R sbi_0.4.2.tar.gz
+wget https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi_0.6.0.tar.gz
+R CMD INSTALL --library=~/R sbi_0.6.0.tar.gz
 ```
 
 Installation as a package has the advantage  that you have the  documentation
@@ -79,8 +79,8 @@ wget -O sbi-src.R https://github.com/mittelmark/sbi/raw/main/sbi-src.R
 Rscript sbi-src.R --process    sbi-src.R         # extract all files
 Rscript sbi-src.R --vignettex  sbi-src.R         # extract examples as vignette
 Rscript sbi-src.R --build      sbi               # build package tar-gz file
-Rscript sbi-src.R --check      sbi_0.4.2.tar.gz  # check package tar-gz file
-Rscript sbi-src.R --install    sbi_0.4.2.tar.gz  # install from local tar-gz file
+Rscript sbi-src.R --check      sbi_0.6.0.tar.gz  # check package tar-gz file
+Rscript sbi-src.R --install    sbi_0.6.0.tar.gz  # install from local tar-gz file
 ```
 
 
@@ -91,6 +91,9 @@ The   single   file  R   package   approach   is   described   in  the
 
 ## Changes
 
+- 2026-07-10: version 0.6.0 - [package](https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi_0.4.2.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi-examples.pdf)
+   - adding transform and untransform methods to support signed log and Yeo-Johnson transformation
+   - removed mtex function and local use of graphviz dot and plantuml etc     
 - 2026-01-17: version 0.4.2 - [package](https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi_0.4.2.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi-examples.pdf)
    - adding doc, ellipse and cylinder shape to flow charts and shape function
    - adding fstart, fnext, fend shapes for process charts
