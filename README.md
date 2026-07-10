@@ -91,7 +91,7 @@ The   single   file  R   package   approach   is   described   in  the
 
 ## Changes
 
-- 2026-07-10: version 0.6.0 - [package](https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi_0.4.2.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi-examples.pdf)
+- 2026-07-10: version 0.6.0 - [package](https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi_0.6.0.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi-examples.pdf)
    - adding transform and untransform methods to support signed log and Yeo-Johnson transformation
    - removed mtex function and local use of graphviz dot and plantuml etc     
 - 2026-01-17: version 0.4.2 - [package](https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi_0.4.2.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.4.2/sbi-examples.pdf)
