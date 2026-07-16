@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.6.0
-#' Date: 2026-07-10
+#' Version: 0.7.0
+#' Date: 2026-07-15
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -33,18 +33,20 @@
 #' Collate: sbi.R  aaa.R assoc.R assoc_legend.R aggregate2.R angle.R bezier.R bootstrap.R
 #'     barrow.R btable.R berdline.R
 #'     cache_image.R cdist.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
-#'     cohensD.R cohensF.R cohensH.R cohensW.R 
+#'     cohensD.R cohensF.R cohensH.R cohensW.R conf_plot.R
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
 #'     error_plot.R
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
-#'     import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R join_plot.R
+#'     ia_plot.R import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R join_plot.R
 #'     kl.R kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     marrow.R nfig.R rfig.R ntab.R rtab.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
+#'     pssim.R
 #'     qr_plot.R
-#'     rad2deg.R randomize.R ref_score.R ref_table.R report_effsize.R report_pval.R shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
+#'     rad2deg.R randomize.R ref_score.R ref_table.R report_effsize.R report_pval.R 
+#'     shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
 #'     textplot.R tt_plot.R tt_item.R untab.R venn.R wilcoxR.R
 #'     transform.R untransform.R
 #'     ni.R pipe.R
@@ -53,10 +55,10 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
-#' TODO:
-#'    - barrow: shape bar, circle, none
-#'    - barrow: if no object draw to the center, allows arrow around empty fields with two or more barrow calls
-#'    - bbox for irregular shapes on the middle of the shape
+#' 2026-07-1X: version 0.7.0
+#'    - function sbi_pssim - for pattern similarity to arbitary patterns
+#'    - function sbi_ia_plot - for interactions in a linear model
+#'    - function sbi_conf_plot - for plotting a set of means and confidence intervals
 #' 2026-07-10: version 0.6.0
 #'    - support for transform and untransform signed log transformation and
 #'      Yeo-Johnson transformation
@@ -118,6 +120,10 @@
 #'    - sbi_cache_image
 #'
 #' 2024-08-28: Version 0.0.1 - Initial Release
+#' TODO:
+#'    - barrow: shape bar, circle, none
+#'    - barrow: if no object draw to the center, allows arrow around empty fields with two or more barrow calls
+#'    - bbox for irregular shapes on the middle of the shape
 
 #' FILE: sbi/NAMESPACE
 #' exportPattern("^[[:lower:]]+")
@@ -549,6 +555,7 @@
 #' \item{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}}{Effect size comparing two means}
 #' \item{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}}{Effect size comparing for an ANOVA}
 #' \item{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}}{Effect size for 2x2 contingency tables}
+#' \item{\link[sbi:sbi_conf_plot]{sbi$conf_plot(x)}}{Visualize a set of confidence intervals}
 #' \item{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}}{Visualize a correlation with abline.}
 #' \item{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}}{Calculate pairwise correlations for a given data frame or matrix}
 #' \item{\link[sbi:sbi_corrplot]{sbi$corrplot(mt,...)}}{Visualize a correlation matrix.}
@@ -572,6 +579,7 @@
 #' \item{\link[sbi:sbi_fscale]{sbi$fscale(x,from=0,to=1)}}{Feature scaling into the given value range}
 #' \item{\link[sbi:sbi_gmean]{sbi$gmean(x)}}{geometric mean}
 #' \item{\link[sbi:sbi_hmean]{sbi$hmean(x)}}{harmonic mean}
+#' \item{\link[sbi:sbi_ia_plot]{sbi$is_plot(x,y.z)}}{interaction plot for a linear model with a grouping variable}
 #' \item{\link[sbi:sbi_import]{sbi$import(basename)}}{load other R files, relative to the current script file}
 #' \item{\link[sbi:sbi_impute]{sbi$impute(x,method="rpart",k=5,cor.method="spearman")}}{impute missing values}
 #' \item{\link[sbi:sbi_input]{sbi$input(prompt)}}{get input from the user, as well in Rscript files}
@@ -604,6 +612,7 @@
 #' \item{\link[sbi:sbi_pca_varplot]{sbi$pca_varplot(pca)}}{PCA variance plot (pca, plot)}
 #' \item{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}}{partial correlation}
 #' \item{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}}{partial correlation test}
+#' \item{\link[sbi:sbi_pssim]{sbi$pssim(x,points)}}{pattern similarity matching with arbitary patterns}
 #' \item{\link[sbi:sbi_qr_plot]{sbi$qr_plot(x,data)}}{plot quantile regression models}
 #' \item{\link[sbi:sbi_randomize]{sbi$randomize(x)}}{randomize column data within matrix or data frame (data)}
 #' \item{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}}{Convert angle in radian into angle in degree}
@@ -675,6 +684,7 @@
 #' \item \code{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}} Effect size comparing two means
 #' \item \code{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}} Effect size comparing for an ANOVA
 #' \item \code{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}} Effect size for 2x2 contingency tables
+#' \item \code{\link[sbi:sbi_conf_plot]{sbi$conf_plot(x)}} Visualize a set of confidence intervals
 #' \item \code{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}} Visualize a correlation with abline.
 #' \item \code{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}} calculate pairwise correlations for a given data frame or matrix
 #' \item \code{\link[sbi:sbi_corrplot]{sbi$corrplot(mt,...)}} Visualize a correlation matrix.
@@ -698,6 +708,7 @@
 #' \item \code{\link[sbi:sbi_fscale]{sbi$fscale(x,from=0,to=1)}} Feature scaling into the given value range
 #' \item \code{\link[sbi:sbi_gmean]{sbi$gmean(x)}} geometric mean
 #' \item \code{\link[sbi:sbi_hmean]{sbi$hmean(x)}} harmonic mean
+#' \item \code{\link[sbi:sbi_ia_plot]{sbi$is_plot(x,y.z)}} interaction plot for a linear model with a grouping variable
 #' \item \code{\link[sbi:sbi_import]{sbi$import(basename)}} load other R files, relative to the current script file
 #' \item \code{\link[sbi:sbi_impute]{sbi$impute(x,method="rpart",k=5,cor.method="spearman")}} impute missing values
 #' \item \code{\link[sbi:sbi_input]{sbi$input(prompt)}} get input from the user, as well in Rscript files
@@ -729,6 +740,7 @@
 #' \item \code{\link[sbi:sbi_pca_varplot]{sbi$pca_varplot(pca)}} PCA variance plot (pca, plot)
 #' \item \code{\link[sbi:sbi_pcor]{sbi$pcor(x,y,z,method="pearson")}} partial correlation
 #' \item \code{\link[sbi:sbi_pcor.test]{sbi$pcor.test(x,y,z,method="pearson")}} partial correlation test
+#' \item \code{\link[sbi:sbi_pssim]{sbi$pssim(x,points)}} pattern similarity matching with arbitary patterns
 #' \item \code{\link[sbi:sbi_qr_plot]{sbi$qr_plot(x,data)}} plot quantile regression models
 #' \item \code{\link[sbi:sbi_randomize]{sbi$randomize(x)}} randomize column data within matrix or data frame (data)
 #' \item \code{\link[sbi:sbi_rad2deg]{sbi$rad2deg(x)}} convert angle in radian into angle in degree
@@ -1995,6 +2007,62 @@ sbi$cohensW <- function (x,p=NULL) {
 
 sbi_cohensW = sbi$cohensW
 
+#' FILE: sbi/man/sbi_conf_plot.Rd
+#' \name{sbi$conf_plot}
+#' \alias{sbi$conf_plot}
+#' \alias{sbi_conf_plot}
+#' \title{confidence interval plot}
+#' \description{
+#' Displays a set of means and confidence intervals which should be given
+#' in three columns of a data frame or matrix.
+#' }
+#' \usage{sbi_conf_plot(x,pch=15,cex=3,col="grey50",ylim=NULL,...)}
+#' \arguments{
+#'  \item{x}{data frame or matrix with three columns, first will be taken for the middle point, second and fourth as line limits}
+#'  \item{pch}{the plotting character to be displayed for the first column value, default: 15}
+#'  \item{cex}{character expansion to be used for the plotting character and the linewidth}
+#'  \item{col}{single color or vector for the individual plotting characters and lines, default: 'grey50'}
+#'  \item{ylim}{limits for the y axis, if not given they are determined from the given range of values in the input data, default: NULL}
+#'  \item{\ldots}{arguments delegated to the plot function}
+#' }
+#' \examples{
+#' library(MASS)
+#' data(birthwt)
+#' for (i in 2:(ncol(birthwt)-1)) {
+#'    cr = cor.test(birthwt$bwt,birthwt[,i])
+#'    if (i == 2) {
+#'      df=data.frame(r=cr$estimate,lower=cr$conf.int[1],upper=cr$conf.int[2])
+#'    } else {
+#'      df=rbind(df,data.frame(r=cr$estimate,lower=cr$conf.int[1],upper=cr$conf.int[2]))
+#'    }
+#' }
+#' rownames(df)=colnames(birthwt)[2:(ncol(birthwt)-1)]
+#' sbi$conf_plot(df,xlab="Variables",ylab="Pearson's r")
+#' grid()
+#' box()
+#' abline(h=0,lwd=0.5)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[stats:interaction.plot]{interaction.plot}.} 
+#' FILE: sbi/R/conf_plot.R
+
+sbi$conf_plot = function (x,pch=15,cex=3,col="grey50",ylim=NULL,...) {
+    if (is.null(ylim)) {
+        d = diff(range(x))
+        ylim=c(min(x)-(d*0.1),max(x)+(d*0.1))
+    }
+    if (length(col)==1) {
+        col=rep(col,nrow(x))
+    }
+    plot(1,type="n",xlim=c(0.5,nrow(x)+0.5),ylim=ylim,axes=FALSE,...)
+    axis(2)
+    axis(1,at=1:nrow(x),labels=rownames(x))
+    for (i in 1:nrow(x)) {
+        points(i,x[i,1],pch=pch,col=col[i],cex=cex,...)
+        lines(x=c(i,i),y=c(x[i,2],x[i,3]),lwd=cex,col=col[i])
+    }   
+}
+sbi_conf_plot = sbi$conf_plot
+
 #' FILE: sbi/man/sbi_corplot.Rd
 #' \name{sbi$corplot}
 #' \title{Correlation plot with a Regression line}
@@ -3196,6 +3264,43 @@ sbi$hmean <- function (x,na.rm=FALSE) {
 
 
 sbi_hmean = sbi$hmean
+
+#' FILE: sbi/man/sbi_ia_plot.Rd
+#' \name{sbi$ia_plot}
+#' \alias{sbi$ia_plot}
+#' \alias{sbi_ia_plot}
+#' \title{interaction plot with regression lines for each group}
+#' \description{
+#' Displays an xy plot with a regression line in different colors for each class.
+#' The order of arguments is compatible with R's interaction.plot function.
+#' }
+#' \usage{sbi_ia_plot(x,y,z,col=c(2:6),...)}
+#' \arguments{
+#'  \item{x}{vector of the predictor variable}
+#'  \item{y}{vector of the grouping variable}
+#'  \item{z}{vector of the response variable}
+#'  \item{col}{default colors for the datapoints and the regesssion lines, default: 2:5}
+#'  \item{\ldots}{arguments delegated to the plot function}
+#' }
+#' \examples{
+#' library(MASS)
+#' with(birthwt,sbi$ia_plot(age,as.factor(smoke),bwt),
+#'  xlab="age (years)",ylab="birth weight (g)")
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[stats:interaction.plot]{interaction.plot}.} 
+#' FILE: sbi/R/ia_plot.R
+
+sbi$ia_plot = function (x,y,z,col=c(2:6),...) {
+    if (length(col)!=length(levels(y))) col=col[1:length(levels(y))]
+    plot(z ~ x,col=col,pch=15,...)
+    grid(col="grey60")
+    i = 1
+    for (l in levels(y)) {
+        abline(lm(z[y==l] ~ x[y==l]),lwd=2,col=col[i])
+        i=i+1
+    }   
+}
+sbi_ia_plot = sbi$ia_plot
 
 #' FILE: sbi/man/sbi_import.Rd
 #' \name{sbi$import}
@@ -5588,6 +5693,54 @@ sbi$qr_plot <- function (x,data,quantiles=c(0.05,0.1,0.5,0.9,0.95),
     }
 }
 sbi_qr_plot = sbi$qr_plot
+#
+#' FILE: sbi/man/sbi_pssim.Rd
+#' \name{sbi$pssim}
+#' \alias{sbi$pssim}
+#' \alias{sbi_pssim}
+#' \title{Pattern string similarities with providing user defined pattern matches}
+#' \description{
+#'   This function takes a vector of strings or numbers and allows the user
+#'   to generate its own scoring system agains a set of given strings, or patterns.
+#'   It can be used where normal distance or similarity measures do not work.
+#' }
+#' \usage{sbi_pssim(x,points)}
+#' \arguments{
+#'   \item{x}{a vector of numbers or strings}
+#'   \item{points}{a list where the keys are the numerical values, given as strings, a
+#'   and the values are vectors of strings which should return the numerical value of
+#'   the key if the given strings are matched. The values should be defined in the order
+#'   from low to high.}
+#' }
+#' \value{vector with numbers indicating the level of similarites given on the points list as keys.}
+#' \examples{
+#' points=list("3"="12345",
+#'     "2"=c("54321","1234","4321"),
+#'     "1"=c("123","321"),"NA"="-1")
+#' vals=c(12345,1234, NA, 123, 45,-1,54321)
+#' sbi$pssim(vals,points=points)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/pssim.R
+
+sbi$pssim <- function (x, points) {
+    stopifnot(is.list(points))
+    if (length(x)>1) {
+        return(unlist(lapply(x,function(x) { return(sbi$pssim(x,points=points)) })))
+    }
+    if (is.na(x)) { return(NA) }
+    if (is.numeric(x)) {
+        x=as.character(x)
+    }
+    for (n in names(points)) {
+        if (any(x %in% points[[n]])) {
+            if (n=="NA") return(NA)
+            return(as.numeric(n))
+        }
+    }
+    return(0);
+}
+sbi_pssim = sbi$pssim
 
 #' FILE: sbi/man/sbi_randomize.Rd
 #' \name{sbi$randomize}
