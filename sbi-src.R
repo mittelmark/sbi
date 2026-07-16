@@ -31,7 +31,7 @@
 #' Encoding: UTF-8
 #' NeedsCompilation: no
 #' Collate: sbi.R  aaa.R assoc.R assoc_legend.R aggregate2.R angle.R bezier.R bootstrap.R
-#'     barrow.R btable.R berdline.R
+#'     ba_plot.R barrow.R btable.R berdline.R
 #'     cache_image.R cdist.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R conf_plot.R
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
@@ -59,6 +59,7 @@
 #'    - function sbi_pssim - for pattern similarity to arbitary patterns
 #'    - function sbi_ia_plot - for interactions in a linear model
 #'    - function sbi_conf_plot - for plotting a set of means and confidence intervals
+#'    - function sbi_blant_altmann - coherence pl65ot
 #' 2026-07-10: version 0.6.0
 #'    - support for transform and untransform signed log transformation and
 #'      Yeo-Johnson transformation
@@ -131,7 +132,8 @@
 #' export("%ni%")
 #' importFrom("stats", "coef", "dist", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
 #'            "model.frame","predict", "rgamma", "runif", "spline",
-#'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "residuals",
+#'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "prcomp",
+#'            "residuals",
 #'            "qnorm", "wilcox.test","cov", "qchisq", "shapiro.test")
 #' importFrom("graphics", "axTicks","barplot","boxplot", "grid","hist","legend","mtext",
 #'            "pairs", "par","polygon", "strwidth",
@@ -543,6 +545,7 @@
 #' \item{\link[sbi:sbi_angle]{sbi$angle(x,y,degree=FALSE)}}{determine the angle between two vectors}
 #' \item{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}}{Create assocplots with residual coloring}
 #' \item{\link[sbi:sbi_assoc_legend]{sbi$assoc_legend(pch=15,side="bottom",...)}}{Adds a legend with color codes for the residuals to a assocplot}
+#' \item{\link[sbi:sbi_ba_plot]{sbi$ba_plot(x,y,...)}}{Creates a Blandt-Altmann plot of the scaled sums of two variables against their difference}
 #' \item{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}}{create bezier lines using three coordinates}
 #' \item{\link[sbi:sbi_barrow]{sbi$barrow(from,to,...)}}{connect btable objects with arrows (plot)}
 #' \item{\link[sbi:sbi_berdline]{sbi$berdline(from,to,...)}}{connect btable objects with ERD arrows with crowfoot notation (plot)}
@@ -672,6 +675,7 @@
 #' \item \code{\link[sbi:sbi_angle]{sbi$angle(x,y, degree=FALSE)}} determine the angle between two vectors
 #' \item \code{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}} Create assocplots with residual coloring
 #' \item \code{\link[sbi:sbi_assoc_legend]{sbi$assoc_legend(pch=15,side="bottom",...)}} Adds a legend with color codes for the residuals to a assocplot
+#' \item \code{\link[sbi:sbi_ba_plot]{sbi$ba_plot(x,y,...)}} Creates a Blandt-Altmann plot of the scaled sums of two variables against their difference
 #' \item \code{\link[sbi:sbi_barrow]{sbi$barrow(from,to,...)}} connect btable objects with arrows (plot)
 #' \item \code{\link[sbi:sbi_berdline]{sbi$berdline(from,to,...)}} connect btable objects with ERD arrows with crowfoot notation (plot)
 #' \item \code{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}} create bezier lines using three coordinates
@@ -868,6 +872,71 @@ sbi$angle <- function (x,y,degree=FALSE) {
 }
 
 sbi_angle = sbi$agngle
+
+#' FILE: sbi/man/sbi_ba_plot.Rd
+#' \name{sbi$ba_plot}
+#' \alias{sbi$ba_plot}
+#' \alias{sbi_ba_plot}
+#' \title{Create a Blandt-Altmann Plot for two variables.}
+#' \description{
+#'   Create a Blandt-Altmann for two correlated variables to check their agreement.
+#'   This version of the plot, plots the sum of the z-scored data on the x-axis
+#'   against the difference on the y-axis.
+#' }
+#' \usage{sbi_ba_plot(x,y,...)}
+#' \arguments{
+#'   \item{x}{numerical vector x}
+#'  \item{y}{numerical vector v}
+#'  \item{...}{Arguments delegated to the standard \code{plot} function.}
+#' }
+#' \details{
+#'   THe bLandt.Altman plot shows the agreement between two vectors, so their correlations,
+#'   by plotting the difference of the two variables against their sums. This allows
+#'   to detect regions of better or worse fits. It was used to check the agreement
+#'   between two different types of measurements using medical instruments.
+#' }
+#' \value{
+#'   Creates an Blandt-Altmann xy-plot.
+#' }
+#' \examples{
+#' x=rnorm(100)
+#' y=x+rnorm(100)
+#' cor(x,y)
+#' par(mfrow=c(2,2))
+#' sbi$corplot(x,y)
+#' sbi$ba_plot(x,y)
+#' pca=prcomp(scale(data.frame(x=x,y=y)))
+#' summary(pca)
+#' pca$rotation
+#' y=y*-1
+#' sbi$corplot(x,y)
+#' sbi$ba_plot(x,y)
+#' pca=prcomp(scale(data.frame(x=x,y=y)))
+#' summary(pca)
+#' pca$rotation
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/ba_plot.R
+
+sbi$ba_plot = function (x,y,...) {
+    sx=scale(x)+scale(y);
+    sy=scale(x)-scale(y);
+    pca=prcomp(data.frame(x=sx,y=sy))
+    plot(sx,sy,
+         ylim=c(-4,4),xlim=c(-4,4),xlab="x+y",ylab="x-y",type="n",...)
+    grid(lwd=2)
+    abline(h=0,lty=2,lwd=1)
+    abline(v=0,lty=2,lwd=1)    
+    C=cov(data.frame(x=sx,y=sy))  
+    d85=qchisq(0.85, df = 2)    
+    M=colMeans(data.frame(x=x,y=y)) 
+    el=cluster::ellipsoidPoints(C, d85, loc=M) 
+    polygon(el,col="grey80",border=NA)
+    lines(el,col="grey20",lwd=1.5,lty=2)   
+    points(sx,sy,pch=15,col="grey20")
+    title(sprintf("PCA 1: %.2f%%",summary(pca)$importance[2,1]*100))
+}
+sbi_ba_plot=sbi$ba_plot
 
 #' FILE: sbi/man/sbi_corr.Rd
 #' \name{sbi$corr}
