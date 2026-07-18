@@ -30,7 +30,8 @@
 #' Language: en-US
 #' Encoding: UTF-8
 #' NeedsCompilation: no
-#' Collate: sbi.R  aaa.R assoc.R assoc_legend.R aggregate2.R angle.R bezier.R bootstrap.R
+#' Collate: sbi.R  aaa.R assoc.R assoc_legend.R aggregate2.R angle.R angles_triangle.R
+#'     bezier.R bootstrap.R
 #'     ba_plot.R barrow.R btable.R berdline.R
 #'     cache_image.R cdist.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R conf_plot.R
@@ -46,7 +47,7 @@
 #'     pssim.R
 #'     qr_plot.R
 #'     rad2deg.R randomize.R ref_score.R ref_table.R report_effsize.R report_pval.R 
-#'     shell.R sdata.R sd_pooled.R sem.R shape.R skewness.R smartbind.R
+#'     shell.R sdata.R sd_pooled.R series_trend.R sem.R shape.R skewness.R smartbind.R
 #'     textplot.R tt_plot.R tt_item.R untab.R venn.R wilcoxR.R
 #'     transform.R untransform.R
 #'     ni.R pipe.R
@@ -59,11 +60,16 @@
 #'    - function sbi_pssim - for pattern similarity to arbitary patterns
 #'    - function sbi_ia_plot - for interactions in a linear model
 #'    - function sbi_conf_plot - for plotting a set of means and confidence intervals
-#'    - function sbi_blant_altmann - coherence pl65ot
+#'    - function sbi_ba_plot Blandt-Altmann - coherence plot
+#'    - function sbi_angles_triangle - calculate the angles for a given triangle
+#'    - function sbi_series_trend - calculate the trend for the values of a vector
+#'    - data set conscripts for Germany from 1885 to 1995 aand addtional socioeconomic data for that period
+#'
 #' 2026-07-10: version 0.6.0
 #'    - support for transform and untransform signed log transformation and
 #'      Yeo-Johnson transformation
 #'    - removed mtex function
+#'
 #' 2026-01-20: versin 0.4.3
 #'    - adding sbi_marrow function
 #'    - adding sbi_btable and sbi_barrow function for arrows between blocks
@@ -179,6 +185,119 @@
 #' 31	31.4961	6.22	13.98	1.91	28.0976	24.937	46.18	4.6	57.84	18.3057
 #' 32	31.3862	6.43	12.33	1.94	28.6282	26.4	38.72	4	57.26	18.3849
 #' 33	31.115	7.19	10.27	1.91	28.3968	24.4444	34.36	4.1	54.94	20.0015
+#' FILE: sbi/inst/files/conscripts.tab
+#' year	height	infmort	birthrate	BIP	GINI	meat	segment
+#' 1885	165.81	223	4.7	2248.3	0.404	44	1
+#' 1886	165.98	242	4.7	2287	0.403	44	1
+#' 1887	165.6	227	4.7	2407	0.405	44	1
+#' 1888	166.11	215	4.7	2426.8	0.403	44	1
+#' 1889	166.07	223	4.7	2448.4	0.404	44	1
+#' 1890	166.17	223	4.7	2490.6	0.404	44	1
+#' 1891	165.81	216	4.6	2533.4	0.404	44	1
+#' 1892	166.37	227	4.6	2577	0.404	44	1
+#' 1893	166.18	220	4.6	2666.4	0.404	44	1
+#' 1894	166.55	209	4.6	2712.3	0.406	44	1
+#' 1895	165.95	226	4.6	2758.9	0.404	44	1
+#' 1896	166.6	198	4.6	2806.4	0.404	44	1
+#' 1897	166.37	218	4.6	2854.7	0.404	44	1
+#' 1898	166.46	208	4.6	2903.8	0.408	44	1
+#' 1899	166.5	213	4.6	2953.7	0.403	44	1
+#' 1900	166.8	225	4.6	3004.5	0.405	45	1
+#' 1901	166.7	207	4.2	2953.7	0.408	45	1
+#' 1902	166.9	183	4.2	2879.1	0.407	45	1
+#' 1903	167	204	4.2	3108.8	0.405	45	1
+#' 1904	166.9	196	4.2	3108.8	0.404	45	1
+#' 1905	166.9	205	4.2	3108.8	0.404	45	1
+#' 1906	166.8	185	4.2	3162.3	0.403	45	1
+#' 1907	166.7	176	4.2	3216.7	0.409	46.7	1
+#' 1908	166.7	178	4.2	3244.2	0.409	46.7	1
+#' 1909	166.8	170	4.2	3272	0.408	46.7	1
+#' 1910	166.8	162	4	3300	0.406	46.7	1
+#' 1911	167.2	192	3.9	3328.3	0.403	46.7	1
+#' 1912	167.2	147	3.9	3533	0.4	46.7	1
+#' 1913	167.3	163	3.9	3593.8	0.396	46.7	1
+#' 1914	166.8	176	3.9	3244.2	0.402	46.7	1
+#' 1915	166.98	161	2.9	2928.6	0.454	35	1
+#' 1916	167.54	151	2.1	2903.8	0.489	16	1
+#' 1917	168.02	161	2	2928.6	0.489	16	NA
+#' 1918	169.03	171	2	2979	0.511	10	NA
+#' 1919	168.66	157	2.3	2666.4	0.499	NA	2
+#' 1920	168.96	144	3.4	2806.4	0.48	NA	2
+#' 1921	169.62	146	2.7	3004.5	0.474	NA	2
+#' 1922	168.96	124.3	2.4	3216.7	0.423	NA	2
+#' 1923	169.22	123.3	2.3	2758.9	0.383	NA	2
+#' 1924	169.91	119.45	2.2	3108.8	0.404	NA	2
+#' 1925	170.32	110.75	2.3	3533	0.345	NA	2
+#' 1926	170.61	101	2.2	3503	0.329	45	2
+#' 1927	170.71	96.1	2.1	3814.9	0.314	45	2
+#' 1928	171.11	92.2	2.1	4049.6	0.302	45	2
+#' 1929	171.01	95.1	2	3981.1	0.29	45	2
+#' 1930	170.96	88.3	1.9	3847.6	0.287	45	2
+#' 1931	171.3	81.6	1.8	3624.6	0.291	45	2
+#' 1932	170.94	79.6	1.7	3385.6	0.305	45	2
+#' 1933	171.48	77.7	1.7	3624.6	0.306	45	2
+#' 1934	170.77	74.8	2	3782.5	0.315	45	NA
+#' 1935	170.18	68.9	2.1	4119.2	0.327	45	NA
+#' 1936	170.01	66.0	2.2	4410.1	0.341	45	NA
+#' 1937	170.16	63.1	2.2	4681.3	0.355	45	NA
+#' 1938	170.48	62.1	2.3	5011.9	0.37	46.2	NA
+#' 1939	171.32	65.0	2.4	5275	0.383	41.7	NA
+#' 1940	171.31	65.0	2.5	5185.8	0.389	38.9	NA
+#' 1941	171.27	65.0	2.3	5458	0.393	32.6	NA
+#' 1942	171.63	67	1.9	5647.4	0.4	31.2	NA
+#' 1943	170.98	72.8	1.9	5793.8	0.402	28.2	NA
+#' 1944	170.97	NA	1.8	5098.1	0.4	28.2	NA
+#' 1945	170.6	NA	1.4	3328.3	0.403	NA	NA
+#' 1946	171.08	98.0	1.7	2267.5	0.413	20	NA
+#' 1947	171	92.2	1.8	2448.4	0.416	10	3
+#' 1948	171.22	74.8	1.9	3056.2	0.415	NA	3
+#' 1949	171.99	67	2.1	3473.3	0.425	NA	3
+#' 1950	172.31	51.1	2	3913.7	0.396	NA	3
+#' 1951	173.07	49.5	2.1	4298.7	0.396	NA	3
+#' 1952	173.21	47.9	2.1	4681.3	0.373	NA	3
+#' 1953	173.55	46.4	2	5098.1	0.359	NA	3
+#' 1954	173.82	44.8	2.1	5551.9	0.342	NA	3
+#' 1955	174	43.2	2.1	5843.4	0.336	NA	3
+#' 1956	174.01	41.7	2.3	6046.2	0.322	NA	3
+#' 1957	174.23	40.1	2.3	6256	0.308	NA	3
+#' 1958	174.03	38.5	2.3	6363.6	0.296	NA	3
+#' 1959	174.24	36.9	2.3	6584.4	0.282	57	3
+#' 1960	174.5	35.2	2.4	7170.6	0.285	NA	3
+#' 1961	174.88	33.6	2.4	7676.9	0.256	64.6	3
+#' 1962	175	31.9	2.4	8079.9	0.258	65.7	3
+#' 1963	175.15	30.2	2.5	8360.3	0.244	65.5	3
+#' 1964	175.2	28.7	2.5	8504.1	0.225	66.4	3
+#' 1965	175.13	27.2	2.5	8650.4	0.226	68.4	3
+#' 1966	175.19	25.7	2.5	8724.5	0.198	68.4	3
+#' 1967	175.43	24.1	2.5	9027.3	0.193	70	3
+#' 1968	175.5	22.6	2.3	9420.5	0.192	74.6	3
+#' 1969	175.95	22.2	2.2	9664.6	0.175	75.3	3
+#' 1970	176.08	21.9	2	10000	0.17	79.2	3
+#' 1971	176.25	21.5	2	10347	0.17	82.1	3
+#' 1972	176.62	21.2	1.7	10525	0.155	83.5	3
+#' 1973	176.8	20.8	1.5	10797.8	0.174	83.5	3
+#' 1974	177.2	19.7	1.5	11077.6	0.174	86.7	4
+#' 1975	177.39	18.7	1.5	11364.6	0.196	87.8	4
+#' 1976	177.28	17.6	1.5	11961.3	0.192	NA	4
+#' 1977	177.64	16.6	1.5	12271.3	0.189	87.4	4
+#' 1978	177.86	15.5	1.5	12805.8	0.185	NA	4
+#' 1979	178.16	14.6	1.5	12915.5	0.192	88.5	4
+#' 1980	178.36	13.7	1.5	12915.5	0.196	92.4	4
+#' 1981	178.38	12.8	1.5	12915.5	0.2	NA	4
+#' 1982	178.69	11	1.5	12805.8	0.219	NA	4
+#' 1983	178.97	11.1	1.4	12805.8	0.264	94	4
+#' 1984	178.93	10.5	1.4	13250.2	0.283	NA	4
+#' 1985	179.16	10.0	1.4	13593.6	0.268	96.3	4
+#' 1986	179.31	9.4	1.4	13710	0.26	NA	4
+#' 1987	179.42	8.8	1.4	13827.4	0.283	96.7	4
+#' 1988	179.5	8.3	1.4	13945.8	0.275	NA	4
+#' 1989	179.58	7.8	1.4	14065.3	0.287	94.9	4
+#' 1990	179.6	7.4	1.4	14185.7	0.275	96.3	4
+#' 1991	179.74	6.9	1.3	14429.8	0.291	96.5	4
+#' 1992	179.85	6.4	1.3	14678	0.306	97.9	4
+#' 1993	179.83	6.0	1.3	14930.5	0.332	98.3	4
+#' 1994	179.84	5.7	1.2	15187.3	0.358	100.1	4
+#' 1995	180.08	5.5	1.2	15448.6	0.377	99.9	4
 #' FILE: sbi/inst/references/boys-bmi.tab
 #' Age	M	L	S
 #' 0	13.4069	-0.3053	0.0956
@@ -543,9 +662,10 @@
 #' \describe{
 #' \item{\link[sbi:sbi_aggregate2]{sbi$aggregate2(x,y,z,FUN=cor,...)}}{Aggregate two variables against one factor variable}
 #' \item{\link[sbi:sbi_angle]{sbi$angle(x,y,degree=FALSE)}}{determine the angle between two vectors}
+#' \item{\link[sbi:sbi_angles_triangle]{sbi$angles_triangle(A,B,C,degree=FALSE)}}{determine the angles for a triangle}
 #' \item{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}}{Create assocplots with residual coloring}
 #' \item{\link[sbi:sbi_assoc_legend]{sbi$assoc_legend(pch=15,side="bottom",...)}}{Adds a legend with color codes for the residuals to a assocplot}
-#' \item{\link[sbi:sbi_ba_plot]{sbi$ba_plot(x,y,...)}}{Creates a Blandt-Altmann plot of the scaled sums of two variables against their difference}
+#' \item{\link[sbi:sbi_ba_plot]{sbi$ba_plot(x,y,...)}}{Creates a Bland-Altmann plot of the scaled sums of two variables against their difference}
 #' \item{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}}{create bezier lines using three coordinates}
 #' \item{\link[sbi:sbi_barrow]{sbi$barrow(from,to,...)}}{connect btable objects with arrows (plot)}
 #' \item{\link[sbi:sbi_berdline]{sbi$berdline(from,to,...)}}{connect btable objects with ERD arrows with crowfoot notation (plot)}
@@ -628,6 +748,7 @@
 #' \item{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}}{pooled standard deviation for a numercial vector and two or more groups}
 #' \item{\link[sbi:sbi_sdata]{sbi$sdata(name)}}{Load small data sets like 'c20' or 'azt'.}
 #' \item{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}}{standard error of the mean}
+#' \item{\link[sbi:sbi_series_trend]{sbi$series_trend(x, method="spearman",alpha=0.1,n=5)}}{calculate if a series of numbers is going up or down overall}
 #' \item{\link[sbi:sbi_shape]{sbi$shape(x,y)}}{Create random polygon shapes centered at given x and y coordinates}
 #' \item{\link[sbi:sbi_shell]{sbi$shell(script)}}{Executes a given sell script in text format (Unix only)}
 #' \item{\link[sbi:sbi_skewness]{sbi$skewness(x)}}{third central moment of a distribution}
@@ -673,9 +794,10 @@
 #' \itemize{ 
 #' \item \code{\link[sbi:sbi_aggregate2]{sbi$aggregate2(x,y,z,FUN=cor,...)}} aggregate two variables against one factor variable
 #' \item \code{\link[sbi:sbi_angle]{sbi$angle(x,y, degree=FALSE)}} determine the angle between two vectors
+#' \item \code{\link[sbi:sbi_angles_triangle]{sbi$angles_triangle(A,B,C,degree=FALSE)}} determine the angles for a triangle
 #' \item \code{\link[sbi:sbi_assoc]{sbi$assoc(..., shade=TRUE)}} Create assocplots with residual coloring
 #' \item \code{\link[sbi:sbi_assoc_legend]{sbi$assoc_legend(pch=15,side="bottom",...)}} Adds a legend with color codes for the residuals to a assocplot
-#' \item \code{\link[sbi:sbi_ba_plot]{sbi$ba_plot(x,y,...)}} Creates a Blandt-Altmann plot of the scaled sums of two variables against their difference
+#' \item \code{\link[sbi:sbi_ba_plot]{sbi$ba_plot(x,y,...)}} Creates a Bland-Altmann plot of the scaled sums of two variables against their difference
 #' \item \code{\link[sbi:sbi_barrow]{sbi$barrow(from,to,...)}} connect btable objects with arrows (plot)
 #' \item \code{\link[sbi:sbi_berdline]{sbi$berdline(from,to,...)}} connect btable objects with ERD arrows with crowfoot notation (plot)
 #' \item \code{\link[sbi:sbi_bezier]{sbi$bezier(p1,p2,p3)}} create bezier lines using three coordinates
@@ -757,6 +879,7 @@
 #' \item \code{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}} pooled standard deviation for a numercial vector and two or more groups
 #' \item \code{\link[sbi:sbi_sdata]{sbi$sdata(name)}} load small data sets like 'c20' or 'azt'.
 #' \item \code{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}} standard error of the mean
+#' \item \code{\link[sbi:sbi_series_trend]{sbi$series_trend(x, method="spearman",alpha=0.1,n=5)}} calculate if a series of numbers is going up or down overall
 #' \item \code{\link[sbi:sbi_shape]{sbi$shape(x,y)}} create random polygon shapes centered at given x and y coordinates
 #' \item \code{\link[sbi:sbi_shell]{sbi$shell(script)}} executes a given sell script in text format (Unix only)
 #' \item \code{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}} bind two data frames by matching columns and filling missing values with NA.
@@ -871,22 +994,84 @@ sbi$angle <- function (x,y,degree=FALSE) {
     return(theta[1,1])
 }
 
-sbi_angle = sbi$agngle
+sbi_angle = sbi$angle
+
+#' FILE: sbi/man/sbi_angles_triangle.Rd
+#' \name{sbi$angles_triangle}
+#' \alias{sbi$angles_triangle}
+#' \alias{sbi_angles_triangle}
+#' \title{determine the angles  of a triangle}
+#' \description{Determine the angles for a given triangle which is defined by three coordinates in a 2D space.}
+#' \usage{sbi_angles_triangle(A, B, C, degree=FALSE)}
+#' \arguments{
+#'   \item{A}{numeric vector with x and y positions for point A}
+#'   \item{B}{numeric vector with x and y positions for point B}
+#'   \item{C}{numeric vector with x and y positions for point C}
+#'   \item{degree}{should the angle returned in degree value, default: FALSE}
+#' }
+#' \details{
+#'   This function should be used to calculate angles in geometry problems.
+#' }
+#' \value{angle either in rad or in degrees}
+#' \examples{
+#' pA <- c(0, 0)
+#' pB <- c(1, 0)
+#' pC <- c(1, 0.5)
+#' sbi$angles_triangle(pA, pB, pC)
+#' sbi$angle(pB,pC)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, 
+#' \link[sbi:sbi_deg2rad]{sbi$angle},
+#' \link[sbi:sbi_deg2rad]{sbi$deg2rad},
+#' \link[sbi:sbi_rad2deg]{sbi$rad2deg}.}
+#' FILE: sbi/R/angles_triangle.R
+
+sbi$angles_triangle <- function(A, B, C, degree = FALSE) {
+  # pA, pB, pC: numeric vectors c(x, y)
+
+  # helper: angle at vertex P formed by points Q and R (i.e., angle Q-P-R)
+  angle_at <- function(P, Q, R) {
+    v1 <- Q - P
+    v2 <- R - P
+    cosang <- sum(v1 * v2) / (sqrt(sum(v1^2)) * sqrt(sum(v2^2)))
+
+    # guard against tiny numerical errors pushing cos outside [-1, 1]
+    cosang <- max(-1, min(1, cosang))
+
+    ang <- acos(cosang)
+    ang
+  }
+
+  a <- angle_at(A, B, C) # at A
+  b <- angle_at(B, A, C) # at B
+  c <- angle_at(C, A, B) # at C
+
+  if (degree) {
+    a <- a * 180 / pi
+    b <- b * 180 / pi
+    c <- c * 180 / pi
+  }
+
+  c(angleA = a, angleB = b, angleC = c)
+}
+sbi_angles_triangle = sbi$angles_triangle
 
 #' FILE: sbi/man/sbi_ba_plot.Rd
 #' \name{sbi$ba_plot}
 #' \alias{sbi$ba_plot}
 #' \alias{sbi_ba_plot}
-#' \title{Create a Blandt-Altmann Plot for two variables.}
+#' \title{Create a Bland-Altmann Plot for two variables.}
 #' \description{
-#'   Create a Blandt-Altmann for two correlated variables to check their agreement.
+#'   Create a Bland-Altmann for two correlated variables to check their agreement.
 #'   This version of the plot, plots the sum of the z-scored data on the x-axis
 #'   against the difference on the y-axis.
 #' }
-#' \usage{sbi_ba_plot(x,y,...)}
+#' \usage{sbi_ba_plot(x,y,col=1,plot=TRUE,...)}
 #' \arguments{
 #'   \item{x}{numerical vector x}
 #'  \item{y}{numerical vector v}
+#'  \item{col}{color to be used for the plots, either a single color or a vector of colors}
+#'  \item{plot}{should we create a plot, if not a list object with the coordinates of the plot will be returned.}
 #'  \item{...}{Arguments delegated to the standard \code{plot} function.}
 #' }
 #' \details{
@@ -895,8 +1080,21 @@ sbi_angle = sbi$agngle
 #'   to detect regions of better or worse fits. It was used to check the agreement
 #'   between two different types of measurements using medical instruments.
 #' }
+#' \references{
+#'   \itemize{
+#'     \item Bland, M,  Altman, D. G.: Measuring agreement in method comparison studies. 
+#'      In: Stat Methods Med Res. 8, Jun 1999, S. 135-160.
+#'   }
+#' }
 #' \value{
-#'   Creates an Blandt-Altmann xy-plot.
+#'   Creates an Blandt-Altmann xy-plot and returns an invisible list object
+#'   with the following components:
+#'   \item{coordinates}{teh data cooordinates in the Blandt-Altmann plot.}
+#'   \item{pca.scores}{PCA scores of that coordinates.}
+#'   \item{pca.rotation}{PCA rotations,loaaindgs for the first PC, if both values are positive, 
+#    the variables are associated in the same direction, 
+#'   if the have different signs the are negatively associated.}
+#'   \item{pc1.importance}{importance of PC1, if high the ellipse is strongly compressed.}
 #' }
 #' \examples{
 #' x=rnorm(100)
@@ -918,23 +1116,31 @@ sbi_angle = sbi$agngle
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/ba_plot.R
 
-sbi$ba_plot = function (x,y,...) {
+sbi$ba_plot = function (x,y,col=1,plot=TRUE,...) {
     sx=scale(x)+scale(y);
     sy=scale(x)-scale(y);
+    r=cor(x,y)
     pca=prcomp(data.frame(x=sx,y=sy))
-    plot(sx,sy,
-         ylim=c(-4,4),xlim=c(-4,4),xlab="x+y",ylab="x-y",type="n",...)
-    grid(lwd=2)
-    abline(h=0,lty=2,lwd=1)
-    abline(v=0,lty=2,lwd=1)    
-    C=cov(data.frame(x=sx,y=sy))  
-    d85=qchisq(0.85, df = 2)    
-    M=colMeans(data.frame(x=x,y=y)) 
-    el=cluster::ellipsoidPoints(C, d85, loc=M) 
-    polygon(el,col="grey80",border=NA)
-    lines(el,col="grey20",lwd=1.5,lty=2)   
-    points(sx,sy,pch=15,col="grey20")
-    title(sprintf("PCA 1: %.2f%%",summary(pca)$importance[2,1]*100))
+    if (plot) {
+        plot(sx,sy,
+             ylim=c(-4,4),xlim=c(-4,4),xlab="x+y",ylab="x-y",type="n",...)
+        grid(lwd=2)
+        abline(h=0,lty=2,lwd=1)
+        abline(v=0,lty=2,lwd=1)    
+        C=cov(data.frame(x=sx,y=sy))  
+        d85=qchisq(0.85, df = 2)    
+        M=colMeans(data.frame(x=x,y=y)) 
+        el=cluster::ellipsoidPoints(C, d85, loc=M) 
+        polygon(el,col="grey80",border=NA)
+        lines(el,col="grey20",lwd=1.5,lty=2)   
+        points(sx,sy,pch=15,col=col)
+        title(sprintf("PCA 1: %.2f%%",summary(pca)$importance[2,1]*100))
+    }
+    invisible(list(coordinates=data.frame(x=sx,y=sy),
+                   r=r,
+                   pca.scores=pca$x,
+                   pca.rotation=pca$rotation,
+                   pca.pc1=summary(pca)$importance[2,1]))
 }
 sbi_ba_plot=sbi$ba_plot
 
@@ -6176,6 +6382,7 @@ sbi_sd_pooled = sbi$sd_pooled
 #'   \item{\code{c20}}{Data set illustrating the relationship between unsaturated fatty acids and insulin sensitivity (Borkman et al., 1993).}
 #'   \item{\code{azt}}{Treatment data for HIV patients comparing AZT against placebo (Cooper et al., 1993).}
 #'   \item{\code{decathlon}}{Data from the 1988 olympics decathlon, distance results (100m, 110m hurdles, 400m and 1500m) are given in km/hour not in seconds}
+#'   \item{\code{conscripts}}{Data fro German conscripts and some socieconomic data for Germany like GINI, BIP and infant mortality from 1885 to 1995}
 #' }
 #' }
 #' \references{
@@ -6185,7 +6392,7 @@ sbi_sd_pooled = sbi$sd_pooled
 #'   }
 #' }
 #' \value{A data frame or contingency table for the selected data set.}
-#' \examples{
+#' \examples{%options: fig.width=4,fig.height=4
 #' c20 <- sbi$sdata(name = "c20")
 #' head(c20)
 #' cor(c20[, 1], c20[, 2])
@@ -6195,6 +6402,12 @@ sbi_sd_pooled = sbi$sd_pooled
 #' dec <- sbi$sdata(name = "decathlon")
 #' dim(dec)
 #' head(dec)
+#' cons <- sbi$sdata(name="conscripts")
+#' plot(cons$height~cons$year,col=cons$segment+1,pch=19)
+#' for (i in 1:max(cons$segment,na.rm=TRUE)) {
+#'   idx=which(cons$segment==i)
+#'   points(cons$height[idx] ~ cons$year[idx],col=cons$segment[idx]+1,type="l")
+#'  }
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/sdata.R
@@ -6214,8 +6427,15 @@ sbi$sdata <- function (name="c20") {
       file_path <- system.file("files", "decathlon.tab", package = "sbi") 
       data=read.table(file_path,sep="\t",header=TRUE)
       return(data)
+  } else if (name == "conscripts") {
+      file_path <- system.file("files", "conscripts.tab", package = "sbi") 
+      data=read.table(file_path,sep="\t",header=TRUE)
+      options(warn=-1)
+      data$segment=as.numeric(data$segment)
+      options(warn=0)
+      return(data)
   } else {
-    stop("Error: Currently only 'c20', 'azt' and 'decathlon', datasets are supported!")
+    stop("Error: Currently only 'c20', 'azt', 'decathlon' and 'conscripts' datasets are supported!")
   }
 }
 sbi_sdata = sbi$sdata
@@ -6249,6 +6469,59 @@ sbi$sem <- function(x,na.rm=FALSE) {
 }
 
 sbi_sem = sbi$sem
+
+#' FILE: sbi/man/sbi_series_trend.Rd
+#' \name{sbi$series_trend}
+#' \alias{sbi$series_trend}
+#' \alias{sbi_series_trend}
+#' \title{Calculate the trend for a specific series of data}
+#' \description{
+#'   The function calculates the overal trend for a series of data points.
+#' }
+#' \usage{sbi_series_trend(x,method="spearman",alpha=0.1, n=5)}
+#' \arguments{
+#'   \item{x}{numeric vector}
+#'   \item{method}{method to calculate the trend, either "spearman", "Pearson" or "mean", default: "spearman"}
+#'   \item{alpha}{p-value threshold to declare a trend as positive or negative, if above trend will be zero, default: 0.1}
+#'   \item{n}{if methods is mean, how many of the first and last values, will be used for the wilcox.test, in case of 3 all values of the beginning must be either above or below the last three valuses to declare a trend, default: 5}
+#' }
+#' \value{computed standard error of the mean}
+#' \examples{
+#' sbi$series_trend(c(1,2,3,4,6,5,7,8,9,10),method='mean')
+#' sbi$series_trend(rnorm(100))
+#' sbi$series_trend(sort(rnorm(100)+rnorm(100)))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/series_trend.R
+
+sbi$series_trend <- function(x,method="spearman",alpha=0.1,n=5) { 
+    if (method == "mean") {
+       vals=x[!is.na(x)]
+       dy=mean(vals[(length(vals)-n):(length(vals))])-mean(vals[1:n])
+       tt=wilcox.test(vals[(length(vals)-n):length(vals)],vals[1:n])
+       if (tt$p.value >= alpha) {
+           return(0)
+       } else {
+          return(1 * (sign(dy)))
+       }
+    } else if (method %in% c('spearman','pearson')) {
+         i <- seq_along(x)          
+         options(warn=-1)
+         ct <- cor.test(i, x, method = method)  
+         options(warn=0)
+         # >0 upward, <0 downward
+         if (ct$p.value > alpha) {
+            return(0)
+         } else {
+            return(1 * sign(ct$estimate))
+         }   
+         return(ct$estimate);
+    }  else {
+        stop(sprintf("Error: Unknown method '%s'! Known methods are 'pearson', 'spearman' and 'mean'!",method))
+    }
+}
+
+sbi_series_trend = sbi$series_trend
 
 #' FILE: sbi/man/sbi_shape.Rd
 #' \name{sbi$shape}
