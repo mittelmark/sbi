@@ -47,7 +47,7 @@ Or you install the latest release as a normal package:
 
 ```
 $ R
-> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi_0.6.0.tar.gz",repos=NULL)
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi_0.7.0.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
 > vignette("sbi-examples")
@@ -56,8 +56,8 @@ $ R
 Or you install the latest release from a Unix Terminal like this:
 
 ```
-wget https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi_0.6.0.tar.gz
-R CMD INSTALL --library=~/R sbi_0.6.0.tar.gz
+wget https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi_0.7.0.tar.gz
+R CMD INSTALL --library=~/R sbi_0.7.0.tar.gz
 ```
 
 Installation as a package has the advantage  that you have the  documentation
@@ -79,8 +79,8 @@ wget -O sbi-src.R https://github.com/mittelmark/sbi/raw/main/sbi-src.R
 Rscript sbi-src.R --process    sbi-src.R         # extract all files
 Rscript sbi-src.R --vignettex  sbi-src.R         # extract examples as vignette
 Rscript sbi-src.R --build      sbi               # build package tar-gz file
-Rscript sbi-src.R --check      sbi_0.6.0.tar.gz  # check package tar-gz file
-Rscript sbi-src.R --install    sbi_0.6.0.tar.gz  # install from local tar-gz file
+Rscript sbi-src.R --check      sbi_0.7.0.tar.gz  # check package tar-gz file
+Rscript sbi-src.R --install    sbi_0.7.0.tar.gz  # install from local tar-gz file
 ```
 
 
@@ -91,6 +91,16 @@ The   single   file  R   package   approach   is   described   in  the
 
 ## Changes
 
+- 2026-07-24: version 0.7.0 - [package](https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi_0.7.0.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi-examples.pdf)
+    - Update nach Summerschool 2026
+    - function sbi_pssim - for pattern similarity to arbitrary patterns
+    - function sbi_ia_plot - for interactions in a linear model
+    - function sbi_conf_plot - for plotting a set of means and confidence intervals
+    - function sbi_ba_plot Bland-Altman - coherence plot
+    - function sbi_angles_triangle - calculate the angles for a given triangle
+    - function sbi_series_trend - calculate the trend for the values of a vector
+    - data set conscripts for Germany from 1885 to 1995 and additional socioeconomic data for that period
+    - typo fixes with aid of Big Picke model
 - 2026-07-10: version 0.6.0 - [package](https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi_0.6.0.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi-examples.pdf)
    - adding transform and untransform methods to support signed log and Yeo-Johnson transformation
    - removed mtex function and local use of graphviz dot and plantuml etc     
@@ -122,6 +132,7 @@ The   single   file  R   package   approach   is   described   in  the
    - adding methods qr_plot and randomize
    - adding new MUAC references from Ado et. al. 2017
 - 2024-08-28: Version 0.0.1 - Initial Release
+
 ## Authors
 
 - Detlef Groth, University of Potsdam (Author and Maintainer)
