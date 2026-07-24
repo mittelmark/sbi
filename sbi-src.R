@@ -56,21 +56,21 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
-#' 2026-07-1X: version 0.7.0
-#'    - function sbi_pssim - for pattern similarity to arbitary patterns
+#' 2026-07-15: version 0.7.0
+#'    - function sbi_pssim - for pattern similarity to arbitrary patterns
 #'    - function sbi_ia_plot - for interactions in a linear model
 #'    - function sbi_conf_plot - for plotting a set of means and confidence intervals
-#'    - function sbi_ba_plot Blandt-Altmann - coherence plot
+#'    - function sbi_ba_plot Bland-Altman - coherence plot
 #'    - function sbi_angles_triangle - calculate the angles for a given triangle
 #'    - function sbi_series_trend - calculate the trend for the values of a vector
-#'    - data set conscripts for Germany from 1885 to 1995 aand addtional socioeconomic data for that period
+#'    - data set conscripts for Germany from 1885 to 1995 and additional socioeconomic data for that period
 #'
 #' 2026-07-10: version 0.6.0
 #'    - support for transform and untransform signed log transformation and
 #'      Yeo-Johnson transformation
 #'    - removed mtex function
 #'
-#' 2026-01-20: versin 0.4.3
+#' 2026-01-20: version 0.4.3
 #'    - adding sbi_marrow function
 #'    - adding sbi_btable and sbi_barrow function for arrows between blocks
 #'    - adding sbi_berdline for drawing ERD diagrams
@@ -109,7 +109,7 @@
 #' 2025-07-08: Version 0.0.7
 #'    - adding sd_pooled method
 #'    - adding ci_plot method
-#'    - extending cohensD to return matrices of pairwse groups
+#'    - extending cohensD to return matrices of pairwise groups
 #' 2025-07-07: Version 0.0.6 
 #'    - adding mds_plot function
 #'    - improving pca_biplot with automatic 5 percent margin
@@ -655,7 +655,7 @@
 #' \title{The sbi-package - methods for Statistical Bioinformatics}
 #' \description{The sbi package contains methods used in the course
 #'    Statistical Bioinformatics at the University of Potsdam
-#'    as well as othe rusefule methods useful in statistical analysis.
+#'    as well as other useful methods useful in statistical analysis.
 #' }
 #' \details{
 #' Here the list of functions provided by this package:
@@ -745,7 +745,7 @@
 #' \item{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star=FALSE)}}{Report a p-value with optional stars based on significance thresholds}
 #' \item{\link[sbi:sbi_rfig]{sbi$rfig(label)}}{return the figure number for the given label in Markdown documents}
 #' \item{\link[sbi:sbi_rtab]{sbi$rtab(label)}}{return the table number for the given label in Markdown documents}
-#' \item{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}}{pooled standard deviation for a numercial vector and two or more groups}
+#' \item{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}}{pooled standard deviation for a numerical vector and two or more groups}
 #' \item{\link[sbi:sbi_sdata]{sbi$sdata(name)}}{Load small data sets like 'c20' or 'azt'.}
 #' \item{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}}{standard error of the mean}
 #' \item{\link[sbi:sbi_series_trend]{sbi$series_trend(x, method="spearman",alpha=0.1,n=5)}}{calculate if a series of numbers is going up or down overall}
@@ -876,7 +876,7 @@
 #' \item \code{\link[sbi:sbi_report_pval]{sbi$report_pval(p, star = FALSE)}} report a p-value with optional stars based on significance thresholds
 #' \item \code{\link[sbi:sbi_rfig]{sbi$rfig(label)}} return the figure number for the given label in Markdown documents
 #' \item \code{\link[sbi:sbi_rtab]{sbi$rtab(label)}}return the table number for the given label in Markdown documents
-#' \item \code{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}} pooled standard deviation for a numercial vector and two or more groups
+#' \item \code{\link[sbi:sbi_sd_pooled]{sbi$sd_pooled(x,y)}} pooled standard deviation for a numerical vector and two or more groups
 #' \item \code{\link[sbi:sbi_sdata]{sbi$sdata(name)}} load small data sets like 'c20' or 'azt'.
 #' \item \code{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}} standard error of the mean
 #' \item \code{\link[sbi:sbi_series_trend]{sbi$series_trend(x, method="spearman",alpha=0.1,n=5)}} calculate if a series of numbers is going up or down overall
@@ -960,7 +960,7 @@ sbi_aggregate2 = sbi$aggregate2
 #' \arguments{
 #'   \item{x}{numeric vector with x and y positions}
 #'   \item{y}{numeric vector with x and y positions}
-#'   \item{degree}{should the angle returned in degree value, default: FALSE}
+#'   \item{degree}{should the angle returned in degrees, default: FALSE}
 #' }
 #' \details{
 #'   This function should be used to calculate angles in geometry problems.
@@ -1007,7 +1007,7 @@ sbi_angle = sbi$angle
 #'   \item{A}{numeric vector with x and y positions for point A}
 #'   \item{B}{numeric vector with x and y positions for point B}
 #'   \item{C}{numeric vector with x and y positions for point C}
-#'   \item{degree}{should the angle returned in degree value, default: FALSE}
+#'   \item{degree}{should the angle returned in degrees, default: FALSE}
 #' }
 #' \details{
 #'   This function should be used to calculate angles in geometry problems.
@@ -1021,7 +1021,7 @@ sbi_angle = sbi$angle
 #' sbi$angle(pB,pC)
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}, 
-#' \link[sbi:sbi_deg2rad]{sbi$angle},
+#' \link[sbi:sbi_angle]{sbi$angle},
 #' \link[sbi:sbi_deg2rad]{sbi$deg2rad},
 #' \link[sbi:sbi_rad2deg]{sbi$rad2deg}.}
 #' FILE: sbi/R/angles_triangle.R
@@ -1075,7 +1075,7 @@ sbi_angles_triangle = sbi$angles_triangle
 #'  \item{...}{Arguments delegated to the standard \code{plot} function.}
 #' }
 #' \details{
-#'   THe bLandt.Altman plot shows the agreement between two vectors, so their correlations,
+#'   The Bland-Altman plot shows the agreement between two vectors, so their correlations,
 #'   by plotting the difference of the two variables against their sums. This allows
 #'   to detect regions of better or worse fits. It was used to check the agreement
 #'   between two different types of measurements using medical instruments.
@@ -1087,11 +1087,11 @@ sbi_angles_triangle = sbi$angles_triangle
 #'   }
 #' }
 #' \value{
-#'   Creates an Blandt-Altmann xy-plot and returns an invisible list object
+#'   Creates a Bland-Altman xy-plot and returns an invisible list object
 #'   with the following components:
-#'   \item{coordinates}{teh data cooordinates in the Blandt-Altmann plot.}
+#'   \item{coordinates}{the data coordinates in the Bland-Altman plot.}
 #'   \item{pca.scores}{PCA scores of that coordinates.}
-#'   \item{pca.rotation}{PCA rotations,loaaindgs for the first PC, if both values are positive, 
+#'   \item{pca.rotation}{PCA rotations, loadings for the first PC, if both values are positive, 
 #    the variables are associated in the same direction, 
 #'   if the have different signs the are negatively associated.}
 #'   \item{pc1.importance}{importance of PC1, if high the ellipse is strongly compressed.}
@@ -1577,7 +1577,7 @@ sbi_bezier = sbi$bezier
 #' \title{Perform a resampling for the given data set and function}
 #' \description{
 #'  The function allows you to perform a resampling method without replacement to perform
-#'   a boostrap analysis for instance to cmpute a p-value or a confidence interval.
+#'   a bootstrap analysis for instance to compute a p-value or a confidence interval.
 #' }
 #' \usage{sbi_bootstrap(x,FUN=NULL,n=1000,...)}
 #' \arguments{
@@ -2062,7 +2062,7 @@ sbi_coa = sbi$coa
 #' g2=rep('B',100)
 #' # difference should be around 2SD
 #' cohensD(c(x1,x2),as.factor(c(g1,g2)))
-#' # biseriell correlation coefficient as alternative
+#' # biserial correlation coefficient as alternative
 #' # value is as well large
 #' cor(c(x1,x2),as.numeric(as.factor(c(g1,g2))))
 #' # matrix of Cohen's d values:
@@ -2137,7 +2137,7 @@ sbi_cohensD = sbi$cohensD
 #' }
 #' \usage{sbi_cohensF(x, y)}
 #' \arguments{
-#' \item{x}{vector with numercial values}
+#' \item{x}{vector with numerical values}
 #' \item{y}{vector with grouping variable, at least three levels, having the same length as x}
 #' }
 #' \details{
@@ -3051,7 +3051,7 @@ sbi_epsilon_squared = sbi$epsilon_squared
 
 #' FILE: sbi/man/sbi_eta_squared.Rd
 #' \name{sbi$eta_squared}
-#' \alias{sbi$eta__Squared}
+#' \alias{sbi$eta_squared}
 #' \alias{sbi_eta_squared}
 #' \title{Calculate the Effect size Eta-squared for an Anova or a Linear model}
 #' \description{Calculate the eta-squared effect size for ANOVA or linear models.}
@@ -3378,7 +3378,7 @@ sbi_flow = sbi$flow
 #' \name{sbi$fmt}
 #' \alias{sbi$fmt}
 #' \alias{sbi_fmt}
-#' \title{Python like string formatting)}
+#' \title{Python like string formatting}
 #' \description{
 #' This function implements Python like string formatting using curly braces as placeholder.
 #' }
@@ -3460,7 +3460,7 @@ sbi_fscale = sbi$fscale
 #' \name{sbi$gmean}
 #' \alias{sbi$gmean}
 #' \alias{sbi_gmean}
-#' \title{geometric mean of a numercial vector}
+#' \title{geometric mean of a numerical vector}
 #' \description{
 #' Calculate the geometric mean of a numerical vector. All values in `x` should be above zero.
 #' }
@@ -3504,7 +3504,7 @@ sbi_gmean = sbi$gmean
 #' \name{sbi$hmean}
 #' \alias{sbi$hmean}
 #' \alias{sbi_hmean}
-#' \title{harmonic mean of a numercial vector}
+#' \title{harmonic mean of a numerical vector}
 #' \description{
 #' Calculate the harmonic mean of a numerical vector. All values in `x` should be above zero.
 #' }
@@ -3554,7 +3554,7 @@ sbi_hmean = sbi$hmean
 #'  \item{x}{vector of the predictor variable}
 #'  \item{y}{vector of the grouping variable}
 #'  \item{z}{vector of the response variable}
-#'  \item{col}{default colors for the datapoints and the regesssion lines, default: 2:5}
+#'  \item{col}{default colors for the datapoints and the regression lines, default: 2:5}
 #'  \item{\ldots}{arguments delegated to the plot function}
 #' }
 #' \examples{
@@ -3930,14 +3930,14 @@ sbi_is.outlier = sbi$is.outlier
 #' }
 #' \usage{sbi_itemchart(labels,cex=1.2,col=c("#bbddff","#ffcccc","#ccffcc","#ffffbb"),...)}
 #' \arguments{
-#'   \item{labels}{list of three or four labels, longer strings should be splitted by using newline chars.}
+#'   \item{labels}{list of three or four labels, longer strings should be split by using newline chars.}
 #'   \item{cex}{character expansion for the text, default: 1.2}
 #'   \item{col}{color vector for the items, default: c("#bbddff","#ffcccc","#ccffcc","#ffffbb")}
 #'   \item{\ldots}{other arguments delegated to the plot function}
 #' }
 #' \details{
-#'  This function is used to illustrate important points which are opposig each other on the 
-#'  three sided f a triangle or on the four sides of a 45 degree rotated rectangle.
+#'  This function is used to illustrate important points which are opposing each other on the
+#'  three sides of a triangle or on the four sides of a 45 degree rotated rectangle.
 #' }
 #' \examples{ %options: fig.width=10,fig.height=5
 #' opar=par(mai=c(0.2,0.2,0.2,0.2),mfrow=c(1,2))
@@ -3972,7 +3972,7 @@ sbi$itemchart <- function (labels,cex=1.2,col=c("#bbddff","#ffcccc","#ccffcc","#
         text(0.2,0.25,labels[4],cex=cex,font=2)  
         
     } else {
-        stop("Error: Currently only three our four labels are supported")
+        stop("Error: Currently only three or four labels are supported")
     }   
 }
 
@@ -4056,7 +4056,7 @@ sbi_join_plot = sbi$join_plot
 #' \name{sbi$kl}
 #' \alias{sbi$kl}
 #' \alias{sbi_kl}
-#' \title{Calculate Kulback-Leibler divergence fof two distributions}
+#' \title{Calculate Kullback-Leibler divergence for two distributions}
 #' \description{
 #'   This function calculates the Kulback-Leibler divergence for two distributions
 #'   based in the formula 'KL = sum(p*log(p/q))'.
@@ -5103,8 +5103,8 @@ sbi$rad2deg <- function (x) {
 sbi_rad2deg = sbi$rad2deg
 
 #' FILE: sbi/man/sbi_packageDependencies.Rd
-#' \name{sbi$packageDpendencies}
-#' \alias{sbi$packageDpendencies}
+#' \name{sbi$packageDependencies}
+#' \alias{sbi$packageDependencies}
 #' \alias{sbi_packageDependencies}
 #' \title{display packages dependencies}
 #' \description{
@@ -5268,8 +5268,8 @@ sbi_pairwise.effect_size = sbi$pairwise.effect_size
 #' \item{ell.fill}{should a filled 85 percent confidence interval be shown, colors will be used from the plotting color with opacity, default: FALSE}
 #' \item{xlab}{custom xlab, if not given the PC name with variance in percent is shown, default: NULL}
 #' \item{ylab}{custom ylab, if not given the PC name with variance in percent is shown, default: NULL}
-#' \item{xlim}{custom xlim, if not given the range of the PC is used and 5 percent space it added, default: NULL}
-#' \item{ylim}{custom ylim, if not given the range of the PC is used and 5 percent space it added, default: NULL}
+#' \item{xlim}{custom xlim, if not given the range of the PC is used and 5 percent space is added, default: NULL}
+#' \item{ylim}{custom ylim, if not given the range of the PC is used and 5 percent space is added, default: NULL}
 #' \item{\ldots}{additional arguments delegated to the standard plot function}
 #' }
 #' \value{NULL}
@@ -5312,7 +5312,7 @@ sbi$pca_biplot <- function (pca,pcs=c("PC1","PC2"),
     abline(v=0,lty=2)    
     if (ellipse) {
         if (length(col)!= nrow(pca$x)) {
-            stop("colors must have sam elength as data points")
+            stop("colors must have same length as data points")
         }
         ell.col=col
         i=1
@@ -5355,7 +5355,7 @@ sbi_pca_biplot = sbi$pca_biplot
 #'   between PCs and variables. The closer a variable to the PC coordinate 
 #'   the higher the correlation, the more away from the center of the 
 #'   coordinate system, the higher the impact of the variable on this PC.
-#'   You can think about the corplot as a biplot ommiting the samples and 
+#'   You can think about the corplot as a biplot omitting the samples and
 #'   the arrows.
 #' }
 #' \usage{sbi_pca_corplot(pca,pcs=c("PC1","PC2"), main="Correlation plot",cex=NULL,nvar=64,...)}
@@ -5470,11 +5470,11 @@ sbi_pca_corplot = sbi$pca_corplot
 #'   The function `sbi$pca_oncor` does a PCA using eigenvector eigenvalue decomposition
 #'   on a correlation matrix. PCA usually performs Pearson correlation internally what
 #'   leads to a highly outlier sensitive analysis. If the user decides
-#'   to use a method like Spearman or even bi-seriell, polychoric or for nominal data
+#'   to use a method like Spearman or even bi-serial, polychoric or for nominal data
 #'   effect size measures like Cohen's W this method here can be used. Note that this
 #'   does not return new coordinates for the sample as the sample contribution is lost in the
 #'   correlation matrix. The method might however be used to check if the results between
-#'   Pearson and Spearman PCA are similar or does  outliers lead to a completly different result.
+#'   Pearson and Spearman PCA are similar or does outliers lead to a completely different result.
 #' }
 #' \usage{ sbi_pca_oncor(x) }
 #' \arguments{
@@ -6382,7 +6382,7 @@ sbi_sd_pooled = sbi$sd_pooled
 #'   \item{\code{c20}}{Data set illustrating the relationship between unsaturated fatty acids and insulin sensitivity (Borkman et al., 1993).}
 #'   \item{\code{azt}}{Treatment data for HIV patients comparing AZT against placebo (Cooper et al., 1993).}
 #'   \item{\code{decathlon}}{Data from the 1988 olympics decathlon, distance results (100m, 110m hurdles, 400m and 1500m) are given in km/hour not in seconds}
-#'   \item{\code{conscripts}}{Data fro German conscripts and some socieconomic data for Germany like GINI, BIP and infant mortality from 1885 to 1995}
+#'   \item{\code{conscripts}}{Data for German conscripts and some socioeconomic data for Germany like GINI, BIP and infant mortality from 1885 to 1995}
 #' }
 #' }
 #' \references{
@@ -6485,7 +6485,7 @@ sbi_sem = sbi$sem
 #'   \item{alpha}{p-value threshold to declare a trend as positive or negative, if above trend will be zero, default: 0.1}
 #'   \item{n}{if methods is mean, how many of the first and last values, will be used for the wilcox.test, in case of 3 all values of the beginning must be either above or below the last three valuses to declare a trend, default: 5}
 #' }
-#' \value{computed standard error of the mean}
+#' \value{numeric value indicating trend direction: 1 for upward, -1 for downward, 0 for no trend}
 #' \examples{
 #' sbi$series_trend(c(1,2,3,4,6,5,7,8,9,10),method='mean')
 #' sbi$series_trend(rnorm(100))
@@ -6953,8 +6953,8 @@ sbi_textplot <- sbi$textplot
 #' \details{
 #' This function can be used to normalize the given vector, matrix or data frame.
 #' In case of Yeo-Johnson transformation a Lambda value must be provided or 
-#' as many lamba values as there are columns. If lambda is null, the method just returns 
-#' optimal lambda values for every given collumn or vector. They can be then used to run the
+#' as many lambda values as there are columns. If lambda is null, the method just returns
+#' optimal lambda values for every given column or vector. They can be then used to run the
 #' method again and perform the actual normalization.
 #' }
 #' \value{normalized values for the given vector}
@@ -7057,8 +7057,8 @@ sbi_transform <- sbi$transform
 #' \name{sbi$untransform}
 #' \alias{sbi$untransform}
 #' \alias{sbi_untransform}
-#' \title{Undo a transformation which was done to mormalize data}
-#' \description{Implements two methods to undo a data transformationn.}
+#' \title{Undo a transformation which was done to normalize data}
+#' \description{Implements two methods to undo a data transformation.}
 #' \usage{sbi_untransform(x, method="slog",lambda=NULL)}
 #' \arguments{
 #'   \item{x}{A numerical vector.}
