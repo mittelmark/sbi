@@ -3,7 +3,7 @@
 #  Created       : Wed Aug 28 16:08:38 2024
 #  Last Modified : <260117.1122>
 #
-#  Description	 : Makefile for creating packages from the sfrp-src.R script
+#  Description	 : Makefile for creating packages from the sbi-src.R script
 #
 ##############################################################################
 #
@@ -17,7 +17,7 @@ pkg=sbi
 VERSION=$(shell grep -Eo "^#' Version: [.0-9]+" $(pkg)-src.R | sed -E 's/.+: //g; s/ //g;')
 help:
 	@printf "Usage:\n"
-	@printf "   make build   pkg=sbi\n      for creating a true R package file named sbi_§(VERSION).tar.gz\n" 
+	@printf "   make build   pkg=sbi\n      for creating a true R package file named sbi_ï¿½(VERSION).tar.gz\n" 
 	@printf "   make install pkg=sbi\n      for installing the package file sbi_$(VERSION).tar.gz\n"
 build:
 	-rm -rf $(pkg)/

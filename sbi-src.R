@@ -677,7 +677,7 @@
 #' \item{\link[sbi:sbi_coa]{sbi$coa(x,map)}}{co-occurence analysis}
 #' \item{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}}{Effect size comparing two means}
 #' \item{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}}{Effect size comparing for an ANOVA}
-#' \item{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}}{Effect size for 2x2 contingency tables}
+#' \item{\link[sbi:sbi_cohensH]{sbi$cohensH(x)}}{Effect size for 2x2 contingency tables}
 #' \item{\link[sbi:sbi_conf_plot]{sbi$conf_plot(x)}}{Visualize a set of confidence intervals}
 #' \item{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}}{Visualize a correlation with abline.}
 #' \item{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}}{Calculate pairwise correlations for a given data frame or matrix}
@@ -702,7 +702,7 @@
 #' \item{\link[sbi:sbi_fscale]{sbi$fscale(x,from=0,to=1)}}{Feature scaling into the given value range}
 #' \item{\link[sbi:sbi_gmean]{sbi$gmean(x)}}{geometric mean}
 #' \item{\link[sbi:sbi_hmean]{sbi$hmean(x)}}{harmonic mean}
-#' \item{\link[sbi:sbi_ia_plot]{sbi$is_plot(x,y.z)}}{interaction plot for a linear model with a grouping variable}
+#' \item{\link[sbi:sbi_ia_plot]{sbi$ia_plot(x,y,z)}}{interaction plot for a linear model with a grouping variable}
 #' \item{\link[sbi:sbi_import]{sbi$import(basename)}}{load other R files, relative to the current script file}
 #' \item{\link[sbi:sbi_impute]{sbi$impute(x,method="rpart",k=5,cor.method="spearman")}}{impute missing values}
 #' \item{\link[sbi:sbi_input]{sbi$input(prompt)}}{get input from the user, as well in Rscript files}
@@ -750,7 +750,7 @@
 #' \item{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}}{standard error of the mean}
 #' \item{\link[sbi:sbi_series_trend]{sbi$series_trend(x, method="spearman",alpha=0.1,n=5)}}{calculate if a series of numbers is going up or down overall}
 #' \item{\link[sbi:sbi_shape]{sbi$shape(x,y)}}{Create random polygon shapes centered at given x and y coordinates}
-#' \item{\link[sbi:sbi_shell]{sbi$shell(script)}}{Executes a given sell script in text format (Unix only)}
+#' \item{\link[sbi:sbi_shell]{sbi$shell(script)}}{Executes a given shell script in text format (Unix only)}
 #' \item{\link[sbi:sbi_skewness]{sbi$skewness(x)}}{third central moment of a distribution}
 #' \item{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}}{Bind two data frames by matching column names, filling in missing columns with NAs.}
 #' \item{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}}{Display a data frame or matrix in a plot.}
@@ -809,7 +809,7 @@
 #' \item \code{\link[sbi:sbi_coa]{sbi$coa(x,map)}} co-occurence analysis 
 #' \item \code{\link[sbi:sbi_cohensD]{sbi$cohensD(x,y)}} Effect size comparing two means
 #' \item \code{\link[sbi:sbi_cohensF]{sbi$cohensF(x,y)}} Effect size comparing for an ANOVA
-#' \item \code{\link[sbi:sbi_cohensW]{sbi$cohensH(x)}} Effect size for 2x2 contingency tables
+#' \item \code{\link[sbi:sbi_cohensH]{sbi$cohensH(x)}} Effect size for 2x2 contingency tables
 #' \item \code{\link[sbi:sbi_conf_plot]{sbi$conf_plot(x)}} Visualize a set of confidence intervals
 #' \item \code{\link[sbi:sbi_corplot]{sbi$corplot(x, y, col="red", pch=19,...)}} Visualize a correlation with abline.
 #' \item \code{\link[sbi:sbi_corr]{sbi$corr(data,method="pearson",use="pairwise.complete.obs")}} calculate pairwise correlations for a given data frame or matrix
@@ -834,7 +834,7 @@
 #' \item \code{\link[sbi:sbi_fscale]{sbi$fscale(x,from=0,to=1)}} Feature scaling into the given value range
 #' \item \code{\link[sbi:sbi_gmean]{sbi$gmean(x)}} geometric mean
 #' \item \code{\link[sbi:sbi_hmean]{sbi$hmean(x)}} harmonic mean
-#' \item \code{\link[sbi:sbi_ia_plot]{sbi$is_plot(x,y.z)}} interaction plot for a linear model with a grouping variable
+#' \item \code{\link[sbi:sbi_ia_plot]{sbi$ia_plot(x,y,z)}} interaction plot for a linear model with a grouping variable
 #' \item \code{\link[sbi:sbi_import]{sbi$import(basename)}} load other R files, relative to the current script file
 #' \item \code{\link[sbi:sbi_impute]{sbi$impute(x,method="rpart",k=5,cor.method="spearman")}} impute missing values
 #' \item \code{\link[sbi:sbi_input]{sbi$input(prompt)}} get input from the user, as well in Rscript files
@@ -881,7 +881,7 @@
 #' \item \code{\link[sbi:sbi_sem]{sbi$sem(x, na.rm=FALSE)}} standard error of the mean
 #' \item \code{\link[sbi:sbi_series_trend]{sbi$series_trend(x, method="spearman",alpha=0.1,n=5)}} calculate if a series of numbers is going up or down overall
 #' \item \code{\link[sbi:sbi_shape]{sbi$shape(x,y)}} create random polygon shapes centered at given x and y coordinates
-#' \item \code{\link[sbi:sbi_shell]{sbi$shell(script)}} executes a given sell script in text format (Unix only)
+#' \item \code{\link[sbi:sbi_shell]{sbi$shell(script)}} executes a given shell script in text format (Unix only)
 #' \item \code{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}} bind two data frames by matching columns and filling missing values with NA.
 #' \item \code{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}} display a small data frame or matrix inside a plot.
 #' \item \code{\link[sbi:sbi_transform]{sbi$transform(x,method="slog",lambda=NULL)}} transform data using signed log or Yeo-Johnson transformation (data)
@@ -1069,7 +1069,7 @@ sbi_angles_triangle = sbi$angles_triangle
 #' \usage{sbi_ba_plot(x,y,col=1,plot=TRUE,...)}
 #' \arguments{
 #'   \item{x}{numerical vector x}
-#'  \item{y}{numerical vector v}
+#'  \item{y}{numerical vector y}
 #'  \item{col}{color to be used for the plots, either a single color or a vector of colors}
 #'  \item{plot}{should we create a plot, if not a list object with the coordinates of the plot will be returned.}
 #'  \item{...}{Arguments delegated to the standard \code{plot} function.}
@@ -1092,7 +1092,7 @@ sbi_angles_triangle = sbi$angles_triangle
 #'   \item{coordinates}{the data coordinates in the Bland-Altman plot.}
 #'   \item{pca.scores}{PCA scores of that coordinates.}
 #'   \item{pca.rotation}{PCA rotations, loadings for the first PC, if both values are positive, 
-#    the variables are associated in the same direction, 
+#'    the variables are associated in the same direction,
 #'   if the have different signs the are negatively associated.}
 #'   \item{pc1.importance}{importance of PC1, if high the ellipse is strongly compressed.}
 #' }
@@ -1363,8 +1363,8 @@ sbi_barrow = sbi$barrow
 #' \name{sbi$berdline}
 #' \alias{sbi$berdline}
 #' \alias{sbi_berdline}
-#' \title{Draw an entity relationship linebetween two boxes drawn with btable}
-#' \description{Used for draw entity relationship lines using crow notation between structures placed on a chessboard coordinate system.}
+#' \title{Draw an entity relationship line between two boxes drawn with btable}
+#' \description{Used for draw entity relationship lines using crow's notation between structures placed on a chessboard coordinate system.}
 #' \usage{sbi_berdline(from,to,erd="1111",lwd=2,label="",lab.cex=1,...)}
 #' \arguments{
 #'  \item{from}{chess board coordinate for x and y position like 'C4'}
@@ -1398,7 +1398,7 @@ sbi$berdline = function (from,to,erd='1111',lwd=2,
                          label='',lab.cex=1,...) {
     items=names(sbi$bbox)
     if (length(which(items %in% c(from,to))) != 2) {
-        stop("erdline can be only displaxyed between existing tab items")
+        stop("erdline can be only displayed between existing tab items")
     } 
     
     c.from=which(LETTERS==substr(from,1,1))
@@ -1499,7 +1499,7 @@ sbi$berdline = function (from,to,erd='1111',lwd=2,
     }
     return()
 }
-sbi_berdline=sbi$brdline
+sbi_berdline=sbi$berdline
 
 #' FILE: sbi/man/sbi_bezier.Rd
 #' \name{sbi$bezier}
@@ -1633,10 +1633,10 @@ sbi_bootstrap = sbi$bootstrap
 #'  \item{pos}{chess board coordinates for x and y position like 'C4'}
 #'  \item{x.incr}{shift on the x-axis, default=0}
 #'  \item{y.incr}{shift on the y-axis, default=0}
-#'  \item{label}{list of labels for the table, first is the able name, default: c("Title","Item1","Item2")}
+#'  \item{label}{list of labels for the table, first is the table name, default: c("Title","Item1","Item2")}
 #'  \item{cex}{Character expansion, default: 1}
 #'  \item{width}{table width if not given it is calculated based on the label lengths, default: 0}
-#'  \item{height}{table width if not given it is calculated based on the label number, default: 0}
+#'  \item{height}{table height if not given it is calculated based on the label number, default: 0}
 #'  \item{bg.col}{colors for the header and the following items, default: c("grey70","grey90")}
 #' }
 #' \examples{
@@ -2293,7 +2293,7 @@ sbi_cohensW = sbi$cohensW
 #' }
 #' \usage{sbi_conf_plot(x,pch=15,cex=3,col="grey50",ylim=NULL,...)}
 #' \arguments{
-#'  \item{x}{data frame or matrix with three columns, first will be taken for the middle point, second and fourth as line limits}
+#'  \item{x}{data frame or matrix with three columns, first will be taken for the middle point, second and third as line limits}
 #'  \item{pch}{the plotting character to be displayed for the first column value, default: 15}
 #'  \item{cex}{character expansion to be used for the plotting character and the linewidth}
 #'  \item{col}{single color or vector for the individual plotting characters and lines, default: 'grey50'}
@@ -2414,7 +2414,7 @@ sbi_corplot = sbi$corplot
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/corrplot.R
 sbi$corrplot <- function (mt, text.lower = TRUE, text.upper = FALSE, pch = 19, p.mat = NULL, alpha = 0.05, cex.sym = 5, cex.r = 1, cex.lab = 1.4, ...) {
-  if (class(p.mat)[1] == 'NULL') {
+  if (is.null(p.mat)) {
     p.mat = mt
     p.mat[] = 0
   }
@@ -2788,7 +2788,7 @@ sbi_dict = sbi$dict
 #' dpairs(btwt[,2:8],cex.diag=1.6)
 #' mtext('Birth-Weight data',side=3,outer=TRUE,cex=1.5,line=1)
 #' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_dpairs_legend]{sbi$spairs_legend}}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_dpairs_legend]{sbi$dpairs_legend}}
 #' FILE: sbi/R/dpairs.R
 
 sbi$dpairs <- function (data,col.box='grey80',col.xy="grey60",cex.diag=2,
@@ -2962,7 +2962,7 @@ sbi_dpairs = sbi$dpairs
 #' plot(c(1:3),pch=15,col=2:4,cex=2,ylim=c(0,4))
 #' sbi$dpairs_legend(label=LETTERS[1:3],col=2:4,cex=1.5)
 #' }
-#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_dpairs]{sbi$spairs}}
+#' \seealso{\link[sbi:sbi-package]{sbi-package}, \link[sbi:sbi_dpairs]{sbi$dpairs}}
 #' FILE: sbi/R/dpairs_legend.R
 
 sbi$dpairs_legend <- function (labels,col='grey80',pch=15,side="bottom",cex=2,...) {
@@ -3103,7 +3103,7 @@ sbi_eta_squared = sbi$eta_squared
 #' \alias{sbi$error_plot}
 #' \alias{sbi_error_plot}
 #' \title{Create a png file with an error message}
-#' \description{Helps in debugging errors in case imagfe creation is expected.}
+#' \description{Helps in debugging errors in case image creation is expected.}
 #' \usage{sbi_error_plot(message, filename=NULL, ...)}
 #' \arguments{
 #'   \item{message}{The message to display in the middle of the plot.}
@@ -3388,7 +3388,7 @@ sbi_flow = sbi$flow
 #'   \item{...}{variables or values used to replace the curly brace placeholders}
 #' }
 #' \details{
-#' The implements  features empty pairs of curly braces as well as numbered curly brace pairs to replace them
+#' The function implements features empty pairs of curly braces as well as numbered curly brace pairs to replace them
 #' using the given variables or strings. 
 #' }
 #' \value{
@@ -4113,7 +4113,7 @@ sbi_kl = sbi$kl
 #'  \item{text}{some diagram code, default: "A --> B"}
 #'  \item{filename}{some input file, either _text_ or _file_ must be given, default: NULL}
 #'  \item{type}{diagram type, supported is ditaa, graphviz, and many others, see the kroki website, default: "ditaa"}
-#'  \item{ext}{file extension, usally 'png', 'svg' or 'pdf', default: "png"}
+#'  \item{ext}{file extension, usually 'png', 'svg' or 'pdf', default: "png"}
 #'  \item{cache}{should the image be cached locally using crc32 digest files in an _img_ folder, default: TRUE}
 #'  \item{plot}{should the image directly plotted, default: FALSE}
 #' }
@@ -4165,7 +4165,7 @@ sbi$kroki <- function (text="A --> B",filename=NULL,type="ditaa",ext="png",cache
     }
     if (!is.null(filename)) {
         if (!file.exists(filename)) {
-            stop(paste("Error: File",filename,"does not exists!"))
+            stop(paste("Error: File",filename,"does not exist!"))
         } else {
             fin=file(filename,'r')
             text=readLines(fin,n=-1L)
@@ -4223,7 +4223,7 @@ sbi_kroki = sbi$kroki
 #'   light-tailed (sharp peak) distributions. Values around zero mean normal value
 #'   like distribution. As the normal kurtosis formula has for normal distributions
 #'   a value of three, usually the excess kurtosis as in this implementation is 
-#'   used which involves substraction of 3.
+#'   used which involves subtraction of 3.
 #' }
 #' \usage{sbi_kurtosis(x, na.rm=FALSE)}
 #' \arguments{
@@ -4476,7 +4476,7 @@ sbi_marrow <- sbi$marrow
 #' \alias{sbi_mds_plot}
 #' \title{ Plot a data matrix or frame using Multidimensional Scaling }
 #' \description{
-#'     This is a convinience method to plot a data set using MDS.
+#'     This is a convenience method to plot a data set using MDS.
 #' }
 #' \usage{ sbi_mds_plot(x,method="euclidean",p=0.5,row.labels=TRUE,points=FALSE,
 #'         col.labels='black',cex.labels=1, pch=19, grid=TRUE,...) }
@@ -4493,7 +4493,7 @@ sbi_marrow <- sbi$marrow
 #'     exponent if distance measure is minkowski, default: 0.5
 #'   }
 #'   \item{row.labels}{should be row labels computed, if FALSE or if row.names are not existing, plotting characters are displayed, default: TRUE}
-#'   \item{points}{should with row labels as well points be ploted, default: FALSE} 
+#'   \item{points}{should with row labels as well points be plotted, default: FALSE} 
 #'   \item{col.labels}{color for text labels, default: 'black'}
 #'   \item{cex.labels}{size of labels, default: 1}
 #'   \item{pch}{default plotting character, default: 19}
@@ -4678,7 +4678,7 @@ sbi_mhist <- sbi$mhist
 #'   \item{norm}{if input is given should the matrix be normalized by dividing the off-diagonal values by the mutual information in the diagonals, so the self mutual information, default: FALSE}
 #' }
 #' \details{
-#' The function computes the mode, i.e., the most frequent level in the given categorical variable.
+#' The function computes the mutual information between two categorical variables.
 #' }
 #' \value{Mutual information value as scalar if input is table or two vectors or as matrix if input is matrix or data.frame}
 #' \examples{
@@ -5173,10 +5173,10 @@ sbi_packageDependencies = sbi$packageDependencies
 #' }
 #' \usage{sbi_pairwise.effect_size(x, y=NULL,FUN=NULL,...)}
 #' \arguments{
-#'   \item{x}{wither a contingency table or a numberical vector. 
+#'   \item{x}{whether a contingency table or a numerical vector. 
 #'     In the latter case y must be given.
 #'   }
-#'   \item{y}{in case that x is numerich, the factor variable, default: NULL}
+#'   \item{y}{in case that x is numerical, the factor variable, default: NULL}
 #'   \item{FUN}{the method to be used for effect size calculation, if not given the following defaults are
 #'     chosen, in case of a contingency table, Cohen's W is returned,
 #'     in case of a numeric vs factor problem, the default is Cohen's d, d
@@ -5524,7 +5524,7 @@ sbi_pca_oncor = sbi$pca_oncor
 #' \arguments{
 #' \item{pca}{pca object which was created using the function `prcomp`.}
 #' \item{n}{maximal number of components to visualize, default: 10}
-#' \item{groups}{vector with classes having the same length than the inout matrix for prcomp has rows, default: NULL}
+#' \item{groups}{vector with classes having the same length than the input matrix for prcomp has rows, default: NULL}
 #' \item{col}{colors for the plotting, character, default: 'black'}
 #' \item{pch}{plotting, symbol, default: 19}
 #' \item{legend}{should the legend be displayed on top, default: FALSE}
@@ -5761,7 +5761,7 @@ sbi_pca_variances = sbi$pca_variances
 #' \description{
 #'   The function provides a PCA matrix plot to show associations 
 #'   between PCs and variables. Shown are the squared values, but retaining the 
-#'   original sign of the the variances. So the abolute sum of all values should be one.
+#'   original sign of the variances. So the absolute sum of all values should be one.
 #' }
 #' \usage{sbi_pca_varplot(pca, pcs=10, main="Variance plot", cex.lab=1.5, cex.sym=8, 
 #'         cex.var=1, pch=16, ...)}
@@ -5888,7 +5888,7 @@ sbi_pastel = sbi$pastel
 #' \alias{sbi_qr_plot}
 #' \title{ Plot quantile regression models }
 #' \description{
-#'     This is a convinience method to plot quantile regression models and giving
+#'     This is a convenience method to plot quantile regression models and giving
 #'     optional percentile intervals for a given range of predictions.
 #'     The slope and the intercept for the different quantiles are returned as well if requested.
 #' }
@@ -7152,7 +7152,7 @@ sbi_untransform <- sbi$untransform
 #'     ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00","20:00"), display="xy",...)}
 #' \arguments{
 #'   \item{xlabels}{Vector of labels for the x-axis, default: xlabels=c("Mon","Tue","Wed","Thu","Fri", "Sat", "Sun"),ylabels=c("08:00","10:00","12:00","14:00","16:00","18:00","20:00")}
-#'   \item{ylabels}{Vector of labels for the y-axis, default: xlabels=c("08:00","10:00" .. "20:00")}
+#'   \item{ylabels}{Vector of labels for the y-axis, default: ylabels=c("08:00","10:00" .. "20:00")}
 #'   \item{display}{lowercase letters for which labels should be displayed, default: 'xy'}
 #'   \item{...}{Other arguments passed to the \code{plot} and \code{text} functions.}
 #' }
@@ -7507,7 +7507,7 @@ sbi_venn <- sbi$venn
 #' \usage{sbi_wilcoxR(x,y=NULL,n=NULL)}
 #' \arguments{
 #'   \item{x}{either a wilcox test object or a vector with numerical values}
-#'   \item{y}{if x is numerical vector either a vector with numerical values or a vector with cvategorical data having the same length as x}
+#'   \item{y}{if x is numerical vector either a vector with numerical values or a vector with categorical data having the same length as x}
 #'   \item{n}{number of samples, required if x is a wilcox.test object}
 #' }
 #' \value{numerical value for effect size r having the same interpretation rules a Pearson's r}
@@ -7834,7 +7834,7 @@ ExtractEx <- function (srcfile) {
             cat("\n",file=fout)         
         }
     }
-    if (class(fout)[1] =="NULL") {
+    if (is.null(fout)) {
         close(fout)
     }
     close(fin)
@@ -7861,8 +7861,8 @@ Main <- function (argv) {
     Usage(argv)
     
   } else if ("--new-package" %in% argv & length(argv) == 3) {
-    if (!grepl("rsfp",argv[1])) {
-      cat("Error: Only the file rspf-src.R can be used to create new packages!\n")
+    if (!grepl("sbi",argv[1])) {
+      cat("Error: Only the file sbi-src.R can be used to create new packages!\n")
       return()
     }
     idx=which(argv=="--new-package") ;
@@ -7906,7 +7906,7 @@ Main <- function (argv) {
     idx=which(argv=="--process")
     rfile = argv[idx+1]
     if (!file.exists(rfile)) {
-      cat(sprintf("Error: File '%s' does not exists!",rfile))
+      cat(sprintf("Error: File '%s' does not exist!",rfile))
       return
     }
     fin = file(rfile,'r')
@@ -7977,7 +7977,7 @@ Main <- function (argv) {
     ExtractEx(argv[3])
   } else if ("--doc" %in% argv & length(argv) == 3) {
     if (!file.exists(argv[3])) {
-      cat(sprintf("Error: File '%s' does not exists!\n",argv[3]))
+      cat(sprintf("Error: File '%s' does not exist!\n",argv[3]))
     } else if (!grepl("Rd$",argv[3])) {
       cat(sprintf("Error: File '%s' is not an Rd file!\n",argv[3]))
     } else {
