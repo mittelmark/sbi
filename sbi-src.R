@@ -3,8 +3,8 @@
 #' Package: sbi
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
-#' Version: 0.7.0
-#' Date: 2026-07-15
+#' Version: 0.8.0
+#' Date: 2026-08-01
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -39,7 +39,7 @@
 #'     error_plot.R
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     ia_plot.R import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R join_plot.R
-#'     kl.R kroki.R kurtosis.R lm_plot.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
+#'     kl.R kroki.R kurtosis.R lm_plot.R mds_stress.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
 #'     marrow.R nfig.R rfig.R ntab.R rtab.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
@@ -716,6 +716,7 @@
 #' \item{\link[sbi:sbi_lm_plot]{sbi$lm_plot(x,y)}}{XY-plot with linear model and the confidence intervals}
 #' \item{\link[sbi:sbi_marrow]{sbi$marrow(x,y,...)}}{improved arrow function (plot)}
 #' \item{\link[sbi:sbi_mds_plot]{sbi$mds_plot(x,method="euclidean",...)}}{plot a multidimensional scaling (plot)}
+#' \item{\link[sbi:sbi_mds_stress]{sbi$mds_stress(d,p=2)}}{determine the Kruskal stress value for a MDS on the given distance matrix with p dimensions (ordination)}
 #' \item{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}}{lattice like histogram}
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}}{convert mkdoc documentation to HTML}
@@ -847,6 +848,7 @@
 #' \item \code{\link[sbi:sbi_lm_plot]{sbi$lm_plot(x,y)}} XY-plot with linear model and the confidence intervals.
 #' \item \code{\link[sbi:sbi_marrow]{sbi$marrow(x,y,...)}} improved arrow function (plot)
 #' \item \code{\link[sbi:sbi_mds_plot]{sbi$mds_plot(x,method="euclidean",...)}} plot a multidimensional scaling.
+#' \item \code{\link[sbi:sbi_mds_stress]{sbi$mds_stress(d,p=2)}} determine the Kruskal stress value for a MDS on the given distance matrix with p dimensions (ordination)
 #' \item \code{\link[sbi:sbi_mhist]{sbi$mhist(x,y)}} lattice like histogram
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
 #' \item \code{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}} convert mkdoc documentation to HTML
@@ -4562,6 +4564,52 @@ sbi$mds_plot = function (x,method="euclidean",p=0.5,row.labels=TRUE,
     }
 }
 sbi_mds_plot <- sbi$mds_plot
+
+#' FILE: sbi/man/sbi_mds_stress.Rd
+#' \name{sbi$mds_stress}
+#' \alias{sbi$mds_stress}
+#' \alias{sbi_mds_stress}
+#' \title{Determine the Kruskal stress value for a MDS on the given distance matrix with p dimensions}
+#' \description{
+#'     The stress value for a MDS epxlains how well the MDS representation fits the underlying
+#'     value of the distance matrix. Values below 0.05 are considered an excellent fit, values between 0.05 and 0.10 good, values between 0.1 and 0.2 fair, and values
+#'     above poor and not usable. Shepard diagrams plot the distances of the original distance metrix vs the distances in the MDS representation.
+#' }
+#' \usage{ sbi_mds_stress(d,k=2) }
+#' \arguments{
+#'   \item{d}{
+#'     distance structure, either from dist or just a symmetric matrix with dissimilarities.
+#'   }
+#'   \item{k}{
+#'     number of dimensions, default: 2
+#'   }
+#' }
+#' \value{the stress value, values below 0.1 are considered good, above 0.2 poor}
+#' \examples{
+#' data(iris)
+#' # single plots
+#' sbi$mds_stress(dist(scale(iris[,1:4])),k=2)
+#' sbi$mds_stress(dist(scale(iris[,1:4])),k=3)
+#' }
+#' \seealso{
+#'    \link[sbi:sbi-class]{sbi-class},
+#'    \link[sbi:sbi_mds_plot]{sbi$mds_plot},
+#' }
+#'
+#' FILE: sbi/R/mds_stress.R
+
+sbi$mds_stress = function (d,k=2) {
+   Dmat = as.matrix(d)
+   fit <- stats::cmdscale(Dmat, k = k, eig = TRUE)$points
+   X <- fit[, 1:k,drop=FALSE]
+   Dhat <- as.matrix(dist(X))
+   upper <- upper.tri(Dmat)
+   stress1 <- sqrt(sum((Dmat[upper]
+   -Dhat[upper])^2) / sum(Dmat[upper]^2))
+   return(stress1)
+}
+
+sbi_mds_stress = sbi$mds_stress
 
 #' FILE: sbi/man/sbi_mhist.Rd
 #' \name{sbi$mhist}
