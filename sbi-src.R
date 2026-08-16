@@ -4,7 +4,7 @@
 #' Type: Package
 #' Title: R package for the course Statistical Bioinformatics at the University of Potsdam
 #' Version: 0.8.0
-#' Date: 2026-08-01
+#' Date: 2026-08-17
 #' Author: Detlef Groth
 #' Authors@R:c(
 #'   person("Detlef","Groth", role=c("aut", "cre"),
@@ -36,11 +36,11 @@
 #'     cache_image.R cdist.R chr2ord.R ci_plot.R coa.R corr.R corplot.R corrplot.R corvar.R corvars.R  
 #'     cohensD.R cohensF.R cohensH.R cohensW.R conf_plot.R
 #'     cramersV.R cv.R deg2rad.R  df2md.R dict.R  dpairs.R dpairs_legend.R drop_na.R epsilon_squared.R eta_squared.R 
-#'     error_plot.R
+#'     es_plot.R error_plot.R
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     ia_plot.R import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R join_plot.R
 #'     kl.R kroki.R kurtosis.R lm_plot.R mds_stress.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
-#'     marrow.R nfig.R rfig.R ntab.R rtab.R
+#'     marrow.R muranI.R nfig.R rfig.R ntab.R rtab.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
@@ -56,7 +56,10 @@
 #' COPYRIGHT HOLDER: Detlef Groth
 
 #' FILE: sbi/NEWS
-#' 2026-07-15: version 0.7.0
+#' 2026-08-XX: version 0.8.0
+#'    - function sbi_muranI for network clustering detection
+#'    - function es_plot for barplot of effect size values
+#' 2026-07-24: version 0.7.0
 #'    - function sbi_pssim - for pattern similarity to arbitrary patterns
 #'    - function sbi_ia_plot - for interactions in a linear model
 #'    - function sbi_conf_plot - for plotting a set of means and confidence intervals
@@ -64,6 +67,7 @@
 #'    - function sbi_angles_triangle - calculate the angles for a given triangle
 #'    - function sbi_series_trend - calculate the trend for the values of a vector
 #'    - data set conscripts for Germany from 1885 to 1995 and additional socioeconomic data for that period
+#'    - typo fixes with aid of Big Picke model
 #'
 #' 2026-07-10: version 0.6.0
 #'    - support for transform and untransform signed log transformation and
@@ -694,6 +698,7 @@
 #' \item{\link[sbi:sbi_drop_na]{sbi$drop_na(...)}}{remove all rows where any of the given columns contain a NA - so missing values}
 #' \item{\link[sbi:sbi_epsilon_squared]{sbi$epsilon_squared(x, y=NULL)}}{Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.}
 #' \item{\link[sbi:sbi_error_plot]{sbi$error_plot(message, filename)}}{create a png file with an error message}
+#' \item{\link[sbi:sbi_es_plot]{sbi$es_plot(x,names=NULL)}}{barplot for effect size values}
 #' \item{\link[sbi:sbi_eta_squared]{sbi$eta_squared(x, y=NULL)}}{Calculate the effect size eta-squared for an Anova or a linear model.}
 #' \item{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}}{Displays a file to the terminal, not to stdout.}
 #' \item{\link[sbi:sbi_file.head]{sbi$file.head(filename,n=6)}}{Displays the first n lines of a file to the terminal.}
@@ -721,6 +726,7 @@
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}}{convert mkdoc documentation to HTML}
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{return the most often level in a categorical variable}
+#' \item{\link[sbi:sbi_muranI]{sbi$muranI(A,x)}}{effect size for graph clustering of node properties}
 #' \item{\link[sbi:sbi_nfig]{sbi$nfig(label)}}{return the current figure number in Markdown documents}
 #' \item{\link[sbi:sbi_ntab]{sbi$ntab(label)}}{return the current table number in Markdown documents}
 #' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{create up to 20 pastel colors}
@@ -827,6 +833,7 @@
 #' \item \code{\link[sbi:sbi_drop_na]{sbi$drop_na(...)}} remove all rows where any of the given columns contain a NA - so missing values
 #' \item \code{\link[sbi:sbi_epsilon_squared]{sbi$epsilon_squared(x, y=NULL)}} Calculate the effect size epsilon-squared for variables of a Kruskal-Wallis test.
 #' \item \code{\link[sbi:sbi_error_plot]{sbi$error_plot(message, filename)}} create a png file with an error message
+#' \item \code{\link[sbi:sbi_es_plot]{sbi$es_plot(x,names=NULL)}} barplot for effect size values
 #' \item \code{\link[sbi:sbi_eta_squared]{sbi$eta_squared(x, y=NULL)}} Calculate the effect size eta-squared for an Anova or a linear model.
 #' \item \code{\link[sbi:sbi_file.cat]{sbi$file.cat(filename)}} Displays a file to the terminal, not to stdout.
 #' \item \code{\link[sbi:sbi_file.head]{sbi$file.head(filename, n=6)}} Displays the first n lines of a file to the terminal.
@@ -853,6 +860,7 @@
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
 #' \item \code{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}} convert mkdoc documentation to HTML
 #' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} return the most often level in a categorical variable
+#' \item \code{\link[sbi:sbi_muranI]{sbi$muranI(A,x)}} effect size for graph clustering of node properties
 #' \item \code{\link[sbi:sbi_nfig]{sbi$nfig(label)}} return the current figure number in Markdown documents
 #' \item \code{\link[sbi:sbi_ntab]{sbi$ntab(label)}} return the current table number in Markdown documents
 #' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} create up to 20 pastel colors
@@ -2933,7 +2941,7 @@ sbi$dpairs <- function (data,col.box='grey80',col.xy="grey60",cex.diag=2,
     par(opar)    
     options(oop)
 
-}
+}-
 sbi_dpairs = sbi$dpairs
 
 #' FILE: sbi/man/sbi_dpairs_legend.Rd
@@ -3011,6 +3019,62 @@ sbi$drop_na <- function (x,cols) {
     idx=which(apply(!is.na(x[,cols]),1,all)); return(x[idx,]) 
 } 
 sbi_drop_na = sbi$drop_na
+
+#' FILE: sbi/man/sbi_es_plot.Rd
+#' \name{sbi$es_plot}
+#' \alias{sbi$es_plot}
+#' \alias{sbi_es_plot}
+#' \title{effect size plot for a vector of effect sizes}
+#' \description{
+#' Displays barplot for a vector of effect siue measures with grid lines for cohen's rule of thumb.
+#' }
+#' \usage{sbi_es_plot(x,names=NULL, sort=NULL, ...)}
+#' \arguments{
+#'  \item{x}{vector of effect size values, usually between -1 and 1}
+#'  \item{names}{optional namaes argument, if not given x should have names}
+#'  \item{sort}{should the values being sorted, default: TRUE}vector of the response variable}
+#'  \item{\ldots}{arguments delegated to the plot function}
+#' }
+#' \examples{
+#' x=c(-0.3,0.2,0.6,0.2,0.1,0.02)
+#' names(x)=LETTERS[1:6]
+#' sbi$es_plot(x)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/es_plot.R
+
+sbi$es_plot <- function (x,names=NULL,sort=TRUE,...) {
+    yl=max(abs(x))*1.1
+    if (any(x<0) & any(x>0) {
+        ylim=c(-yl,yl)
+    } else if (any(x>0)) {
+        ylim=c(0,yl)
+    } else {
+        ylim=c(-yl,yl)
+    }
+    plot(1,type="n",xlim=c(0.5,length(x)+0.5),
+         ylim=ylim,
+         axes=FALSE, ...)
+    grid()
+    box()
+    if (is.null(names(x)) & !is.null(names)) {
+        names(x)=names
+    }
+    if (sort) {
+        x=sort(x)
+    }
+    axis(1,labels=names(x),at=1:length(x))
+    axis(2)
+    for (i in 1:length(x)) {
+        col="salmon"
+        if (x[i] < 0) {
+            col="skyblue"
+        }
+        rect(i-0.45,0,i+0.45,LF[i],col=col)
+    }
+}
+
+sbi_es_plot = sbi$es_plot
 
 #' FILE: sbi/man/sbi_epsilon_squared.Rd
 #' \name{sbi$epsilon_squared}
@@ -4849,6 +4913,86 @@ sbi$mkdoc <- function (infile,cssfile="mini.css",eval=FALSE)  {
 }
 sbi_mkdoc = sbi$mkdoc
 
+
+#' FILE: sbi/man/sbi_muranI.Rd
+#' \name{sbi$muranI}
+#' \alias{sbi$muranI}
+#' \alias{sbi_muranI}
+#' \title{Effect size for the network clustering of node values}
+#' \description{
+#'   The function muranI calculates the effect size for the clustering of node
+#'   proprties, positive values indicate a tendency of neighborhood
+#'   of nodes where they have the similar property values, whereas negative values indicate a tendency of 
+#'  agglomeration of node with high values towards nodes with low vales.
+#'  values around zero indicate no association between the node values 
+#'  of neighbor nodes.
+#' }
+#' \usage{sbi_muranI(A, x,B=1000)}
+#' \arguments{
+#' \item{A}{adjacency matrix of an undirected graph}
+#' \item{x}{node values for the nodes of the adjacency matrix}
+#' \item{B}{number of boostrap samplings to determin the p-values for the Moran I value, default: 1000}
+#' }
+#' \value{List with following components:
+#'   \item{estimate}{gives the Muran I value which should be between -1 and 1}
+#'   \item{p.value.greater}{proportion of boostrapped Muran I values which where larger than the estimate value,}gives the p-value of the test}
+#'   \item{p.value.less}{proportion of boostrapped Muran I values which where smaller than the estimate value,}gives the p-value of the test}
+#'   \item{p.value.two.sided{two sided p-value calculated on the boostrapped p-values}proportion of boostrapped Muran I values which where smaller than the estimate value,}gives the p-value of the test}
+#' }
+#' \examples{
+#' # create ring network with 8 nodes
+#' A = matrix(0,nrow=8,ncol=8)
+#' rownames(A)=colnames(A)=LETTERS[1:8]
+#' A['A','B']=1;A['B','C']=1;A['C','D']=1
+#' A['D','E']=1;A['E','F']=1; A['F','G']=1; 
+#' A['G','H']=1 ; A['A','H']=1; # ring
+#' A[lower.tri(A)]=t(A)[lower.tri(A)] # undirected
+#' values=c(1,2,3,4,4,3,2,1) # neighbor nodes have similar values
+#' unlist(sbi$moranI(A,values))
+#' values=c(1,3,1,4,1,3,1,4) # neighbor nodes have very distinct values
+#' unlist(alaska$moranI(A,values))
+#' values=sample(values) # just random pattern
+#' unlist(alaska$moranI(A,values))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package}}
+#' FILE: sbi/R/moranI.R
+
+sbi$a$moranI <- function (A,x,B=1000) {
+    values=x
+    stopifnot(length(values) == nrow(A), length(values) == ncol(A))
+    x <- values - mean(values,na.rm=TRUE)
+    n <- nrow(A)
+    i = c()
+    j = c()
+    for (ii in 1:(nrow(A)-1)) {
+        for (jj in (ii+1):nrow(A)) {
+            if (A[ii,jj]>0) {
+                i=c(i,ii)
+                j=c(j,jj)
+            }
+        }
+    }
+    w=rep(1,length(i))
+
+    stopifnot(!any(is.na(i)), !any(is.na(j)))
+    S0 <- sum(w)
+    den <- sum(x^2)
+    num <- sum(w * (x[i] * x[j]))
+    I_obs <- (n / S0) * (num / den)
+    set.seed(1)
+    I_perm <- replicate(B, {
+                        
+      xp <- sample(values) - mean(values,na.rm=TRUE)  # keep same centering
+      nump <- sum(w * (xp[i] * xp[j]))
+      (n / S0) * (nump / sum(xp^2))
+  })
+    return(list(Moran_I = I_obs,
+                p.value.greater   = mean(I_perm >= I_obs),
+                p.value.less      = mean(I_perm <= I_obs),
+                p.value.two.sided = mean(abs(I_perm) >= abs(I_obs))))
+}
+
+sbi_muranI = sbi$muranI
 
 #' FILE: sbi/man/sbi_nfig.Rd
 #' \name{sbi$nfig}
