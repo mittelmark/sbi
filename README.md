@@ -97,6 +97,7 @@ The   single   file  R   package   approach   is   described   in  the
     - function ts_data to create to related time series data vectors
     - function ts_plot to plot time series data with time points on top
     - argument palette for sbi_pastel function with spectral palette
+    - little typo and code issue fixes with the aid of Agnes 2.5 Flash model
 - 2026-07-24: version 0.7.0 - [package](https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi_0.7.0.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi-examples.pdf)
     - Update nach Summerschool 2026
     - function sbi_pssim - for pattern similarity to arbitrary patterns
@@ -106,7 +107,7 @@ The   single   file  R   package   approach   is   described   in  the
     - function sbi_angles_triangle - calculate the angles for a given triangle
     - function sbi_series_trend - calculate the trend for the values of a vector
     - data set conscripts for Germany from 1885 to 1995 and additional socioeconomic data for that period
-    - typo fixes with aid of Big Picke model
+    - typo fixes with aid of Big Pickel model
 - 2026-07-10: version 0.6.0 - [package](https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi_0.6.0.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.6.0/sbi-examples.pdf)
    - adding transform and untransform methods to support signed log and Yeo-Johnson transformation
    - removed mtex function and local use of graphviz dot and plantuml etc     
@@ -141,8 +142,8 @@ The   single   file  R   package   approach   is   described   in  the
 
 ## Authors
 
-- Detlef Groth, University of Potsdam (Author and Maintainer)
-- Laura Schander, University of Potsdam (Contributor)
+- Detlef Groth (2024-2026), University of Potsdam (Author and Maintainer)
+- Laura Schander (2024), University of Potsdam (Contributor)
 
 ## License
 
