@@ -40,7 +40,7 @@
 #'     file.cat.R file.head.R fmt.R flow.R fscale.R gmean.R hmean.R 
 #'     ia_plot.R import.R impute.R input.R intro_NA.R is.dict.R is.outlier.R itemchart.R join_plot.R
 #'     kl.R kroki.R kurtosis.R lm_plot.R mds_stress.R mds_plot.R mhist.R mi.R mkdoc.R modus.R pastel.R packageDependencies.R
-#'     marrow.R muranI.R nfig.R rfig.R ntab.R rtab.R
+#'     marrow.R moranI.R nfig.R rfig.R ntab.R rtab.R
 #'     pairwise.effect_size.R
 #'     pcor.R pcor.test.R
 #'     pca_biplot.R pca_corplot.R pca_oncor.R pca_pairs.R pca_plot.R pca_to_data.R pca_variances.R pca_varplot.R
@@ -48,7 +48,7 @@
 #'     qr_plot.R
 #'     rad2deg.R randomize.R ref_score.R ref_table.R report_effsize.R report_pval.R 
 #'     shell.R sdata.R sd_pooled.R series_trend.R sem.R shape.R skewness.R smartbind.R
-#'     textplot.R tt_plot.R tt_item.R untab.R venn.R wilcoxR.R
+#'     textplot.R ts_data.R ts_plot.R tt_plot.R tt_item.R untab.R venn.R wilcoxR.R
 #'     transform.R untransform.R
 #'     ni.R pipe.R
 #' FILE: sbi/LICENSE
@@ -57,8 +57,11 @@
 
 #' FILE: sbi/NEWS
 #' 2026-08-XX: version 0.8.0
-#'    - function sbi_muranI for network clustering detection
+#'    - function sbi_moranI for network clustering detection
 #'    - function es_plot for barplot of effect size values
+#'    - function ts_data to create to related time series data vectors
+#'    - function ts_plot to plot time series data with time points on top
+#'    - argument palette for sbi_pastel function with spectral palette
 #' 2026-07-24: version 0.7.0
 #'    - function sbi_pssim - for pattern similarity to arbitrary patterns
 #'    - function sbi_ia_plot - for interactions in a linear model
@@ -73,7 +76,6 @@
 #'    - support for transform and untransform signed log transformation and
 #'      Yeo-Johnson transformation
 #'    - removed mtex function
-#'
 #' 2026-01-20: version 0.4.3
 #'    - adding sbi_marrow function
 #'    - adding sbi_btable and sbi_barrow function for arrows between blocks
@@ -141,7 +143,7 @@
 #' export("%>%")
 #' export("%ni%")
 #' importFrom("stats", "coef", "dist", "density","sd","cor","cor.test","aov","chisq.test","fisher.test","kruskal.test","lm",
-#'            "model.frame","predict", "rgamma", "runif", "spline",
+#'            "model.frame","predict", "rgamma", "rnorm", "runif", "spline",
 #'            "aggregate","prop.test","t.test", "formula", "na.omit", "pnorm", "prcomp",
 #'            "residuals",
 #'            "qnorm", "wilcox.test","cov", "qchisq", "shapiro.test")
@@ -149,7 +151,7 @@
 #'            "pairs", "par","polygon", "strwidth",
 #'             "arrows", "lines", "text", "title", "rect", "plot", "axis", "box",
 #'            "abline","points")
-#' importFrom("grDevices", "col2rgb", "rgb","png","dev.off")
+#' importFrom("grDevices", "col2rgb", "hcl.colors","rgb","png","dev.off")
 #' importFrom("utils","head","read.table","installed.packages","URLencode", "download.file")
 #' importFrom("tools","package_dependencies")
 ###' importFrom("digest","digest")
@@ -726,7 +728,7 @@
 #' \item{\link[sbi:sbi_mi]{sbi$mi(x,y)}}{mutual information for two numerical variables or a binned table}
 #' \item{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}}{convert mkdoc documentation to HTML}
 #' \item{\link[sbi:sbi_modus]{sbi$modus(catvar)}}{return the most often level in a categorical variable}
-#' \item{\link[sbi:sbi_muranI]{sbi$muranI(A,x)}}{effect size for graph clustering of node properties}
+#' \item{\link[sbi:sbi_moranI]{sbi$moranI(A,x)}}{effect size for graph clustering of node properties}
 #' \item{\link[sbi:sbi_nfig]{sbi$nfig(label)}}{return the current figure number in Markdown documents}
 #' \item{\link[sbi:sbi_ntab]{sbi$ntab(label)}}{return the current table number in Markdown documents}
 #' \item{\link[sbi:sbi_pastel]{sbi$pastel(n)}}{create up to 20 pastel colors}
@@ -762,6 +764,7 @@
 #' \item{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}}{Bind two data frames by matching column names, filling in missing columns with NAs.}
 #' \item{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}}{Display a data frame or matrix in a plot.}
 #' \item{\link[sbi:sbi_transform]{sbi$transform(x,method="slog",lambda=NULL)}}{transform data using signed log or Yeo-Johnson transformation}
+#' \item{\link[sbi:sbi_ts_data]{sbi$ts_data(n,noise=1,sin=FALSE)}}{create two vectors of related time series data}
 #' \item{\link[sbi:sbi_tt_item]{sbi$tt_item(x,y,label)}}{place an item to a timetable plot}
 #' \item{\link[sbi:sbi_tt_plot]{sbi$tt_plot(xlabels,ylabels)}}{display a timetable plot ready to take items}
 #' \item{\link[sbi:sbi_untab]{sbi$untab(x)}}{expand a contingency table to a data frame one item per row (data)}
@@ -860,7 +863,7 @@
 #' \item \code{\link[sbi:sbi_mi]{sbi$mi(x,y)}} mutual information for two numerical variables or a binned table
 #' \item \code{\link[sbi:sbi_mkdoc]{sbi$mkdoc(infile)}} convert mkdoc documentation to HTML
 #' \item \code{\link[sbi:sbi_modus]{sbi$modus(catvar)}} return the most often level in a categorical variable
-#' \item \code{\link[sbi:sbi_muranI]{sbi$muranI(A,x)}} effect size for graph clustering of node properties
+#' \item \code{\link[sbi:sbi_moranI]{sbi$moranI(A,x)}} effect size for graph clustering of node properties
 #' \item \code{\link[sbi:sbi_nfig]{sbi$nfig(label)}} return the current figure number in Markdown documents
 #' \item \code{\link[sbi:sbi_ntab]{sbi$ntab(label)}} return the current table number in Markdown documents
 #' \item \code{\link[sbi:sbi_pastel]{sbi$pastel(n)}} create up to 20 pastel colors
@@ -895,6 +898,7 @@
 #' \item \code{\link[sbi:sbi_smartbind]{sbi$smartbind(x,y)}} bind two data frames by matching columns and filling missing values with NA.
 #' \item \code{\link[sbi:sbi_textplot]{sbi$textplot(x,caption=NULL)}} display a small data frame or matrix inside a plot.
 #' \item \code{\link[sbi:sbi_transform]{sbi$transform(x,method="slog",lambda=NULL)}} transform data using signed log or Yeo-Johnson transformation (data)
+#' \item \code{\link[sbi:sbi_ts_data]{sbi$ts_data(n,noise=1,sin=FALSE)}} create two vectors of related time series data
 #' \item \code{\link[sbi:sbi_tt_item]{sbi$tt_item(x,y,label)}} place an item to a timetable plot (plot)
 #' \item \code{\link[sbi:sbi_tt_plot]{sbi$tt_plot(xlabels,ylabels)}} display a timetable plot ready to take items (plot)
 #' \item \code{\link[sbi:sbi_untab]{sbi$untab(x)}} expand a contingency table to a data frame one item per row (data)
@@ -2941,7 +2945,7 @@ sbi$dpairs <- function (data,col.box='grey80',col.xy="grey60",cex.diag=2,
     par(opar)    
     options(oop)
 
-}-
+}
 sbi_dpairs = sbi$dpairs
 
 #' FILE: sbi/man/sbi_dpairs_legend.Rd
@@ -3028,49 +3032,60 @@ sbi_drop_na = sbi$drop_na
 #' \description{
 #' Displays barplot for a vector of effect siue measures with grid lines for cohen's rule of thumb.
 #' }
-#' \usage{sbi_es_plot(x,names=NULL, sort=NULL, ...)}
+#' \usage{sbi_es_plot(x,names=NULL, sort=TRUE, col="spectral", ...)}
 #' \arguments{
 #'  \item{x}{vector of effect size values, usually between -1 and 1}
 #'  \item{names}{optional namaes argument, if not given x should have names}
-#'  \item{sort}{should the values being sorted, default: TRUE}vector of the response variable}
+#'  \item{sort}{should the values being sorted, default: TRUE}
+#'  \item{col}{either a single color name like spectral, salmon or two color
+#'          names o a list of 10 colors, default: 'spectral'}
 #'  \item{\ldots}{arguments delegated to the plot function}
 #' }
 #' \examples{
 #' x=c(-0.3,0.2,0.6,0.2,0.1,0.02)
 #' names(x)=LETTERS[1:6]
-#' sbi$es_plot(x)
+#' sbi$es_plot(x,xlab="Variable",ylab="Effect Size - Cohen's w")
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/es_plot.R
 
-sbi$es_plot <- function (x,names=NULL,sort=TRUE,...) {
-    yl=max(abs(x))*1.1
-    if (any(x<0) & any(x>0) {
-        ylim=c(-yl,yl)
-    } else if (any(x>0)) {
-        ylim=c(0,yl)
-    } else {
-        ylim=c(-yl,yl)
+sbi$es_plot <- function (x, names = NULL, sort = TRUE, col = "spectral", ...) {
+    if (col[1] == "spectral") {
+        col = rev(hcl.colors(12, "Spectral")[2:11])
     }
-    plot(1,type="n",xlim=c(0.5,length(x)+0.5),
-         ylim=ylim,
-         axes=FALSE, ...)
-    grid()
+    yl = max(abs(x)) * 1.1
+    if (any(x < 0) & any(x > 0)) {
+        ylim = c(-yl, yl)
+    }
+    else if (any(x > 0)) {
+        ylim = c(0, yl)
+    }
+    else {
+        ylim = c(-yl, yl)
+    }
+    if (length(col) == 1) {
+        cols = rep(col, 10)
+    }
+    if (length(col) == 2) {
+        cols = c(rep(col[1], 5), rep(col[2], 5))
+    }
+    plot(1, type = "n", xlim = c(0.5, length(x) + 0.5), ylim = ylim, 
+        axes = FALSE, ...)
+    abline(h = c(-0.5, -0.3, -0.1, 0, 0.1, 0.3, 0.5), lwd = 0.8, 
+        lty = 3)
     box()
     if (is.null(names(x)) & !is.null(names)) {
-        names(x)=names
+        names(x) = names
     }
     if (sort) {
-        x=sort(x)
+        x = sort(x)
     }
-    axis(1,labels=names(x),at=1:length(x))
+    cols = col[as.numeric(cut(x, breaks = seq(-1, 1, by = 0.2)))]
+    axis(1, labels = names(x), at = 1:length(x))
     axis(2)
     for (i in 1:length(x)) {
-        col="salmon"
-        if (x[i] < 0) {
-            col="skyblue"
-        }
-        rect(i-0.45,0,i+0.45,LF[i],col=col)
+        col = cols[i]
+        rect(i - 0.45, 0, i + 0.45, x[i], col = col)
     }
 }
 
@@ -4914,30 +4929,30 @@ sbi$mkdoc <- function (infile,cssfile="mini.css",eval=FALSE)  {
 sbi_mkdoc = sbi$mkdoc
 
 
-#' FILE: sbi/man/sbi_muranI.Rd
-#' \name{sbi$muranI}
-#' \alias{sbi$muranI}
-#' \alias{sbi_muranI}
+#' FILE: sbi/man/sbi_moranI.Rd
+#' \name{sbi$moranI}
+#' \alias{sbi$moranI}
+#' \alias{sbi_moranI}
 #' \title{Effect size for the network clustering of node values}
 #' \description{
-#'   The function muranI calculates the effect size for the clustering of node
+#'   The function moranI calculates the effect size for the clustering of node
 #'   proprties, positive values indicate a tendency of neighborhood
 #'   of nodes where they have the similar property values, whereas negative values indicate a tendency of 
 #'  agglomeration of node with high values towards nodes with low vales.
 #'  values around zero indicate no association between the node values 
 #'  of neighbor nodes.
 #' }
-#' \usage{sbi_muranI(A, x,B=1000)}
+#' \usage{sbi_moranI(A, x,B=1000)}
 #' \arguments{
 #' \item{A}{adjacency matrix of an undirected graph}
 #' \item{x}{node values for the nodes of the adjacency matrix}
 #' \item{B}{number of boostrap samplings to determin the p-values for the Moran I value, default: 1000}
 #' }
 #' \value{List with following components:
-#'   \item{estimate}{gives the Muran I value which should be between -1 and 1}
-#'   \item{p.value.greater}{proportion of boostrapped Muran I values which where larger than the estimate value,}gives the p-value of the test}
-#'   \item{p.value.less}{proportion of boostrapped Muran I values which where smaller than the estimate value,}gives the p-value of the test}
-#'   \item{p.value.two.sided{two sided p-value calculated on the boostrapped p-values}proportion of boostrapped Muran I values which where smaller than the estimate value,}gives the p-value of the test}
+#'   \item{estimate}{gives the moran I value which should be between -1 and 1}
+#'   \item{p.value.greater}{proportion of boostrapped moran I values which where larger than the estimate value}
+#'   \item{p.value.less}{proportion of boostrapped moran I values which where smaller than the estimate value}
+#'   \item{p.value.two.sided}{two sided p-value calculated on the boostrapped p-values}
 #' }
 #' \examples{
 #' # create ring network with 8 nodes
@@ -4950,14 +4965,14 @@ sbi_mkdoc = sbi$mkdoc
 #' values=c(1,2,3,4,4,3,2,1) # neighbor nodes have similar values
 #' unlist(sbi$moranI(A,values))
 #' values=c(1,3,1,4,1,3,1,4) # neighbor nodes have very distinct values
-#' unlist(alaska$moranI(A,values))
+#' unlist(sbi$moranI(A,values))
 #' values=sample(values) # just random pattern
-#' unlist(alaska$moranI(A,values))
+#' unlist(sbi$moranI(A,values))
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/moranI.R
 
-sbi$a$moranI <- function (A,x,B=1000) {
+sbi$moranI <- function (A,x,B=1000) {
     values=x
     stopifnot(length(values) == nrow(A), length(values) == ncol(A))
     x <- values - mean(values,na.rm=TRUE)
@@ -4992,7 +5007,7 @@ sbi$a$moranI <- function (A,x,B=1000) {
                 p.value.two.sided = mean(abs(I_perm) >= abs(I_obs))))
 }
 
-sbi_muranI = sbi$muranI
+sbi_moranI = sbi$moranI
 
 #' FILE: sbi/man/sbi_nfig.Rd
 #' \name{sbi$nfig}
@@ -6043,33 +6058,61 @@ sbi_pca_varplot = sbi$pca_varplot
 #' \alias{sbi_pastel}
 #' \title{Create up to 20 pastel colors}
 #' \description{Create a vector of pastel colors.}
-#' \usage{sbi_pastel(n)}
+#' \usage{sbi_pastel(n,palette="pastel")}
 #' \arguments{
 #'   \item{n}{Number of colors requested, must be between 1 and 20.}
+#'   \item{palette}{he color palette to be used, can be 'pastel'
+#'    or 'spectral', default: 'pastel'.}
 #' }
 #' \details{
-#' This function generates a sequence of up to 20 pastel colors for R versions earlier than 3.6 where \code{hcl.colors} may not be available.
+#' This function generates a sequence of up to 20 pastel or soft spectral colors.
+#' The spectral palette might be used to show high(red), 
+#' medium(yellish, greenish) or low (bluish) values.
 #' }
-#' \value{A vector of pastel colors.}
+#' \value{A vector of n soft colors.}
 #' \examples{
 #' sbi$pastel(4)
 #' par(mai=c(0.2,0.2,0.2,0.1))
 #' plot(1:20, col=sbi$pastel(20), cex=3, pch=15)
+#' barplot(rep(3,12), col=sbi$pastel(12,palette="spectral"))
 #' }
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/pastel.R
-sbi$pastel <- function (n) {
+sbi$pastel <- function (n,palette="pastel") {
   if (n > 20 || n < 1) {
-    stop("only between 1 and 20 colors can be given")
+      stop("only between 1 and 20 colors can be given")
   }
-  pcols <- c(
-    "#FFC5D0", "#FDC8C3", "#F6CBB7", "#EDD0AE", "#E2D4A8", "#D4D8A7", 
-    "#C5DCAB", "#B6DFB4", "#A8E1BF", "#9EE2CB", "#99E2D8", "#9BE0E5", 
-    "#A4DDEF", "#B3D9F7", "#C4D5FB", "#D5D0FC", "#E4CBF9", "#F0C7F2", 
-    "#F9C5E9", "#FEC4DD"
-  )
-  idx <- seq(1, 20, by = floor(20 / n))
-  return(pcols[idx])
+  if (palette=="pastel") {
+      pcols <- c(
+                 "#FFC5D0", "#FDC8C3", "#F6CBB7", "#EDD0AE", "#E2D4A8", "#D4D8A7", 
+                 "#C5DCAB", "#B6DFB4", "#A8E1BF", "#9EE2CB", "#99E2D8", "#9BE0E5", 
+                 "#A4DDEF", "#B3D9F7", "#C4D5FB", "#D5D0FC", "#E4CBF9", "#F0C7F2", 
+                 "#F9C5E9", "#FEC4DD"
+                 )
+      idx <- seq(1, 20, by = floor(20 / n))
+      return(pcols[idx])
+  } else if (palette == "spectral") {
+      cols=hcl.colors(20,"Spectral")
+      if (n == 3) {
+          return(cols[c(3,10,17)])
+      }
+      if (n == 4) {
+          return(cols[c(3,8,12,17)])
+      } 
+      if (n == 5) {
+          return(cols[c(3,8,10,12,17)])
+      } 
+      if (n == 6) {
+          return(cols[c(3,6,10,12,14,17)])
+      }
+      if (n > 6 & n < 17) {
+          return(hcl.colors(n+2,"Spectral")[2:(n+1)])
+      } else {
+          return(hcl.colors(n+4,"Spectral")[3:(n+2)])
+      }
+  } else {
+      stop("Error: Unknown palette: Know palettes are 'paste' (default) and 'spectral'!")
+  }
 }
 
 sbi_pastel = sbi$pastel
@@ -7332,6 +7375,109 @@ sbi$untransform <- function (x,method="slog",lambda=NULL) {
 }
 sbi_untransform <- sbi$untransform
 
+#' FILE: sbi/man/sbi_ts_data.Rd
+#' \name{sbi$ts_data}
+#' \alias{sbi$ts_data}
+#' \alias{sbi_ts_data}
+#' \title{Create random time series data}
+#' \description{Creates a set of random time series data,
+#'   optional with a sinus baseline.}
+#' \usage{sbi_ts_data(n=100, noise=1,sin=FALSE)}
+#' \arguments{
+#'   \item{n}{number of values to create, default: 100}
+#'   \item{noise}{How much noise based on SD with a mean of 0 should be added on the final vector, default: sd=1}
+#'   \item{sin}{Should the data follow a sinus curve, default: FALSE}
+#' }
+#' \details{
+#' This function can be used to create some random data which follow
+#' eventually a sinus curve. There are two vectors created, x and y. The values of x are influenced by the values of x.
+#' }
+#' \value{data frame with two vectors, x and y,  is derived from x, so shuld be sorrelated, possibly with some delay.}
+#' \examples{
+#' tsd=sbi$ts_data(n=100,noise=0.01,sin=FALSE)
+#' cor(tsd)
+#' sbi$ts_plot(tsd)
+#' tsd2=sbi$ts_data(n=100,noise=0.01,sin=FALSE)
+#' cor(cbind(tsd,tsd2))
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package},
+#' \link[sbi:sbi_ts_plot]{sbi$ts_plot}}
+#' FILE: sbi/R/ts_data.R
+
+sbi$ts_data = function (n=100,noise=1,sin=FALSE) {
+    x=rnorm(1,mean=100)
+    y=rnorm(1,mean=100)
+    xres=x
+    yres=y
+    for (i in 1:(n-1)) {
+        mean=0
+        if (sin) {
+            mean=sin(i*0.05)*2
+        }
+        xn=xres[i]+rnorm(1,mean=mean,sd=0.05)
+        yn=0.8*yres[i]+0.2*xn
+        yn=yn+rnorm(1,mean=0,sd=0.05)
+        xres=c(xres,xn)
+        yres=c(yres,yn)
+    }
+    xres=xres+rnorm(n,sd=noise)
+    yres=yres+rnorm(n,sd=noise)    
+    return(data.frame(x=xres,y=yres))
+}
+
+sbi_ts_data = sbi$ts_data
+
+#' FILE: sbi/man/sbi_ts_plot.Rd
+#' \name{sbi$ts_plot}
+#' \alias{sbi$ts_plot}
+#' \alias{sbi_ts_plot}
+#' \title{plot time series data}
+#' \description{Creates a plot for one or more time series vectors}
+#' \usage{sbi_ts_plot(x, ylim, ...)}
+#' \arguments{
+#'   \item{x}{a single vector or a data frame with several vectors}
+#'   \item{ylim}{an optional y limit vector, if not given, ylims will be calculated autmatically}
+#'   \item{\ldots}{Additional arguments delegated to the normal plot function.}
+#' }
+#' \details{
+#' This function can be used to plot timer series data.
+#' }
+#' \value{NULL}
+#' \examples{
+#' tsd=sbi$ts_data(n=100,noise=0.01,sin=TRUE)
+#' sbi$ts_plot(tsd)
+#' }
+#' \seealso{\link[sbi:sbi-package]{sbi-package},
+#' \link[sbi:sbi_ts_data]{sbi$ts_data}}
+#' FILE: sbi/R/ts_plot.R
+
+sbi$ts_plot = function (x,ylim,...) {
+    if (missing(ylim)) {
+        ylim=c(min(x),max(x))
+    } 
+    if (is.data.frame(x)) {
+        s=c(seq(1,nrow(x)-1,by=10),nrow(x))
+        xlim=c(0,nrow(x))
+    } else {
+        s=c(seq(1,length(x)-1,by=10),length(x))
+        xlim=c(0,length(x))
+    }
+    plot(1,type="n",ylim=ylim,xlim=xlim,...)
+    grid()
+    if (is.data.frame(x)) {
+        for (i in 1:ncol(x)) {
+            points(x[,i],type="l",col=2)
+            points(s,x[s,i],pch=15,col="grey89",cex=6)
+            text(s,x[s,i],label=s,cex=1.5)
+        }
+    } else {
+        points(x,type="l",col=4)
+        points(s,x[s],pch=15,col="grey89",cex=6)
+        text(s,x[s],label=s,cex=1.5)
+    }
+}
+
+sbi_ts_plot = sbi$ts_plot
 
 #' FILE: sbi/man/sbi_tt_plot.Rd
 #' \name{sbi$tt_plot}
