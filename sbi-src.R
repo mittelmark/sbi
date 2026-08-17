@@ -3996,7 +3996,7 @@ sbi_is.dict = sbi$is.dict
 #' \seealso{\link[sbi:sbi-package]{sbi-package}}
 #' FILE: sbi/R/is.outlier.R
 sbi$is.outlier = function (x) { 
-    return(abs(scale(x))>3) 
+    return(abs(scale(x)[,1])>3) 
 }
 
 sbi_is.outlier = sbi$is.outlier
@@ -4962,6 +4962,7 @@ sbi_mkdoc = sbi$mkdoc
 #' }
 
 #' \examples{
+#' set.seed(1)
 #' # create ring network with 8 nodes
 #' A = matrix(0,nrow=8,ncol=8)
 #' rownames(A)=colnames(A)=LETTERS[1:8]
@@ -5001,7 +5002,6 @@ sbi$moranI <- function (A,x,B=1000) {
     den <- sum(x^2)
     num <- sum(w * (x[i] * x[j]))
     I_obs <- (n / S0) * (num / den)
-    set.seed(1)
     I_perm <- replicate(B, {
                         
       xp <- sample(values) - mean(values,na.rm=TRUE)  # keep same centering
@@ -5649,7 +5649,7 @@ sbi$pca_corplot <- function (pca,pcs=c("PC1","PC2"), main="Correlation plot",cex
   lines(c(0,0),c(1.1,-1.1),lwd=2)
   lines(c(1.1,-1.1),c(0,0),lwd=2)
   x=1
-  if (length(colnames(df)>nvar)) {
+  if (length(colnames(df))>nvar) {
     cnames=getMainLoadings(pca,pcs[1],nvar)
     cnames2=getMainLoadings(pca,pcs[2],nvar)
     cnames=unique(cnames,cnames2)
@@ -6118,7 +6118,7 @@ sbi$pastel <- function (n,palette="pastel") {
           return(hcl.colors(n+4,"Spectral")[3:(n+2)])
       }
   } else {
-      stop("Error: Unknown palette: Know palettes are 'paste' (default) and 'spectral'!")
+      stop("Error: Unknown palette: Known palettes are 'pastel' (default) and 'spectral'!")
   }
 }
 
@@ -6175,15 +6175,15 @@ sbi$qr_plot <- function (x,data,quantiles=c(0.05,0.1,0.5,0.9,0.95),
     if (!requireNamespace("quantreg")) {
         stop("Error: quantile regression needs package quantreg!")
     }
-    seq=quantiles
+    seqn=quantiles
     if (!is.null(pred[1])) {
         df=data.frame(y=pred)
-        for (i in seq) {
+        for (i in seqn) {
             df=cbind(df,new=rep(0,nrow(df)))
             colnames(df)[ncol(df)]=paste("Perc",i,sep="_")
         }
     }
-    multi_rqfit <- quantreg::rq(x, data = data, tau = seq)
+    multi_rqfit <- quantreg::rq(x, data = data, tau = seqn)
     colors <- c("#ffe6e6", "#cca6a6", "#993333", "#cca6a6", "#ffe6e6")
     ltys=c(3,2,1,2,3)
     if (plot) {
@@ -6757,7 +6757,6 @@ sbi$series_trend <- function(x,method="spearman",alpha=0.1,n=5) {
          } else {
             return(1 * sign(ct$estimate))
          }   
-         return(ct$estimate);
     }  else {
         stop(sprintf("Error: Unknown method '%s'! Known methods are 'pearson', 'spearman' and 'mean'!",method))
     }
@@ -6987,7 +6986,7 @@ sbi$shape <- function (x=0,y=0,width=1,height=1,type="circle",
         }
                     
     } else {
-        stop("Error: Unkown type '",type,"'!",sep="")
+        stop(paste("Error: Unknown type '",type,"'!",sep=""))
     }
     poly=center(poly)
     poly$x=poly$x*width+x
@@ -7116,7 +7115,7 @@ sbi$smartbind <- function (x, y) {
   nxcols <- setdiff(colnames(y), colnames(x))
   nycols <- setdiff(colnames(x), colnames(y))
   for (c in nxcols) {
-    x <- cbind(x, ncol = rep(NA, nrow(x)))
+    x <- cbind(x, temp = rep(NA, nrow(x)))
     colnames(x)[ncol(x)] <- c
   }
   for (c in nycols) {
@@ -7417,11 +7416,11 @@ sbi$ts_data = function (n=100,noise=1,sin=FALSE) {
     xres=x
     yres=y
     for (i in 1:(n-1)) {
-        mean=0
+        mn=0
         if (sin) {
-            mean=sin(i*0.05)*2
+            mn=sin(i*0.05)*2
         }
-        xn=xres[i]+rnorm(1,mean=mean,sd=0.05)
+        xn=xres[i]+rnorm(1,mean=mn,sd=0.05)
         yn=0.8*yres[i]+0.2*xn
         yn=yn+rnorm(1,mean=0,sd=0.05)
         xres=c(xres,xn)
@@ -7657,8 +7656,9 @@ sbi_tt_item = sbi$tt_item
 sbi$untab <- function (x) {
     tab=x
     nms=names(dimnames(tab))
-    if (any(is.null(nms)))
-    nms=c('rowvar','colvar')
+    if (any(is.null(nms))) {
+        nms=c('rowvar','colvar')
+    }
     df=data.frame(a=c(),b=c())
     for (i in 1:nrow(tab)) {
         for (j in 1:ncol(tab)) {
@@ -7877,7 +7877,7 @@ sbi_venn <- sbi$venn
 sbi$wilcoxR <- function (x,y=NULL,n=NULL) {
     if (class(y)[1] %in% c("numeric","integer")) {
         wt=wilcox.test(x,y,exact=FALSE)
-        n=length(x[which(!is.na(x))]) +  length(x[which(!is.na(x))])
+        n=length(x[which(!is.na(x))]) + length(y[which(!is.na(y))])
         return(sbi$wilcoxR(wt,n=n))
     }  else if (class(y)[1] %in% c("factor")) {
         wt=wilcox.test(x~y,exact=FALSE)
