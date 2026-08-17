@@ -47,7 +47,7 @@ Or you install the latest release as a normal package:
 
 ```
 $ R
-> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi_0.7.0.tar.gz",repos=NULL)
+> install.packages("https://github.com/mittelmark/sbi/releases/download/v0.8.0/sbi_0.8.0.tar.gz",repos=NULL)
 > library(sbi)
 > ls(sbi)
 > vignette("sbi-examples")
@@ -56,8 +56,8 @@ $ R
 Or you install the latest release from a Unix Terminal like this:
 
 ```
-wget https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi_0.7.0.tar.gz
-R CMD INSTALL --library=~/R sbi_0.7.0.tar.gz
+wget https://github.com/mittelmark/sbi/releases/download/v0.8.0/sbi_0.8.0.tar.gz
+R CMD INSTALL --library=~/R sbi_0.8.0.tar.gz
 ```
 
 Installation as a package has the advantage  that you have the  documentation
@@ -79,8 +79,8 @@ wget -O sbi-src.R https://github.com/mittelmark/sbi/raw/main/sbi-src.R
 Rscript sbi-src.R --process    sbi-src.R         # extract all files
 Rscript sbi-src.R --vignettex  sbi-src.R         # extract examples as vignette
 Rscript sbi-src.R --build      sbi               # build package tar-gz file
-Rscript sbi-src.R --check      sbi_0.7.0.tar.gz  # check package tar-gz file
-Rscript sbi-src.R --install    sbi_0.7.0.tar.gz  # install from local tar-gz file
+Rscript sbi-src.R --check      sbi_0.8.0.tar.gz  # check package tar-gz file
+Rscript sbi-src.R --install    sbi_0.8.0.tar.gz  # install from local tar-gz file
 ```
 
 
@@ -91,6 +91,12 @@ The   single   file  R   package   approach   is   described   in  the
 
 ## Changes
 
+- 2026-08-17: version 0.8.0
+    - function sbi_moranI for network clustering detection
+    - function es_plot for barplot of effect size values
+    - function ts_data to create to related time series data vectors
+    - function ts_plot to plot time series data with time points on top
+    - argument palette for sbi_pastel function with spectral palette
 - 2026-07-24: version 0.7.0 - [package](https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi_0.7.0.tar.gz) - [vignette](https://github.com/mittelmark/sbi/releases/download/v0.7.0/sbi-examples.pdf)
     - Update nach Summerschool 2026
     - function sbi_pssim - for pattern similarity to arbitrary patterns
